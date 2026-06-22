@@ -150,6 +150,17 @@ def main():
         avg_moe = sum(layer_exec.moe_times) / len(layer_exec.moe_times)
         print(f"Avg Attention time per layer: {avg_attn*1000:.2f} ms")
         print(f"Avg MoE/MLP time per layer  : {avg_moe*1000:.2f} ms")
+    total_hits = loader.gpu_hits + loader.ram_hits + loader.ssd_hits
+    if total_hits > 0:
+        gpu_pct = (loader.gpu_hits / total_hits) * 100
+        ram_pct = (loader.ram_hits / total_hits) * 100
+        ssd_pct = (loader.ssd_hits / total_hits) * 100
+    else:
+        gpu_pct, ram_pct, ssd_pct = 0.0, 0.0, 0.0
+
+    print(f"GPU hits:\n{gpu_pct:.0f}%\n")
+    print(f"RAM hits:\n{ram_pct:.0f}%\n")
+    print(f"SSD hits:\n{ssd_pct:.0f}%")
     print("=" * 60)
 
     loader.close()

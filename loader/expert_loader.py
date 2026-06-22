@@ -4,6 +4,7 @@ import torch
 import time
 import threading
 from safetensors import safe_open
+from cache.ram_cache import RAMCache
 
 class ExpertLoader:
     def __init__(self, snapshot_path):
@@ -32,6 +33,14 @@ class ExpertLoader:
         self.load_ms_accum = 0.0
         self.dequant_ms_accum = 0.0
         self.evict_ms_accum = 0.0
+
+        # RAM Cache and Hits Tracking
+        self.ram_cache = RAMCache()
+        self.gpu_hits = 0
+        self.ram_hits = 0
+        self.ssd_hits = 0
+        self.load_counter = 0
+        self.ssd_load_counter = 0
 
     def _get_tensor(self, weight_name):
         filename = self.weight_map[weight_name]
@@ -159,12 +168,66 @@ class ExpertLoader:
         Loads and dequantizes expert weights dynamically on-the-fly.
         Used for prefill phase to avoid allocating the static cache pool.
         """
+        key = (layer_id, expert_id)
         with self.lock:
+            cached_expert = self.ram_cache.get(key)
+            
+        trigger_gc = False
+        if cached_expert is not None:
+            with self.lock:
+                self.ram_hits += 1
+            gate_fp8_cpu, gate_scale_cpu, up_fp8_cpu, up_scale_cpu, down_fp8_cpu, down_scale_cpu = cached_expert
+            # Copy to GPU
+            gate_fp8 = gate_fp8_cpu.to(device="cuda")
+            gate_scale = gate_scale_cpu.to(device="cuda") if gate_scale_cpu is not None else None
+            up_fp8 = up_fp8_cpu.to(device="cuda")
+            up_scale = up_scale_cpu.to(device="cuda") if up_scale_cpu is not None else None
+            down_fp8 = down_fp8_cpu.to(device="cuda")
+            down_scale = down_scale_cpu.to(device="cuda") if down_scale_cpu is not None else None
+        else:
+            with self.lock:
+                self.ssd_hits += 1
+                self.ssd_load_counter += 1
+                trigger_gc = (self.ssd_load_counter % 20 == 0)
             prefix = f"model.layers.{layer_id}.mlp.experts.{expert_id}"
-            gate_proj = self.load_weight(f"{prefix}.gate_proj.weight")
-            up_proj = self.load_weight(f"{prefix}.up_proj.weight")
-            down_proj = self.load_weight(f"{prefix}.down_proj.weight")
-            return gate_proj, up_proj, down_proj
+            
+            gate_fp8_cpu = self._get_tensor(f"{prefix}.gate_proj.weight")
+            gate_scale_name = f"{prefix}.gate_proj.weight_scale_inv"
+            gate_scale_cpu = self._get_tensor(gate_scale_name) if gate_scale_name in self.weight_map else None
+
+            up_fp8_cpu = self._get_tensor(f"{prefix}.up_proj.weight")
+            up_scale_name = f"{prefix}.up_proj.weight_scale_inv"
+            up_scale_cpu = self._get_tensor(up_scale_name) if up_scale_name in self.weight_map else None
+
+            down_fp8_cpu = self._get_tensor(f"{prefix}.down_proj.weight")
+            down_scale_name = f"{prefix}.down_proj.weight_scale_inv"
+            down_scale_cpu = self._get_tensor(down_scale_name) if down_scale_name in self.weight_map else None
+
+            cached_expert = (
+                gate_fp8_cpu, gate_scale_cpu,
+                up_fp8_cpu, up_scale_cpu,
+                down_fp8_cpu, down_scale_cpu
+            )
+            with self.lock:
+                self.ram_cache.put(key, cached_expert)
+                
+            # Copy to GPU
+            gate_fp8 = gate_fp8_cpu.to(device="cuda")
+            gate_scale = gate_scale_cpu.to(device="cuda") if gate_scale_cpu is not None else None
+            up_fp8 = up_fp8_cpu.to(device="cuda")
+            up_scale = up_scale_cpu.to(device="cuda") if up_scale_cpu is not None else None
+            down_fp8 = down_fp8_cpu.to(device="cuda")
+            down_scale = down_scale_cpu.to(device="cuda") if down_scale_cpu is not None else None
+
+        gate_proj = self.dequantize_weight(gate_fp8, gate_scale)
+        up_proj = self.dequantize_weight(up_fp8, up_scale)
+        down_proj = self.dequantize_weight(down_fp8, down_scale)
+        
+        if trigger_gc:
+            import gc
+            gc.collect(1)
+            
+        return gate_proj, up_proj, down_proj
 
     def load_expert(self, layer_id, expert_id, is_decode=True):
         """
@@ -194,6 +257,7 @@ class ExpertLoader:
                 slot_idx = self.expert_cache[key]
                 self.expert_metadata[slot_idx]['hits'] += 1
                 self.pinned_slots.add(slot_idx)
+                self.gpu_hits += 1
                 return (
                     self.static_expert_gate[slot_idx],
                     self.static_expert_up[slot_idx],
@@ -229,13 +293,58 @@ class ExpertLoader:
             evict_ms = (time.time() - t_evict_start) * 1000.0
             self.evict_ms_accum += evict_ms
             
-        # 4. Load raw weights from CPU to GPU (split timing)
+        # 4. Load raw weights from CPU (RAM Cache or SSD) to GPU (split timing)
         prefix = f"model.layers.{layer_id}.mlp.experts.{expert_id}"
         
         t_copy_start = time.time()
-        gate_fp8, gate_scale = self.load_weight_raw(f"{prefix}.gate_proj.weight")
-        up_fp8, up_scale = self.load_weight_raw(f"{prefix}.up_proj.weight")
-        down_fp8, down_scale = self.load_weight_raw(f"{prefix}.down_proj.weight")
+        with self.lock:
+            cached_expert = self.ram_cache.get(key)
+            
+        trigger_gc = False
+        if cached_expert is not None:
+            with self.lock:
+                self.ram_hits += 1
+            gate_fp8_cpu, gate_scale_cpu, up_fp8_cpu, up_scale_cpu, down_fp8_cpu, down_scale_cpu = cached_expert
+            # Copy to GPU
+            gate_fp8 = gate_fp8_cpu.to(device="cuda")
+            gate_scale = gate_scale_cpu.to(device="cuda") if gate_scale_cpu is not None else None
+            up_fp8 = up_fp8_cpu.to(device="cuda")
+            up_scale = up_scale_cpu.to(device="cuda") if up_scale_cpu is not None else None
+            down_fp8 = down_fp8_cpu.to(device="cuda")
+            down_scale = down_scale_cpu.to(device="cuda") if down_scale_cpu is not None else None
+        else:
+            with self.lock:
+                self.ssd_hits += 1
+                self.ssd_load_counter += 1
+                trigger_gc = (self.ssd_load_counter % 20 == 0)
+            gate_fp8_cpu = self._get_tensor(f"{prefix}.gate_proj.weight")
+            gate_scale_name = f"{prefix}.gate_proj.weight_scale_inv"
+            gate_scale_cpu = self._get_tensor(gate_scale_name) if gate_scale_name in self.weight_map else None
+
+            up_fp8_cpu = self._get_tensor(f"{prefix}.up_proj.weight")
+            up_scale_name = f"{prefix}.up_proj.weight_scale_inv"
+            up_scale_cpu = self._get_tensor(up_scale_name) if up_scale_name in self.weight_map else None
+
+            down_fp8_cpu = self._get_tensor(f"{prefix}.down_proj.weight")
+            down_scale_name = f"{prefix}.down_proj.weight_scale_inv"
+            down_scale_cpu = self._get_tensor(down_scale_name) if down_scale_name in self.weight_map else None
+
+            cached_expert = (
+                gate_fp8_cpu, gate_scale_cpu,
+                up_fp8_cpu, up_scale_cpu,
+                down_fp8_cpu, down_scale_cpu
+            )
+            with self.lock:
+                self.ram_cache.put(key, cached_expert)
+                
+            # Copy to GPU
+            gate_fp8 = gate_fp8_cpu.to(device="cuda")
+            gate_scale = gate_scale_cpu.to(device="cuda") if gate_scale_cpu is not None else None
+            up_fp8 = up_fp8_cpu.to(device="cuda")
+            up_scale = up_scale_cpu.to(device="cuda") if up_scale_cpu is not None else None
+            down_fp8 = down_fp8_cpu.to(device="cuda")
+            down_scale = down_scale_cpu.to(device="cuda") if down_scale_cpu is not None else None
+
         copy_ms = (time.time() - t_copy_start) * 1000.0
         self.load_ms_accum += copy_ms
         
@@ -281,12 +390,17 @@ class ExpertLoader:
             
         copy_to_static_ms = (time.time() - t_copy_static_start) * 1000.0
         self.load_ms_accum += copy_to_static_ms
+
+        if trigger_gc:
+            import gc
+            gc.collect(1)
         
         return (
             self.static_expert_gate[slot_idx],
             self.static_expert_up[slot_idx],
             self.static_expert_down[slot_idx]
         )
+
 
     def load_expert_raw(self, layer_id, expert_id, is_decode=True):
         """
