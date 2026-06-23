@@ -3,20 +3,25 @@ import psutil
 
 class RAMCache:
 
-    def __init__(self):
+    def __init__(self, config=None):
 
         self.cache = OrderedDict()
 
         self.current = 0
+
+        self.config = config
 
         self.max_bytes = self.compute_limit()
 
     def compute_limit(self):
 
         available = psutil.virtual_memory().available
+        ram_percent = 35
+        if self.config and "memory" in self.config and "max_ram_percent" in self.config:
+            ram_percent = self.config["memory"]["max_ram_percent"]
 
         return int(
-            available * 0.35
+            available * (ram_percent / 100.0)
         )
 
     def get(self, key):

@@ -7,8 +7,24 @@ from safetensors import safe_open
 from cache.ram_cache import RAMCache
 
 class ExpertLoader:
-    def __init__(self, snapshot_path):
+    def __init__(self, snapshot_path, config=None):
         self.snapshot_path = snapshot_path
+        self.config = config
+        
+        # Memory / VRAM config
+        self.max_vram_gb = 5.8
+        if config and "memory" in config and "max_vram_mb" in config:
+            self.max_vram_gb = config["memory"]["max_vram_mb"] / 1024.0
+            
+        # Dtype config
+        self.dtype = torch.float16
+        if config and "execution" in config and "dtype" in config:
+            dtype_str = config["execution"]["dtype"]
+            if dtype_str in ("bf16", "bfloat16"):
+                self.dtype = torch.bfloat16
+            elif dtype_str in ("fp32", "float32"):
+                self.dtype = torch.float32
+
         index_path = os.path.join(snapshot_path, "model.safetensors.index.json")
         with open(index_path, "r") as f:
             self.index = json.load(f)
@@ -16,7 +32,13 @@ class ExpertLoader:
         self.files = {} # Cache of safe_open handles
         self.expert_cache = {}
         self.expert_metadata = {}
-        self.cache_limit = 128  # Store up to 128 experts in VRAM (~1.2 GB)
+        
+        # Expert limit config
+        self.cache_limit = 128  # Default limit
+        if config and "cache" in config and "expert_limit" in config:
+            limit = config["cache"]["expert_limit"]
+            if limit != "auto":
+                self.cache_limit = int(limit)
         
         # Thread lock for prefetching and cache management
         self.lock = threading.Lock()
@@ -35,7 +57,7 @@ class ExpertLoader:
         self.evict_ms_accum = 0.0
 
         # RAM Cache and Hits Tracking
-        self.ram_cache = RAMCache()
+        self.ram_cache = RAMCache(config=config)
         self.gpu_hits = 0
         self.ram_hits = 0
         self.ssd_hits = 0
@@ -52,7 +74,9 @@ class ExpertLoader:
         # Based on index.json, they are named model.layers.0.mlp.experts.0.gate_proj.weight
         return self.files[filename].get_tensor(weight_name)
 
-    def load_weight(self, weight_name, device="cuda", dtype=torch.float16):
+    def load_weight(self, weight_name, device="cuda", dtype=None):
+        if dtype is None:
+            dtype = self.dtype
         tensor = self._get_tensor(weight_name)
         scale_name = f"{weight_name}_scale_inv"
         if scale_name in self.weight_map:
@@ -75,7 +99,9 @@ class ExpertLoader:
         else:
             return tensor.to(device=device), None
 
-    def dequantize_weight(self, w_fp8, scale, dtype=torch.float16):
+    def dequantize_weight(self, w_fp8, scale, dtype=None):
+        if dtype is None:
+            dtype = self.dtype
         if scale is None:
             return w_fp8.to(dtype=dtype)
         w = w_fp8.to(dtype=dtype)
@@ -83,11 +109,13 @@ class ExpertLoader:
         M, N = w.shape
         return (w.view(M // 128, 128, N // 128, 128) * scale_d.view(M // 128, 1, N // 128, 1)).view(M, N)
 
-    def load_weight_split(self, weight_name, device="cuda", dtype=torch.float16):
+    def load_weight_split(self, weight_name, device="cuda", dtype=None):
         """
         Loads the weight and returns the dequantized weight along with separated
         loading/copy time and dequantization time.
         """
+        if dtype is None:
+            dtype = self.dtype
         t_copy_start = time.time()
         tensor = self._get_tensor(weight_name)
         w_fp8 = tensor.to(device=device)
@@ -116,13 +144,21 @@ class ExpertLoader:
         with self.lock:
             self.pinned_slots.clear()
 
-    def adjust_cache_limit(self, max_vram_gb=5.8, is_decode=True):
+    def adjust_cache_limit(self, max_vram_gb=None, is_decode=True):
         """
         Dynamically adjusts cache_limit based on current PyTorch allocated VRAM
         and actual physical GPU free VRAM to prevent OOM and respect the target budget.
         """
         if not torch.cuda.is_available():
             return
+        
+        if self.config and "cache" in self.config and "expert_limit" in self.config:
+            if self.config["cache"]["expert_limit"] != "auto":
+                self.cache_limit = int(self.config["cache"]["expert_limit"])
+                return
+
+        if max_vram_gb is None:
+            max_vram_gb = self.max_vram_gb
         
         max_vram_bytes = max_vram_gb * 1024**3
         current_allocated = torch.cuda.memory_allocated()
@@ -237,17 +273,17 @@ class ExpertLoader:
         key = (layer_id, expert_id)
         
         with self.lock:
-            # 1. Lazy allocation of static FP16 weight buffers on CUDA
+            # 1. Lazy allocation of static weight buffers on CUDA
             if self.static_expert_gate is None:
                 torch.cuda.empty_cache() # Clear preloading temp memory first
                 self.adjust_cache_limit(is_decode=is_decode)
                 self.num_slots = self.cache_limit
-                print(f"Allocating static GPU cache with {self.num_slots} expert FP16 slots...")
+                print(f"Allocating static GPU cache with {self.num_slots} expert {self.dtype} slots...")
                 
-                # Pre-allocate weights in float16
-                self.static_expert_gate = torch.zeros(self.num_slots, 768, 2048, dtype=torch.float16, device="cuda")
-                self.static_expert_up = torch.zeros(self.num_slots, 768, 2048, dtype=torch.float16, device="cuda")
-                self.static_expert_down = torch.zeros(self.num_slots, 2048, 768, dtype=torch.float16, device="cuda")
+                # Pre-allocate weights
+                self.static_expert_gate = torch.zeros(self.num_slots, 768, 2048, dtype=self.dtype, device="cuda")
+                self.static_expert_up = torch.zeros(self.num_slots, 768, 2048, dtype=self.dtype, device="cuda")
+                self.static_expert_down = torch.zeros(self.num_slots, 2048, 768, dtype=self.dtype, device="cuda")
                 
                 self.free_slots = list(range(self.num_slots))
                 self.pinned_slots = set()

@@ -1,21 +1,29 @@
 from cli.args import parse_args
+from config.config import load_config
 from runtime.generate import run_generation
 
 
 def main():
 
     args = parse_args()
+    cfg = load_config(args.config)
 
     print(
         "\nTurbo-LLM\n"
     )
 
+    model = args.model if args.model is not None else cfg["model"]["path"]
+    max_new_tokens = args.max_new_tokens if args.max_new_tokens is not None else cfg["runtime"]["max_new_tokens"]
+    temperature = args.temperature if args.temperature is not None else cfg["runtime"]["temperature"]
+    top_p = args.top_p if args.top_p is not None else cfg["runtime"]["top_p"]
+
     output = run_generation(
-        model=args.model,
+        model=model,
         prompt=args.prompt,
-        max_new_tokens=args.max_new_tokens,
-        temperature=args.temperature,
-        top_p=args.top_p,
+        max_new_tokens=max_new_tokens,
+        temperature=temperature,
+        top_p=top_p,
+        config=cfg,
     )
 
     print(

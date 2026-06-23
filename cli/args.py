@@ -9,8 +9,14 @@ def parse_args():
     )
 
     parser.add_argument(
+        "--config",
+        default="config/default.yaml",
+        help="Path to config file"
+    )
+
+    parser.add_argument(
         "--model",
-        required=True,
+        default=None,
         help="Model directory"
     )
 
@@ -23,19 +29,19 @@ def parse_args():
     parser.add_argument(
         "--max_new_tokens",
         type=int,
-        default=50
+        default=None
     )
 
     parser.add_argument(
         "--temperature",
         type=float,
-        default=0.7
+        default=None
     )
 
     parser.add_argument(
         "--top_p",
         type=float,
-        default=0.95
+        default=None
     )
 
     parser.add_argument(

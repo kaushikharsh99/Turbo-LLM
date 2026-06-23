@@ -18,18 +18,28 @@ MODEL_ID = "Qwen/Qwen3-30B-A3B-Instruct-2507-FP8"
 SNAPSHOT_PATH = "/home/harsh/.cache/huggingface/hub/models--Qwen--Qwen3-30B-A3B-Instruct-2507-FP8/snapshots/5a5a776300a41aaa681dd7ff0106608ef2bc90db"
 
 @torch.no_grad()
-def generate(model, prompt, max_new_tokens=50):
+def generate(model, prompt, max_new_tokens=50, config=None):
     # 1. Initialize Loader
     print(f"Loading weights index from {model}...")
-    loader = ExpertLoader(model)
+    loader = ExpertLoader(model, config=config)
     
     # 2. Load Config and Meta Model
-    config = AutoConfig.from_pretrained(model, trust_remote_code=True)
+    hf_config = AutoConfig.from_pretrained(model, trust_remote_code=True)
+    
+    # Determine dtype from config
+    dtype = torch.float16
+    if config and "execution" in config and "dtype" in config:
+        dtype_str = config["execution"]["dtype"]
+        if dtype_str in ("bf16", "bfloat16"):
+            dtype = torch.bfloat16
+        elif dtype_str in ("fp32", "float32"):
+            dtype = torch.float32
+
     with init_empty_weights():
-        causal_model = AutoModelForCausalLM.from_config(config, trust_remote_code=True, torch_dtype=torch.float16)
+        causal_model = AutoModelForCausalLM.from_config(hf_config, trust_remote_code=True, torch_dtype=dtype)
 
     # 3. Initialize Executors
-    router_exec = RouterExecutor(loader, config.num_hidden_layers)
+    router_exec = RouterExecutor(loader, hf_config.num_hidden_layers)
     moe_exec = MoEExecutor(loader)
     layer_exec = LayerExecutor(causal_model, loader, router_exec, moe_exec)
     kv_cache = KVCache()
@@ -69,7 +79,7 @@ def generate(model, prompt, max_new_tokens=50):
         position_embeddings = causal_model.model.rotary_emb(hidden_states, position_ids=position_ids)
         
         causal_mask = create_causal_mask(
-            config=config,
+            config=hf_config,
             inputs_embeds=hidden_states,
             attention_mask=None,
             past_key_values=kv_cache,
@@ -77,7 +87,7 @@ def generate(model, prompt, max_new_tokens=50):
         )
 
         # 7. Layer-by-Layer Execution
-        for layer_id in range(config.num_hidden_layers):
+        for layer_id in range(hf_config.num_hidden_layers):
             hidden_states, _ = layer_exec.execute_layer(
                 layer_id=layer_id,
                 hidden_states=hidden_states,
@@ -101,8 +111,11 @@ def generate(model, prompt, max_new_tokens=50):
         
         # Memory tracking
         vram_allocated = torch.cuda.memory_allocated()
-        # Assert VRAM < 5.8 GB (Task 5 constraint)
-        assert vram_allocated < 5.8 * 1024**3, f"VRAM allocation {vram_allocated / 1024**3:.2f} GB exceeds limit!"
+        # Assert VRAM < memory limit
+        max_vram_bytes = 5.8 * 1024**3
+        if config and "memory" in config and "max_vram_mb" in config:
+            max_vram_bytes = config["memory"]["max_vram_mb"] * 1024**2
+        assert vram_allocated < max_vram_bytes, f"VRAM allocation {vram_allocated / 1024**3:.2f} GB exceeds limit!"
         
         # Calculate cache size
         kv_bytes = 0
