@@ -18,35 +18,29 @@ MODEL_ID = "Qwen/Qwen3-30B-A3B-Instruct-2507-FP8"
 SNAPSHOT_PATH = "/home/harsh/.cache/huggingface/hub/models--Qwen--Qwen3-30B-A3B-Instruct-2507-FP8/snapshots/5a5a776300a41aaa681dd7ff0106608ef2bc90db"
 
 @torch.no_grad()
-def main():
-    print("=" * 60)
-    print("PHASE 2.2 — AUTOREGRESSIVE GENERATION WITH KV CACHE")
-    print("=" * 60)
-
+def generate(model, prompt, max_new_tokens=50):
     # 1. Initialize Loader
-    print(f"Loading weights index from {SNAPSHOT_PATH}...")
-    loader = ExpertLoader(SNAPSHOT_PATH)
+    print(f"Loading weights index from {model}...")
+    loader = ExpertLoader(model)
     
     # 2. Load Config and Meta Model
-    config = AutoConfig.from_pretrained(MODEL_ID, trust_remote_code=True)
+    config = AutoConfig.from_pretrained(model, trust_remote_code=True)
     with init_empty_weights():
-        model = AutoModelForCausalLM.from_config(config, trust_remote_code=True, torch_dtype=torch.float16)
+        causal_model = AutoModelForCausalLM.from_config(config, trust_remote_code=True, torch_dtype=torch.float16)
 
     # 3. Initialize Executors
     router_exec = RouterExecutor(loader, config.num_hidden_layers)
     moe_exec = MoEExecutor(loader)
-    layer_exec = LayerExecutor(model, loader, router_exec, moe_exec)
+    layer_exec = LayerExecutor(causal_model, loader, router_exec, moe_exec)
     kv_cache = KVCache()
 
     # 4. Tokenizer and Input
-    tokenizer = AutoTokenizer.from_pretrained(MODEL_ID)
-    prompt = "Choose any topic and write an informative article of approximately 500 words. Structure it with an introduction, explanation, examples, analysis, and conclusion. Make it engaging, factual, and coherent."
+    tokenizer = AutoTokenizer.from_pretrained(model)
     print(f"Prompt: {prompt}")
     inputs = tokenizer(prompt, return_tensors="pt").to("cuda")
     input_ids = inputs.input_ids
     prompt_len = input_ids.shape[1]
     
-    max_new_tokens = 500
     print(f"Generating {max_new_tokens} tokens...")
     
     # Reset CUDA stats
@@ -69,10 +63,10 @@ def main():
             position_ids = torch.tensor([[prompt_len + step - 1]], device="cuda")
             
         # 5. Embeddings Step
-        hidden_states = model.model.embed_tokens(input_to_model)
+        hidden_states = causal_model.model.embed_tokens(input_to_model)
         
         # 6. Rotary Embeddings & Attention Mask Setup
-        position_embeddings = model.model.rotary_emb(hidden_states, position_ids=position_ids)
+        position_embeddings = causal_model.model.rotary_emb(hidden_states, position_ids=position_ids)
         
         causal_mask = create_causal_mask(
             config=config,
@@ -94,10 +88,10 @@ def main():
             )
 
         # 8. Final LayerNorm
-        hidden_states = model.model.norm(hidden_states)
+        hidden_states = causal_model.model.norm(hidden_states)
 
         # 9. LM Head Projection
-        logits = model.lm_head(hidden_states)
+        logits = causal_model.lm_head(hidden_states)
 
         # 10. Argmax & Get Token
         next_token_logits = logits[0, -1, :]
@@ -164,6 +158,18 @@ def main():
     print("=" * 60)
 
     loader.close()
+    return generated_text
+
+
+@torch.no_grad()
+def main():
+    print("=" * 60)
+    print("PHASE 2.2 — AUTOREGRESSIVE GENERATION WITH KV CACHE")
+    print("=" * 60)
+
+    prompt = "Choose any topic and write an informative article of approximately 500 words. Structure it with an introduction, explanation, examples, analysis, and conclusion. Make it engaging, factual, and coherent."
+    generate(SNAPSHOT_PATH, prompt, max_new_tokens=500)
+
 
 if __name__ == "__main__":
     main()
