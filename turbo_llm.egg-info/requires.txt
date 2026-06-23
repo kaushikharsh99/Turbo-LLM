@@ -1,0 +1,7 @@
+torch
+transformers
+accelerate
+safetensors
+psutil
+pyyaml
+huggingface_hub
