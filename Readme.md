@@ -29,6 +29,10 @@ Current architecture focuses on:
 * KV cache generation
 * Low VRAM inference
 
+Currently supported and tested model:
+
+* **Model ID**: `Qwen/Qwen3-30B-A3B-Instruct-2507-FP8`
+
 Current tested configuration:
 
 ```text
@@ -36,7 +40,7 @@ Ram:
 16 GB
 
 Model:
-Qwen3-30B-A3B-Instruct-FP8
+Qwen/Qwen3-30B-A3B-Instruct-2507-FP8
 
 GPU:
 RTX 3050 6GB
