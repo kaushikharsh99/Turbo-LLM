@@ -27,6 +27,8 @@ def main():
         temperature=temperature,
         top_p=top_p,
         config=cfg,
+        chat=args.chat,
+        system_prompt=args.system,
     )
 
     print(

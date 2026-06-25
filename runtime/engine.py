@@ -25,16 +25,41 @@ class TurboEngine:
             self.layer = None
 
     @torch.no_grad()
-    def generate(self, prompt, max_new_tokens=50, config=None):
+    def generate(self, prompt, max_new_tokens=50, config=None, chat=False, system_prompt=None):
         DEVICE = self.loader.DEVICE
         
         model_name_or_path = getattr(self.adapter.model, "name_or_path", None)
         if not model_name_or_path:
             model_name_or_path = getattr(self.adapter.model.config, "_name_or_path", None)
         
-        tokenizer = AutoTokenizer.from_pretrained(model_name_or_path)
-        print(f"Prompt: {prompt}")
-        inputs = tokenizer(prompt, return_tensors="pt").to(DEVICE)
+        tokenizer = AutoTokenizer.from_pretrained(
+            model_name_or_path,
+            trust_remote_code=True,
+        )
+
+        # Apply chat template if --chat mode
+        if chat:
+            messages = []
+            if system_prompt:
+                messages.append({
+                    "role": "system",
+                    "content": system_prompt,
+                })
+            messages.append({
+                "role": "user",
+                "content": prompt,
+            })
+            formatted_prompt = tokenizer.apply_chat_template(
+                messages,
+                tokenize=False,
+                add_generation_prompt=True,
+            )
+            print(f"Prompt (chat mode): {prompt}")
+        else:
+            formatted_prompt = prompt
+            print(f"Prompt: {prompt}")
+
+        inputs = tokenizer(formatted_prompt, return_tensors="pt").to(DEVICE)
         input_ids = inputs.input_ids
         prompt_len = input_ids.shape[1]
 

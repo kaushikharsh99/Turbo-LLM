@@ -7,7 +7,7 @@ from runtime.model_factory import create_adapter
 from runtime.engine import TurboEngine
 
 @torch.no_grad()
-def generate(model, prompt, max_new_tokens=50, config=None):
+def generate(model, prompt, max_new_tokens=50, config=None, chat=False, system_prompt=None):
     # 1. Initialize Loader
     print(f"Loading weights index from {model}...")
     loader = ExpertLoader(model, config=config)
@@ -48,6 +48,8 @@ def generate(model, prompt, max_new_tokens=50, config=None):
         prompt=prompt,
         max_new_tokens=max_new_tokens,
         config=config,
+        chat=chat,
+        system_prompt=system_prompt,
     )
 
 

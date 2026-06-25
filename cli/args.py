@@ -49,4 +49,17 @@ def parse_args():
         action="store_true"
     )
 
+    parser.add_argument(
+        "--chat",
+        action="store_true",
+        help="Use chat template formatting for instruct models"
+    )
+
+    parser.add_argument(
+        "--system",
+        type=str,
+        default=None,
+        help="System prompt (only used with --chat)"
+    )
+
     return parser.parse_args()

@@ -8,6 +8,8 @@ def run_generation(
     temperature,
     top_p,
     config=None,
+    chat=False,
+    system_prompt=None,
 ):
 
     return generate(
@@ -15,4 +17,7 @@ def run_generation(
         prompt=prompt,
         max_new_tokens=max_new_tokens,
         config=config,
+        chat=chat,
+        system_prompt=system_prompt,
     )
+
