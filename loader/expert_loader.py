@@ -33,9 +33,39 @@ class ExpertLoader:
                 self.dtype = torch.float32
 
         index_path = os.path.join(snapshot_path, "model.safetensors.index.json")
-        with open(index_path, "r") as f:
-            self.index = json.load(f)
-        self.weight_map = self.index["weight_map"]
+        if os.path.exists(index_path):
+            with open(index_path, "r") as f:
+                self.index = json.load(f)
+            self.weight_map = self.index["weight_map"]
+        else:
+            single_path = os.path.join(snapshot_path, "model.safetensors")
+            if os.path.exists(single_path):
+                from safetensors import safe_open
+                with safe_open(single_path, framework="pt", device="cpu") as f:
+                    keys = f.keys()
+                self.weight_map = {k: "model.safetensors" for k in keys}
+            else:
+                import glob
+                safetensors_files = glob.glob(os.path.join(snapshot_path, "*.safetensors"))
+                if safetensors_files:
+                    if len(safetensors_files) == 1:
+                        single_path = safetensors_files[0]
+                        filename = os.path.basename(single_path)
+                        from safetensors import safe_open
+                        with safe_open(single_path, framework="pt", device="cpu") as f:
+                            keys = f.keys()
+                        self.weight_map = {k: filename for k in keys}
+                    else:
+                        # Construct a weight map from all safetensors files
+                        self.weight_map = {}
+                        for sf in safetensors_files:
+                            filename = os.path.basename(sf)
+                            from safetensors import safe_open
+                            with safe_open(sf, framework="pt", device="cpu") as f:
+                                for k in f.keys():
+                                    self.weight_map[k] = filename
+                else:
+                    self.weight_map = {}
         self.files = {} # Cache of safe_open handles
         self.expert_cache = {}
         self.expert_metadata = {}
@@ -228,8 +258,19 @@ class ExpertLoader:
         # Take the minimum of budget available and physical available
         available_bytes = min(available_by_budget, available_by_physical)
         
-        # Average size of 1 expert in FP16 = ~9.0 MB
-        avg_expert_size = 9.0 * 1024**2
+        # Estimate average size of 1 expert from actual weight shapes if available
+        if hasattr(self, '_expert_gate_shape'):
+            gate_els = 1
+            for d in self._expert_gate_shape:
+                gate_els *= d
+            down_els = 1
+            for d in self._expert_down_shape:
+                down_els *= d
+            # gate + up (same shape) + down, each in self.dtype
+            elem_size = 2  # FP16/BF16 = 2 bytes
+            avg_expert_size = (gate_els + gate_els + down_els) * elem_size
+        else:
+            avg_expert_size = 9.0 * 1024**2  # fallback ~9 MB for Qwen3
         dynamic_limit = int(available_bytes // avg_expert_size)
         
         # Keep limit bounds between 16 and 450
@@ -319,14 +360,23 @@ class ExpertLoader:
             # 1. Lazy allocation of static weight buffers on CUDA
             if self.static_expert_gate is None:
                 torch.cuda.empty_cache() # Clear preloading temp memory first
+                
+                # Probe actual expert weight shapes from the first available expert
+                probe_gate = self._get_tensor("model.layers.0.mlp.experts.0.gate_proj.weight")
+                probe_down = self._get_tensor("model.layers.0.mlp.experts.0.down_proj.weight")
+                self._expert_gate_shape = probe_gate.shape  # e.g. (768, 2048) or (1024, 2048)
+                self._expert_down_shape = probe_down.shape  # e.g. (2048, 768) or (2048, 1024)
+                
                 self.adjust_cache_limit(is_decode=is_decode)
                 self.num_slots = self.cache_limit
-                print(f"Allocating static GPU cache with {self.num_slots} expert {self.dtype} slots...")
                 
-                # Pre-allocate weights
-                self.static_expert_gate = torch.zeros(self.num_slots, 768, 2048, dtype=self.dtype, device=self.DEVICE)
-                self.static_expert_up = torch.zeros(self.num_slots, 768, 2048, dtype=self.dtype, device=self.DEVICE)
-                self.static_expert_down = torch.zeros(self.num_slots, 2048, 768, dtype=self.dtype, device=self.DEVICE)
+                print(f"Allocating static GPU cache with {self.num_slots} expert {self.dtype} slots...")
+                print(f"  Expert gate/up shape: {list(self._expert_gate_shape)}, down shape: {list(self._expert_down_shape)}")
+                
+                # Pre-allocate weights with actual shapes
+                self.static_expert_gate = torch.zeros(self.num_slots, *self._expert_gate_shape, dtype=self.dtype, device=self.DEVICE)
+                self.static_expert_up = torch.zeros(self.num_slots, *self._expert_gate_shape, dtype=self.dtype, device=self.DEVICE)
+                self.static_expert_down = torch.zeros(self.num_slots, *self._expert_down_shape, dtype=self.dtype, device=self.DEVICE)
                 
                 self.free_slots = list(range(self.num_slots))
                 self.pinned_slots = set()

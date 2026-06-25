@@ -1,7 +1,19 @@
-Metadata-Version: 2.1
+Metadata-Version: 2.4
 Name: turbo-llm
 Version: 0.1.0
 Summary: Turbo-LLM: Fast memory-efficient inference engine for large MoE models
 Home-page: https://github.com/kaushikharsh99/Turbo-LLM
 Author: kaushikharsh99
 Requires-Python: >=3.8
+Requires-Dist: torch
+Requires-Dist: transformers
+Requires-Dist: accelerate
+Requires-Dist: safetensors
+Requires-Dist: psutil
+Requires-Dist: pyyaml
+Requires-Dist: huggingface_hub
+Dynamic: author
+Dynamic: home-page
+Dynamic: requires-dist
+Dynamic: requires-python
+Dynamic: summary

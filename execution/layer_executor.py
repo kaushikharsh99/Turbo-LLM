@@ -4,8 +4,9 @@ import torch.nn.functional as F
 from accelerate.utils import set_module_tensor_to_device
 
 class LayerExecutor:
-    def __init__(self, model, loader, router_exec, moe_exec):
-        self.model = model
+    def __init__(self, adapter, loader, router_exec, moe_exec):
+        self.adapter = adapter
+        self.model = adapter.create_meta_model()
         self.loader = loader
         self.router_exec = router_exec
         self.moe_exec = moe_exec
@@ -22,10 +23,10 @@ class LayerExecutor:
             "post_attention_layernorm.weight"
         ]
         self.preload_backbone_weights()
-
+ 
     def preload_backbone_weights(self):
-        print("Preloading backbone weights for all 48 layers to GPU VRAM...")
-        for layer_id in range(self.model.config.num_hidden_layers):
+        print(f"Preloading backbone weights for all {self.adapter.num_layers} layers to GPU VRAM...")
+        for layer_id in range(self.adapter.num_layers):
             prefix = f"model.layers.{layer_id}"
             for name in self.non_moe_weight_names:
                 full_name = f"{prefix}.{name}"
@@ -46,10 +47,10 @@ class LayerExecutor:
         
         lm_head_w = self.loader.load_weight("lm_head.weight")
         set_module_tensor_to_device(self.model, "lm_head.weight", device=self.loader.DEVICE, value=lm_head_w)
-
+ 
     @torch.no_grad()
     def execute_layer(self, layer_id, hidden_states, attention_mask, position_ids, position_embeddings, kv_cache=None):
-        layer_module = self.model.model.layers[layer_id]
+        layer_module = self.adapter.layers()[layer_id]
 
         # Initialize profiling lists if not present
         if not hasattr(self, "attn_times"):

@@ -6,7 +6,8 @@ import time
 
 def moe_seq(hidden_states, gate_weights, up_weights, down_weights, top_k_weights):
     final_output = torch.zeros_like(hidden_states)
-    for i in range(8):
+    top_k = top_k_weights.shape[1]
+    for i in range(top_k):
         gate_proj = gate_weights[i]
         up_proj = up_weights[i]
         down_proj = down_weights[i]
