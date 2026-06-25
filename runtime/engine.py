@@ -68,7 +68,7 @@ class TurboEngine:
         
         print(f"Generating {max_new_tokens} tokens...")
         
-        if torch.cuda.is_available():
+        if DEVICE == "cuda":
             torch.cuda.reset_peak_memory_stats()
             
         start_time = time.time()

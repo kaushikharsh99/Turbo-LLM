@@ -139,5 +139,8 @@ class MoEExecutor:
                     break
             loader_thread.join()
 
-        torch.cuda.synchronize()
+        if self.loader.DEVICE == "cuda":
+            torch.cuda.synchronize()
+        elif self.loader.DEVICE == "mps" and hasattr(torch, "mps") and hasattr(torch.mps, "synchronize"):
+            torch.mps.synchronize()
         return final_output

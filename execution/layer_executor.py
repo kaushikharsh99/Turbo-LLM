@@ -25,7 +25,8 @@ class LayerExecutor:
         self.preload_backbone_weights()
  
     def preload_backbone_weights(self):
-        print(f"Preloading backbone weights for all {self.adapter.num_layers} layers to GPU VRAM...")
+        device_type = "GPU VRAM" if self.loader.DEVICE in ("cuda", "mps") else "System RAM"
+        print(f"Preloading backbone weights for all {self.adapter.num_layers} layers to {device_type}...")
         for layer_id in range(self.adapter.num_layers):
             prefix = f"model.layers.{layer_id}"
             for name in self.non_moe_weight_names:
@@ -38,7 +39,7 @@ class LayerExecutor:
                 value=w,
                 )
                 
-        print("Preloading embedding, norm, and lm_head weights to GPU VRAM...")
+        print(f"Preloading embedding, norm, and lm_head weights to {device_type}...")
         embed_w = self.loader.load_weight("model.embed_tokens.weight")
         set_module_tensor_to_device(self.model, "model.embed_tokens.weight", device=self.loader.DEVICE, value=embed_w)
         

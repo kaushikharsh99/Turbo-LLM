@@ -142,11 +142,12 @@ class ExpertLoader:
         tensor = self._get_tensor(weight_name)
         scale_name = f"{weight_name}_scale_inv"
         if scale_name in self.weight_map:
-            w_fp8 = tensor.to(device=device)
-            scale = self._get_tensor(scale_name).to(device=device)
+            w_fp8 = self._prepare_fp8_tensor(tensor, device)
+            scale = self._prepare_fp8_tensor(self._get_tensor(scale_name), device)
             return w_fp8, scale
         else:
-            return tensor.to(device=device), None
+            w_fp8 = self._prepare_fp8_tensor(tensor, device)
+            return w_fp8, None
 
     def dequantize_weight(self, w_fp8, scale, dtype=None):
         if dtype is None:
@@ -191,11 +192,11 @@ class ExpertLoader:
             dtype = self.dtype
         t_copy_start = time.time()
         tensor = self._get_tensor(weight_name)
-        w_fp8 = tensor.to(device=device)
+        w_fp8 = self._prepare_fp8_tensor(tensor, device)
         
         scale_name = f"{weight_name}_scale_inv"
         if scale_name in self.weight_map:
-            scale_fp8 = self._get_tensor(scale_name).to(device=device)
+            scale_fp8 = self._prepare_fp8_tensor(self._get_tensor(scale_name), device)
             copy_ms = (time.time() - t_copy_start) * 1000.0
             
             t_dequant_start = time.time()
@@ -205,13 +206,13 @@ class ExpertLoader:
             w_dequant = (w.view(M // 128, 128, N // 128, 128) * scale.view(M // 128, 1, N // 128, 1)).view(M, N)
             dequant_ms = (time.time() - t_dequant_start) * 1000.0
             
-            return w_dequant, copy_ms, dequant_ms
+            return w_dequant.to(device=device), copy_ms, dequant_ms
         else:
             copy_ms = (time.time() - t_copy_start) * 1000.0
             t_dequant_start = time.time()
             w_dequant = w_fp8.to(dtype=dtype)
             dequant_ms = (time.time() - t_dequant_start) * 1000.0
-            return w_dequant, copy_ms, dequant_ms
+            return w_dequant.to(device=device), copy_ms, dequant_ms
 
     def clear_pinned_slots(self):
         with self.lock:
@@ -283,6 +284,13 @@ class ExpertLoader:
               f"available_by_physical: {available_by_physical/1024**2:.2f} MB, "
               f"dynamic_limit: {dynamic_limit}, chosen cap: {self.cache_limit}")
 
+    def _prepare_fp8_tensor(self, tensor, device):
+        if tensor is None:
+            return None
+        if device == "mps":
+            return tensor
+        return tensor.to(device=device)
+
     def load_expert_dynamic(self, layer_id, expert_id):
         """
         Loads and dequantizes expert weights dynamically on-the-fly.
@@ -298,12 +306,12 @@ class ExpertLoader:
                 self.ram_hits += 1
             gate_fp8_cpu, gate_scale_cpu, up_fp8_cpu, up_scale_cpu, down_fp8_cpu, down_scale_cpu = cached_expert
             # Copy to GPU
-            gate_fp8 = gate_fp8_cpu.to(device=self.DEVICE)
-            gate_scale = gate_scale_cpu.to(device=self.DEVICE) if gate_scale_cpu is not None else None
-            up_fp8 = up_fp8_cpu.to(device=self.DEVICE)
-            up_scale = up_scale_cpu.to(device=self.DEVICE) if up_scale_cpu is not None else None
-            down_fp8 = down_fp8_cpu.to(device=self.DEVICE)
-            down_scale = down_scale_cpu.to(device=self.DEVICE) if down_scale_cpu is not None else None
+            gate_fp8 = self._prepare_fp8_tensor(gate_fp8_cpu, self.DEVICE)
+            gate_scale = self._prepare_fp8_tensor(gate_scale_cpu, self.DEVICE)
+            up_fp8 = self._prepare_fp8_tensor(up_fp8_cpu, self.DEVICE)
+            up_scale = self._prepare_fp8_tensor(up_scale_cpu, self.DEVICE)
+            down_fp8 = self._prepare_fp8_tensor(down_fp8_cpu, self.DEVICE)
+            down_scale = self._prepare_fp8_tensor(down_scale_cpu, self.DEVICE)
         else:
             with self.lock:
                 self.ssd_hits += 1
@@ -332,12 +340,12 @@ class ExpertLoader:
                 self.ram_cache.put(key, cached_expert)
                 
             # Copy to GPU
-            gate_fp8 = gate_fp8_cpu.to(device=self.DEVICE)
-            gate_scale = gate_scale_cpu.to(device=self.DEVICE) if gate_scale_cpu is not None else None
-            up_fp8 = up_fp8_cpu.to(device=self.DEVICE)
-            up_scale = up_scale_cpu.to(device=self.DEVICE) if up_scale_cpu is not None else None
-            down_fp8 = down_fp8_cpu.to(device=self.DEVICE)
-            down_scale = down_scale_cpu.to(device=self.DEVICE) if down_scale_cpu is not None else None
+            gate_fp8 = self._prepare_fp8_tensor(gate_fp8_cpu, self.DEVICE)
+            gate_scale = self._prepare_fp8_tensor(gate_scale_cpu, self.DEVICE)
+            up_fp8 = self._prepare_fp8_tensor(up_fp8_cpu, self.DEVICE)
+            up_scale = self._prepare_fp8_tensor(up_scale_cpu, self.DEVICE)
+            down_fp8 = self._prepare_fp8_tensor(down_fp8_cpu, self.DEVICE)
+            down_scale = self._prepare_fp8_tensor(down_scale_cpu, self.DEVICE)
 
         gate_proj = self.dequantize_weight(gate_fp8, gate_scale)
         up_proj = self.dequantize_weight(up_fp8, up_scale)
@@ -357,9 +365,12 @@ class ExpertLoader:
         key = (layer_id, expert_id)
         
         with self.lock:
-            # 1. Lazy allocation of static weight buffers on CUDA
+            # 1. Lazy allocation of static weight buffers
             if self.static_expert_gate is None:
-                torch.cuda.empty_cache() # Clear preloading temp memory first
+                if self.DEVICE == "cuda":
+                    torch.cuda.empty_cache() # Clear preloading temp memory first
+                elif self.DEVICE == "mps" and hasattr(torch, "mps") and hasattr(torch.mps, "empty_cache"):
+                    torch.mps.empty_cache()
                 
                 # Probe actual expert weight shapes from the first available expert
                 probe_gate = self._get_tensor("model.layers.0.mlp.experts.0.gate_proj.weight")
@@ -370,7 +381,8 @@ class ExpertLoader:
                 self.adjust_cache_limit(is_decode=is_decode)
                 self.num_slots = self.cache_limit
                 
-                print(f"Allocating static GPU cache with {self.num_slots} expert {self.dtype} slots...")
+                device_type = "GPU" if self.DEVICE in ("cuda", "mps") else "CPU"
+                print(f"Allocating static {device_type} cache with {self.num_slots} expert {self.dtype} slots...")
                 print(f"  Expert gate/up shape: {list(self._expert_gate_shape)}, down shape: {list(self._expert_down_shape)}")
                 
                 # Pre-allocate weights with actual shapes
@@ -435,12 +447,12 @@ class ExpertLoader:
                 self.ram_hits += 1
             gate_fp8_cpu, gate_scale_cpu, up_fp8_cpu, up_scale_cpu, down_fp8_cpu, down_scale_cpu = cached_expert
             # Copy to GPU
-            gate_fp8 = gate_fp8_cpu.to(device=self.DEVICE)
-            gate_scale = gate_scale_cpu.to(device=self.DEVICE) if gate_scale_cpu is not None else None
-            up_fp8 = up_fp8_cpu.to(device=self.DEVICE)
-            up_scale = up_scale_cpu.to(device=self.DEVICE) if up_scale_cpu is not None else None
-            down_fp8 = down_fp8_cpu.to(device=self.DEVICE)
-            down_scale = down_scale_cpu.to(device=self.DEVICE) if down_scale_cpu is not None else None
+            gate_fp8 = self._prepare_fp8_tensor(gate_fp8_cpu, self.DEVICE)
+            gate_scale = self._prepare_fp8_tensor(gate_scale_cpu, self.DEVICE)
+            up_fp8 = self._prepare_fp8_tensor(up_fp8_cpu, self.DEVICE)
+            up_scale = self._prepare_fp8_tensor(up_scale_cpu, self.DEVICE)
+            down_fp8 = self._prepare_fp8_tensor(down_fp8_cpu, self.DEVICE)
+            down_scale = self._prepare_fp8_tensor(down_scale_cpu, self.DEVICE)
         else:
             with self.lock:
                 self.ssd_hits += 1
@@ -467,12 +479,12 @@ class ExpertLoader:
                 self.ram_cache.put(key, cached_expert)
                 
             # Copy to GPU
-            gate_fp8 = gate_fp8_cpu.to(device=self.DEVICE)
-            gate_scale = gate_scale_cpu.to(device=self.DEVICE) if gate_scale_cpu is not None else None
-            up_fp8 = up_fp8_cpu.to(device=self.DEVICE)
-            up_scale = up_scale_cpu.to(device=self.DEVICE) if up_scale_cpu is not None else None
-            down_fp8 = down_fp8_cpu.to(device=self.DEVICE)
-            down_scale = down_scale_cpu.to(device=self.DEVICE) if down_scale_cpu is not None else None
+            gate_fp8 = self._prepare_fp8_tensor(gate_fp8_cpu, self.DEVICE)
+            gate_scale = self._prepare_fp8_tensor(gate_scale_cpu, self.DEVICE)
+            up_fp8 = self._prepare_fp8_tensor(up_fp8_cpu, self.DEVICE)
+            up_scale = self._prepare_fp8_tensor(up_scale_cpu, self.DEVICE)
+            down_fp8 = self._prepare_fp8_tensor(down_fp8_cpu, self.DEVICE)
+            down_scale = self._prepare_fp8_tensor(down_scale_cpu, self.DEVICE)
 
         copy_ms = (time.time() - t_copy_start) * 1000.0
         self.load_ms_accum += copy_ms
