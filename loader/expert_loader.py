@@ -13,12 +13,12 @@ class ExpertLoader:
         
         # Memory / VRAM config
         self.max_vram_gb = 5.8
-        if config and "memory" in config and "max_vram_mb" in config:
+        if config and "memory" in config and "max_vram_mb" in config["memory"]:
             self.max_vram_gb = config["memory"]["max_vram_mb"] / 1024.0
             
         # Dtype config
         self.dtype = torch.float16
-        if config and "execution" in config and "dtype" in config:
+        if config and "execution" in config and "dtype" in config["execution"]:
             dtype_str = config["execution"]["dtype"]
             if dtype_str in ("bf16", "bfloat16"):
                 self.dtype = torch.bfloat16
@@ -35,7 +35,7 @@ class ExpertLoader:
         
         # Expert limit config
         self.cache_limit = 128  # Default limit
-        if config and "cache" in config and "expert_limit" in config:
+        if config and "cache" in config and "expert_limit" in config["cache"]:
             limit = config["cache"]["expert_limit"]
             if limit != "auto":
                 self.cache_limit = int(limit)
@@ -152,7 +152,7 @@ class ExpertLoader:
         if not torch.cuda.is_available():
             return
         
-        if self.config and "cache" in self.config and "expert_limit" in self.config:
+        if self.config and "cache" in self.config and "expert_limit" in self.config["cache"]:
             if self.config["cache"]["expert_limit"] != "auto":
                 self.cache_limit = int(self.config["cache"]["expert_limit"])
                 return

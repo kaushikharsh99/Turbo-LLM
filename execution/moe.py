@@ -4,8 +4,7 @@ import threading
 import queue
 import time
 
-@torch.compile(mode="max-autotune-no-cudagraphs", dynamic=False)
-def compiled_moe_seq(hidden_states, gate_weights, up_weights, down_weights, top_k_weights):
+def moe_seq(hidden_states, gate_weights, up_weights, down_weights, top_k_weights):
     final_output = torch.zeros_like(hidden_states)
     for i in range(8):
         gate_proj = gate_weights[i]
@@ -50,7 +49,7 @@ class MoEExecutor:
 
         # 2. Sequential matrix multiplication (no stacked weight allocations or copy kernels)
         t_gemm_start = time.time()
-        final_output = compiled_moe_seq(hidden_states, gate_weights, up_weights, down_weights, top_k_weights)
+        final_output = moe_seq(hidden_states, gate_weights, up_weights, down_weights, top_k_weights)
         gemm_ms = (time.time() - t_gemm_start) * 1000.0
         
         if layer_id == 21:

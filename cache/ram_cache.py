@@ -17,7 +17,7 @@ class RAMCache:
 
         available = psutil.virtual_memory().available
         ram_percent = 35
-        if self.config and "memory" in self.config and "max_ram_percent" in self.config:
+        if self.config and "memory" in self.config and "max_ram_percent" in self.config["memory"]:
             ram_percent = self.config["memory"]["max_ram_percent"]
 
         return int(

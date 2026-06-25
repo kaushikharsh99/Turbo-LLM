@@ -28,7 +28,7 @@ def generate(model, prompt, max_new_tokens=50, config=None):
     
     # Determine dtype from config
     dtype = torch.float16
-    if config and "execution" in config and "dtype" in config:
+    if config and "execution" in config and "dtype" in config["execution"]:
         dtype_str = config["execution"]["dtype"]
         if dtype_str in ("bf16", "bfloat16"):
             dtype = torch.bfloat16
@@ -113,7 +113,7 @@ def generate(model, prompt, max_new_tokens=50, config=None):
         vram_allocated = torch.cuda.memory_allocated()
         # Assert VRAM < memory limit
         max_vram_bytes = 5.8 * 1024**3
-        if config and "memory" in config and "max_vram_mb" in config:
+        if config and "memory" in config and "max_vram_mb" in config["memory"]:
             max_vram_bytes = config["memory"]["max_vram_mb"] * 1024**2
         assert vram_allocated < max_vram_bytes, f"VRAM allocation {vram_allocated / 1024**3:.2f} GB exceeds limit!"
         

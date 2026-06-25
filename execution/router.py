@@ -26,8 +26,8 @@ class RouterExecutor:
         # logits: [batch * seq_len, num_experts]
         logits = F.linear(hidden_flatten, router_weight)
         
-        # probabilities
-        probs = F.softmax(logits, dim=-1)
+        # probabilities — must use FP32 for numerical stability with 128 experts
+        probs = F.softmax(logits, dtype=torch.float, dim=-1)
         
         # topk
         k = top_k if top_k is not None else self.top_k
@@ -35,5 +35,8 @@ class RouterExecutor:
         
         # normalize weights
         top_k_weights = top_k_weights / top_k_weights.sum(dim=-1, keepdim=True)
+        
+        # cast back to input dtype for expert MLP computations
+        top_k_weights = top_k_weights.to(logits.dtype)
         
         return top_k_indices, top_k_weights
