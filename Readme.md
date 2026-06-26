@@ -9,7 +9,7 @@ Fast Memory-Efficient Inference Engine for Large MoE Models
 </p>
 
 <p align="center">
-🚀 ~18× Faster Than Initial Prototype • 🧠 30B MoE on ~6GB VRAM • ⚡ ~2 tok/s Warm Decode
+🚀 ~18× Faster Than Initial Prototype • 🧠 30B MoE on ~6GB VRAM • ⚡ 2.01 tok/s (RTX 3050) • 🍎 0.31 tok/s (Apple M4)
 </p>
 
 ---
@@ -33,22 +33,43 @@ Currently supported and tested model:
 
 * **Model ID**: `Qwen/Qwen3-30B-A3B-Instruct-2507-FP8`
 
-Current tested configuration:
+---
+Current tested configurations:
+
+### NVIDIA RTX 3050 Laptop
 
 ```text
-Ram:
-16 GB
-
 Model:
 Qwen/Qwen3-30B-A3B-Instruct-2507-FP8
 
+RAM:
+16 GB
+
 GPU:
-RTX 3050 6GB
+RTX 3050 Laptop (6 GB)
+
+Speed:
+~2.01 tok/s
 
 Peak VRAM:
-~5.3GB
+~5.3 GB
 ```
 
+### Apple M4
+
+```text
+Model:
+Qwen/Qwen3-30B-A3B-Instruct-2507-FP8
+
+Unified Memory:
+16 GB
+
+GPU:
+Apple M4
+
+Speed:
+~0.31 tok/s
+```
 ---
 
 ## Benchmark
@@ -57,7 +78,7 @@ Peak VRAM:
   <img src="assets/benchmark.png" width="900">
 </p>
 
-### Throughput Evolution
+### Throughput Evolution (RTX 3050)
 
 | Version             | Tokens/sec |
 | ------------------- | ---------: |
@@ -69,26 +90,13 @@ Peak VRAM:
 | Current             |       1.96 |
 | Warm Cache          |       2.22 |
 
-Latest long generation benchmark:
 
-```text
-Prompt:
-Generate ~500 words
+### Latest Performance
 
-Output:
-500 tokens
-
-Total Runtime:
-255.1 sec
-
-Speed:
-1.96 tok/s
-
-Peak VRAM:
-5.31 GB
-
-```
-
+| Platform | Throughput |
+|----------|-----------:|
+| RTX 3050 Laptop (6 GB) | **2.01 tok/s** |
+| Apple M4 (16 GB Unified Memory) | **0.31 tok/s** |
 ---
 
 ## Installation
@@ -97,26 +105,33 @@ Clone the repository:
 
 ```bash
 git clone https://github.com/kaushikharsh99/Turbo-LLM.git
-
 cd Turbo-LLM
 ```
 
-Create environment:
+Create a virtual environment:
 
 ```bash
 python -m venv .venv
-
-source .venv/bin/activate
 ```
 
-Install dependencies and package (Editable Development Mode):
+Activate it:
+
+```bash
+# Linux / macOS
+source .venv/bin/activate
+
+# Windows
+.venv\Scripts\activate
+```
+
+Install Turbo-LLM:
 
 ```bash
 pip install -r requirements.txt
 pip install -e .
 ```
-Installing the package in editable mode registers the `turbo-llm` command globally on your terminal path.
 
+Installing in editable mode registers the `turbo-llm` command globally.
 ---
 
 ## Download Model & Discovery
@@ -129,7 +144,9 @@ Specify the Hugging Face repo ID. Turbo-LLM automatically downloads and structur
 ```bash
 turbo-llm \
 --model Qwen/Qwen3-30B-A3B-Instruct-2507-FP8 \
---prompt "Hello"
+--prompt "Who is Donald Trump?" \
+--chat \
+--system "You are a frank, funny, joking explainer."
 ```
 
 ### Option B: Pre-Download Manually
@@ -154,82 +171,79 @@ Turbo-LLM/
 
 ---
 
-## Run Inference
+## Usage
 
 You can run inference using either the globally registered `turbo-llm` CLI tool, or directly executing `run.py`.
+### Chat Mode
 
-### 1. Global CLI (Recommended)
-
-Generate text:
-
-```bash
-turbo-llm \
---model ./model \
---prompt "Hello my name is"
-```
-
-Long generation:
+Launch an interactive chat session:
 
 ```bash
 turbo-llm \
 --model ./model \
---prompt "Choose any topic and write an informative article" \
---max_new_tokens 500
+--prompt "Hello!" \
+--chat
 ```
 
-### 2. Script Execution
-
-Generate text:
-
-```bash
-python run.py \
---model ./model \
---prompt "Hello my name is"
-```
-
----
-
-## Advanced Usage
-
-### Sampling Control
-Control sampling parameters directly from command line:
+Start a chat with a custom system prompt:
 
 ```bash
 turbo-llm \
---model ./model \
---prompt "Explain Mixture of Experts" \
---max_new_tokens 300 \
+--model Qwen/Qwen3-30B-A3B-Instruct-2507-FP8 \
+--prompt "Who is Donald Trump?" \
+--chat \
+--system "You are a frank, funny, joking explainer."
+```
+
+Chat with custom generation parameters:
+
+```bash
+turbo-llm \
+--model Qwen/Qwen3-30B-A3B-Instruct-2507-FP8 \
+--prompt "Explain quantum computing." \
+--chat \
+--system "You are a helpful AI assistant." \
 --temperature 0.7 \
---top_p 0.95
+--top_p 0.95 \
+--max_new_tokens 512
 ```
 
-Useful CLI parameters:
+### Useful CLI Parameters
 
 ```text
---config
-Path to custom YAML config file (defaults to config/default.yaml)
-
 --model
-Model directory path or Hugging Face repository ID
+Model directory path or Hugging Face repository ID.
 
 --prompt
-Input prompt string
+Initial user prompt (required for both completion and chat modes).
+
+--chat
+Launch interactive chat mode.
+
+--system
+System prompt used during chat mode.
 
 --max_new_tokens
-Max output length (tokens to generate)
+Maximum number of tokens to generate.
 
 --temperature
-Sampling temperature
+Sampling temperature.
 
 --top_p
-Nucleus sampling threshold (top_p)
+Nucleus sampling threshold.
 
 --benchmark
-Enable performance logging
+Enable performance logging.
+
+--config
+Path to a custom YAML configuration file.
 ```
 
 ### Configuration Files (YAML)
-Instead of passing arguments on the command line, you can specify default parameters using configuration YAML files:
+
+Instead of specifying runtime options on every command, you can store them in a YAML configuration file.
+
+Example:
 
 ```bash
 turbo-llm \
@@ -237,7 +251,8 @@ turbo-llm \
 --prompt "Explain Mixture of Experts"
 ```
 
-Default configuration layout (`config/default.yaml`):
+Default configuration (`config/default.yaml`):
+
 ```yaml
 model:
   path: "./model"
@@ -263,104 +278,22 @@ execution:
 
 ---
 
-## Repository Structure
-
-```text
-Turbo-LLM/
-
-run.py
-
-assets/
-├── logo.png
-├── benchmark.png
-
-cli/
-├── __init__.py
-├── args.py
-
-runtime/
-├── __init__.py
-├── generate.py
-
-config/
-├── __init__.py
-├── config.py
-├── default.yaml
-
-loader/
-├── __init__.py
-├── expert_loader.py
-├── model_manager.py
-
-execution/
-├── router.py
-├── moe.py
-├── layer_executor.py
-
-cache/
-├── kv_cache.py
-
-phase1_probe.py
-phase2_generate.py
-README.md
-```
-
----
-
-## Testing
-
-Architecture probe:
-
-```bash
-python phase1_probe.py
-```
-
-Generation:
-
-```bash
-python run.py \
---model ./model \
---prompt "Hello"
-```
-
-Benchmark:
-
-```bash
-python phase2_generate.py
-```
-
-Expected benchmark output:
-
-```text
-Tokens/sec
-Peak VRAM
-Peak RAM
-Layer timings
-```
-
----
-
 ## Features
 
-* Sequential MoE execution
-* Dynamic expert routing
-* KV cache
-* Adaptive expert residency
-* Static GPU buffers
-* Warm decode acceleration
-
----
-
-## Roadmap
-
-* [x] Sequential execution
-* [x] Dynamic expert loading
-* [x] Adaptive residency
-* [x] Static GPU buffers
-* [ ] CUDA Graph
-* [ ] Kernel fusion
-* [ ] 3–5 tok/s target
-
+- Dynamic expert streaming
+- SSD → RAM → VRAM hierarchical caching
+- Dynamic VRAM cache sizing
+- RAM expert cache
+- Layer-by-layer execution
+- Double buffering (Ping-Pong buffers)
+- Asynchronous prefetching
+- Persistent GPU buffers
+- KV cache
+- Interactive chat mode
+- System prompt support
+- Automatic model detection
+- Multi-model support
+- Cross-platform support (CUDA, CPU, macOS)
 ---
 
 ## Contributing
