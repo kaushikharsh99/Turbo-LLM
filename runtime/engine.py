@@ -1,8 +1,8 @@
 import torch
 import time
 import os
-import resource
 import gc
+import psutil
 from transformers import AutoTokenizer
 
 class TurboEngine:
@@ -176,7 +176,9 @@ class TurboEngine:
             print(f"Peak VRAM used    : {torch.cuda.max_memory_allocated() / 1024**2:.2f} MB")
         else:
             print("Peak VRAM used    : N/A (non-CUDA device)")
-        print(f"Peak System RAM   : {resource.getrusage(resource.RUSAGE_SELF).ru_maxrss / 1024:.2f} MB")
+        process = psutil.Process(os.getpid())
+        ram_mb = process.memory_info().rss / (1024 * 1024)
+        print(f"Current System RAM: {ram_mb:.2f} MB")
         
         if self.adapter.capabilities["is_moe"] and hasattr(self.layer, "attn_times") and len(self.layer.attn_times) > 0:
             avg_attn = sum(self.layer.attn_times) / len(self.layer.attn_times)
