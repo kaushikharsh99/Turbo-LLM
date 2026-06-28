@@ -19,6 +19,10 @@ class Qwen35LayerLayout(BaseLayerLayout):
         if self.is_linear(layer):
 
             weights += [
+                "mlp.shared_expert.gate_proj.weight",
+                "mlp.shared_expert.up_proj.weight",
+                "mlp.shared_expert.down_proj.weight",
+                "mlp.shared_expert_gate.weight",
                 "linear_attn.in_proj_qkv.weight",
                 "linear_attn.in_proj_z.weight",
                 "linear_attn.in_proj_a.weight",

@@ -47,10 +47,43 @@ class MoEExecutor:
             gate_weights.append(gate)
             up_weights.append(up)
             down_weights.append(down)
+            
+        prefix = self.loader.layout.layer_prefix_name(layer_id)
+
+        shared_gate = self.loader.load_weight(
+            f"{prefix}.mlp.shared_expert.gate_proj.weight"
+        )
+
+        shared_up = self.loader.load_weight(
+            f"{prefix}.mlp.shared_expert.up_proj.weight"
+        )
+
+        shared_down = self.loader.load_weight(
+            f"{prefix}.mlp.shared_expert.down_proj.weight"
+        )
+
+        shared_gate_weight = self.loader.load_weight(
+            f"{prefix}.mlp.shared_expert_gate.weight"
+        )
 
         # 2. Sequential matrix multiplication (no stacked weight allocations or copy kernels)
         t_gemm_start = time.time()
         final_output = moe_seq(hidden_states, gate_weights, up_weights, down_weights, top_k_weights)
+        
+        # Shared expert
+        shared_gate_out = F.linear(hidden_states, shared_gate)
+        shared_up_out = F.linear(hidden_states, shared_up)
+
+        shared_hidden = F.silu(shared_gate_out) * shared_up_out
+
+        shared_output = F.linear(shared_hidden, shared_down)
+
+        shared_gate_score = torch.sigmoid(
+            F.linear(hidden_states, shared_gate_weight)
+        )
+
+        final_output += shared_gate_score * shared_output
+
         gemm_ms = (time.time() - t_gemm_start) * 1000.0
         
         if layer_id == 21:
@@ -77,7 +110,23 @@ class MoEExecutor:
         # ----------------------------------------------------
         self.loader.clear_pinned_slots()
         final_output = torch.zeros_like(hidden_states)
-        
+        prefix = self.loader.layout.layer_prefix_name(layer_id)
+
+        shared_gate = self.loader.load_weight(
+            f"{prefix}.mlp.shared_expert.gate_proj.weight"
+        )
+
+        shared_up = self.loader.load_weight(
+            f"{prefix}.mlp.shared_expert.up_proj.weight"
+        )
+
+        shared_down = self.loader.load_weight(
+            f"{prefix}.mlp.shared_expert.down_proj.weight"
+        )
+
+        shared_gate_weight = self.loader.load_weight(
+            f"{prefix}.mlp.shared_expert_gate.weight"
+        )
         # Find unique experts needed for this batch of tokens
         unique_experts = torch.unique(top_k_indices).tolist()
         if not unique_experts:
@@ -138,6 +187,18 @@ class MoEExecutor:
                 except queue.Empty:
                     break
             loader_thread.join()
+            shared_gate_out = F.linear(hidden_states, shared_gate)
+            shared_up_out = F.linear(hidden_states, shared_up)
+
+            shared_hidden = F.silu(shared_gate_out) * shared_up_out
+
+            shared_output = F.linear(shared_hidden, shared_down)
+
+            shared_gate_score = torch.sigmoid(
+                F.linear(hidden_states, shared_gate_weight)
+            )
+
+            final_output += shared_gate_score * shared_output
 
         if self.loader.DEVICE == "cuda":
             torch.cuda.synchronize()
