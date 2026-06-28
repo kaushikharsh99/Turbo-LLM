@@ -1,6 +1,9 @@
 from models.qwen3_moe import (
     Qwen3MoeAdapter
 )
+from models.qwen3_5_moe import (
+    Qwen35MoeAdapter
+)
 from models.llama import (
     LlamaAdapter
 )
@@ -8,15 +11,18 @@ from models.olmoe import (
     OLMoEAdapter
 )
 
-MODEL_REGISTRY={
+MODEL_REGISTRY = {
 
-"qwen3_moe":
-Qwen3MoeAdapter,
+    "qwen3_moe":
+    Qwen3MoeAdapter,
 
-"llama":
-LlamaAdapter,
+    "qwen3_5_moe":
+    Qwen35MoeAdapter,
 
-"olmoe":
-OLMoEAdapter,
+    "llama":
+    LlamaAdapter,
+
+    "olmoe":
+    OLMoEAdapter,
 
 }

@@ -59,6 +59,13 @@ class BaseModelAdapter(ABC):
         position_ids,
     ):
         pass
+    
+    @abstractmethod
+    def create_cache(
+        self,
+        max_seq_len,
+    ):
+        pass
 
     @property
     @abstractmethod

@@ -1,6 +1,6 @@
 Metadata-Version: 2.4
 Name: turbo-llm
-Version: 0.1.0
+Version: 0.1.1
 Summary: Turbo-LLM: Fast memory-efficient inference engine for large MoE models
 Home-page: https://github.com/kaushikharsh99/Turbo-LLM
 Author: kaushikharsh99

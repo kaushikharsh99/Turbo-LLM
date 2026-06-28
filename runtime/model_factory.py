@@ -10,6 +10,16 @@ config,
 ):
 
     arch=config.architectures[0]
+    
+    if "Qwen3_5Moe" in arch:
+
+        print(f"Detected: Qwen35MoeAdapter (arch={arch})")
+        return MODEL_REGISTRY[
+            "qwen3_5_moe"
+        ](
+            model,
+            loader,
+        )
 
     if "Qwen3Moe" in arch:
 

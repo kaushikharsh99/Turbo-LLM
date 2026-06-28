@@ -17,12 +17,12 @@ class ExpertLoader:
     def __init__(self, snapshot_path, config=None):
         self.snapshot_path = snapshot_path
         self.config = config
-        
+
         # Memory / VRAM config
         self.max_vram_gb = 5.8
         if config and "memory" in config and "max_vram_mb" in config:
             self.max_vram_gb = config["memory"]["max_vram_mb"] / 1024.0
-            
+
         # Dtype config
         self.dtype = torch.float16
         if config and "execution" in config and "dtype" in config:
@@ -32,54 +32,28 @@ class ExpertLoader:
             elif dtype_str in ("fp32", "float32"):
                 self.dtype = torch.float32
 
-        index_path = os.path.join(snapshot_path, "model.safetensors.index.json")
-        if os.path.exists(index_path):
-            with open(index_path, "r") as f:
-                self.index = json.load(f)
-            self.weight_map = self.index["weight_map"]
-        else:
-            single_path = os.path.join(snapshot_path, "model.safetensors")
-            if os.path.exists(single_path):
-                from safetensors import safe_open
-                with safe_open(single_path, framework="pt", device="cpu") as f:
-                    keys = f.keys()
-                self.weight_map = {k: "model.safetensors" for k in keys}
-            else:
-                import glob
-                safetensors_files = glob.glob(os.path.join(snapshot_path, "*.safetensors"))
-                if safetensors_files:
-                    if len(safetensors_files) == 1:
-                        single_path = safetensors_files[0]
-                        filename = os.path.basename(single_path)
-                        from safetensors import safe_open
-                        with safe_open(single_path, framework="pt", device="cpu") as f:
-                            keys = f.keys()
-                        self.weight_map = {k: filename for k in keys}
-                    else:
-                        # Construct a weight map from all safetensors files
-                        self.weight_map = {}
-                        for sf in safetensors_files:
-                            filename = os.path.basename(sf)
-                            from safetensors import safe_open
-                            with safe_open(sf, framework="pt", device="cpu") as f:
-                                for k in f.keys():
-                                    self.weight_map[k] = filename
-                else:
-                    self.weight_map = {}
-        self.files = {} # Cache of safe_open handles
+        # Model layout (NEW)
+        from loader.model_layout import ModelLayout
+
+        self.layout = ModelLayout(snapshot_path)
+        self.weight_map = self.layout.weight_map
+
+        # Cache of safe_open handles
+        self.files = {}
+
         self.expert_cache = {}
         self.expert_metadata = {}
-        
+
         # Expert limit config
-        self.cache_limit = 128  # Default limit
+        self.cache_limit = 128
         if config and "cache" in config and "expert_limit" in config:
             limit = config["cache"]["expert_limit"]
             if limit != "auto":
                 self.cache_limit = int(limit)
-        
+
         # Thread lock for prefetching and cache management
         self.lock = threading.Lock()
-        
+
         # Lazy allocation variables for static slots
         self.static_expert_gate = None
         self.static_expert_up = None
@@ -87,7 +61,7 @@ class ExpertLoader:
         self.num_slots = 0
         self.free_slots = []
         self.pinned_slots = set()
-        
+
         # Instrumentation metrics
         self.load_ms_accum = 0.0
         self.dequant_ms_accum = 0.0
@@ -101,6 +75,7 @@ class ExpertLoader:
         self.load_counter = 0
         self.ssd_load_counter = 0
 
+        
     def _get_tensor(self, weight_name):
         filename = self.weight_map[weight_name]
         if filename not in self.files:
@@ -317,18 +292,45 @@ class ExpertLoader:
                 self.ssd_hits += 1
                 self.ssd_load_counter += 1
                 trigger_gc = (self.ssd_load_counter % 20 == 0)
-            prefix = f"model.layers.{layer_id}.mlp.experts.{expert_id}"
+            prefix = self.layout.expert_prefix_name(
+                layer_id,
+                expert_id,
+            )
             
-            gate_fp8_cpu = self._get_tensor(f"{prefix}.gate_proj.weight")
-            gate_scale_name = f"{prefix}.gate_proj.weight_scale_inv"
+            gate_fp8_cpu = self._get_tensor(
+                                self.layout.gate_tensor(
+                                    layer_id,
+                                    expert_id,
+                                )
+                            )
+            gate_scale_name = (
+                self.layout.gate_tensor(layer_id, expert_id)
+                + "_scale_inv"
+            )
             gate_scale_cpu = self._get_tensor(gate_scale_name) if gate_scale_name in self.weight_map else None
 
-            up_fp8_cpu = self._get_tensor(f"{prefix}.up_proj.weight")
-            up_scale_name = f"{prefix}.up_proj.weight_scale_inv"
+            up_fp8_cpu = self._get_tensor(
+                            self.layout.up_tensor(
+                                layer_id,
+                                expert_id,
+                            )
+                        )
+            up_scale_name = (
+                self.layout.up_tensor(layer_id, expert_id)
+                + "_scale_inv"
+            )
             up_scale_cpu = self._get_tensor(up_scale_name) if up_scale_name in self.weight_map else None
 
-            down_fp8_cpu = self._get_tensor(f"{prefix}.down_proj.weight")
-            down_scale_name = f"{prefix}.down_proj.weight_scale_inv"
+            down_fp8_cpu = self._get_tensor(
+                                self.layout.down_tensor(
+                                    layer_id,
+                                    expert_id,
+                                )
+                            )
+            down_scale_name = (
+                self.layout.down_tensor(layer_id, expert_id)
+                + "_scale_inv"
+            )
             down_scale_cpu = self._get_tensor(down_scale_name) if down_scale_name in self.weight_map else None
 
             cached_expert = (
@@ -373,8 +375,12 @@ class ExpertLoader:
                     torch.mps.empty_cache()
                 
                 # Probe actual expert weight shapes from the first available expert
-                probe_gate = self._get_tensor("model.layers.0.mlp.experts.0.gate_proj.weight")
-                probe_down = self._get_tensor("model.layers.0.mlp.experts.0.down_proj.weight")
+                probe_gate = self._get_tensor(
+                    self.layout.gate_tensor(0, 0)
+                )
+                probe_down = self._get_tensor(
+                    self.layout.down_tensor(0, 0)
+                )
                 self._expert_gate_shape = probe_gate.shape  # e.g. (768, 2048) or (1024, 2048)
                 self._expert_down_shape = probe_down.shape  # e.g. (2048, 768) or (2048, 1024)
                 
@@ -435,7 +441,10 @@ class ExpertLoader:
             self.evict_ms_accum += evict_ms
             
         # 4. Load raw weights from CPU (RAM Cache or SSD) to GPU (split timing)
-        prefix = f"model.layers.{layer_id}.mlp.experts.{expert_id}"
+        prefix = self.layout.expert_prefix_name(
+            layer_id,
+            expert_id,
+        )
         
         t_copy_start = time.time()
         with self.lock:
@@ -458,16 +467,40 @@ class ExpertLoader:
                 self.ssd_hits += 1
                 self.ssd_load_counter += 1
                 trigger_gc = (self.ssd_load_counter % 20 == 0)
-            gate_fp8_cpu = self._get_tensor(f"{prefix}.gate_proj.weight")
-            gate_scale_name = f"{prefix}.gate_proj.weight_scale_inv"
+            gate_fp8_cpu = self._get_tensor(
+                                self.layout.gate_tensor(
+                                    layer_id,
+                                    expert_id,
+                                )
+                            )
+            gate_scale_name = (
+                self.layout.gate_tensor(layer_id, expert_id)
+                + "_scale_inv"
+            )
             gate_scale_cpu = self._get_tensor(gate_scale_name) if gate_scale_name in self.weight_map else None
 
-            up_fp8_cpu = self._get_tensor(f"{prefix}.up_proj.weight")
-            up_scale_name = f"{prefix}.up_proj.weight_scale_inv"
+            up_fp8_cpu = self._get_tensor(
+                            self.layout.up_tensor(
+                                layer_id,
+                                expert_id,
+                            )
+                        )
+            up_scale_name = (
+                self.layout.up_tensor(layer_id, expert_id)
+                + "_scale_inv"
+            )
             up_scale_cpu = self._get_tensor(up_scale_name) if up_scale_name in self.weight_map else None
 
-            down_fp8_cpu = self._get_tensor(f"{prefix}.down_proj.weight")
-            down_scale_name = f"{prefix}.down_proj.weight_scale_inv"
+            down_fp8_cpu = self._get_tensor(
+                                self.layout.down_tensor(
+                                    layer_id,
+                                    expert_id,
+                                )
+                            )
+            down_scale_name = (
+                self.layout.down_tensor(layer_id, expert_id)
+                + "_scale_inv"
+            )
             down_scale_cpu = self._get_tensor(down_scale_name) if down_scale_name in self.weight_map else None
 
             cached_expert = (
@@ -547,7 +580,10 @@ class ExpertLoader:
         """
         Helper method to retrieve raw FP8 weight and scale tensors directly from disk/VRAM.
         """
-        prefix = f"model.layers.{layer_id}.mlp.experts.{expert_id}"
+        prefix = self.layout.expert_prefix_name(
+            layer_id,
+            expert_id,
+        )
         gate_fp8, gate_scale = self.load_weight_raw(f"{prefix}.gate_proj.weight")
         up_fp8, up_scale = self.load_weight_raw(f"{prefix}.up_proj.weight")
         down_fp8, down_scale = self.load_weight_raw(f"{prefix}.down_proj.weight")

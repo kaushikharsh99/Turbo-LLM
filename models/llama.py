@@ -1,4 +1,5 @@
 from models.base import BaseModelAdapter
+from cache.kv_cache import KVCache
 
 class LlamaAdapter(BaseModelAdapter):
 
@@ -69,3 +70,9 @@ class LlamaAdapter(BaseModelAdapter):
     @property
     def is_moe(self):
         return False
+    
+    def create_cache(
+        self,
+        max_seq_len,
+    ):
+        return KVCache(max_seq_len)

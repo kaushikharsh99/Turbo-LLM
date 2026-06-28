@@ -28,9 +28,7 @@ class TurboEngine:
     def generate(self, prompt, max_new_tokens=50, config=None, chat=False, system_prompt=None):
         DEVICE = self.loader.DEVICE
         
-        model_name_or_path = getattr(self.adapter.model, "name_or_path", None)
-        if not model_name_or_path:
-            model_name_or_path = getattr(self.adapter.model.config, "_name_or_path", None)
+        model_name_or_path = self.loader.snapshot_path
         
         tokenizer = AutoTokenizer.from_pretrained(
             model_name_or_path,
@@ -63,8 +61,9 @@ class TurboEngine:
         input_ids = inputs.input_ids
         prompt_len = input_ids.shape[1]
 
-        from cache.kv_cache import KVCache
-        kv_cache = KVCache(max_seq_len=prompt_len + max_new_tokens)
+        kv_cache = self.adapter.create_cache(
+            prompt_len + max_new_tokens
+        )
         
         print(f"Generating {max_new_tokens} tokens...")
         

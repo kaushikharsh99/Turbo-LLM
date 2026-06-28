@@ -1,94 +1,188 @@
-import torch
 import time
-import torch.nn.functional as F
+
+import torch
 from accelerate.utils import set_module_tensor_to_device
 
+
 class LayerExecutor:
+
     def __init__(self, adapter, loader, router_exec, moe_exec):
         self.adapter = adapter
         self.model = adapter.create_meta_model()
         self.loader = loader
         self.router_exec = router_exec
         self.moe_exec = moe_exec
-        
-        # Non-MoE layer weight names inside a layer module
-        self.non_moe_weight_names = [
-            "input_layernorm.weight",
-            "self_attn.q_proj.weight",
-            "self_attn.k_proj.weight",
-            "self_attn.v_proj.weight",
-            "self_attn.o_proj.weight",
-            "self_attn.q_norm.weight",
-            "self_attn.k_norm.weight",
-            "post_attention_layernorm.weight"
-        ]
+
+        self.layer_layout = adapter.create_layer_layout()
+
         self.preload_backbone_weights()
- 
+
     def preload_backbone_weights(self):
-        device_type = "GPU VRAM" if self.loader.DEVICE in ("cuda", "mps") else "System RAM"
-        print(f"Preloading backbone weights for all {self.adapter.num_layers} layers to {device_type}...")
+
+        device_type = (
+            "GPU VRAM"
+            if self.loader.DEVICE in ("cuda", "mps")
+            else "System RAM"
+        )
+
+        print(
+            f"Preloading backbone weights for all {self.adapter.num_layers} layers to {device_type}..."
+        )
+
         for layer_id in range(self.adapter.num_layers):
-            prefix = f"model.layers.{layer_id}"
-            for name in self.non_moe_weight_names:
+
+            prefix = self.loader.layout.layer_prefix_name(layer_id)
+
+            for name in self.layer_layout.preload_weights(layer_id):
+
                 full_name = f"{prefix}.{name}"
-                w = self.loader.load_weight(full_name)
+
+
+                weight = self.loader.load_weight(full_name)
+
+
+                module_name = self.loader.layout.module_name(full_name)
+
                 set_module_tensor_to_device(
-                self.model,
-                full_name,
-                device=self.loader.DEVICE,
-                value=w,
+                    self.model,
+                    module_name,
+                    device=self.loader.DEVICE,
+                    value=weight,
                 )
-                
-        print(f"Preloading embedding, norm, and lm_head weights to {device_type}...")
-        embed_w = self.loader.load_weight("model.embed_tokens.weight")
-        set_module_tensor_to_device(self.model, "model.embed_tokens.weight", device=self.loader.DEVICE, value=embed_w)
-        
-        norm_w = self.loader.load_weight("model.norm.weight")
-        set_module_tensor_to_device(self.model, "model.norm.weight", device=self.loader.DEVICE, value=norm_w)
-        
-        lm_head_w = self.loader.load_weight("lm_head.weight")
-        set_module_tensor_to_device(self.model, "lm_head.weight", device=self.loader.DEVICE, value=lm_head_w)
- 
+
+        print(
+            f"Preloading embedding, norm, and lm_head weights to {device_type}..."
+        )
+
+        # Embedding
+        embed_name = self.loader.layout.embed_tensor()
+
+        embed_weight = self.loader.load_weight(embed_name)
+
+        set_module_tensor_to_device(
+            self.model,
+            self.loader.layout.module_name(embed_name),
+            device=self.loader.DEVICE,
+            value=embed_weight,
+        )
+
+        # Final RMSNorm
+        norm_name = self.loader.layout.norm_tensor()
+
+        norm_weight = self.loader.load_weight(norm_name)
+
+        set_module_tensor_to_device(
+            self.model,
+            self.loader.layout.module_name(norm_name),
+            device=self.loader.DEVICE,
+            value=norm_weight,
+        )
+
+        # LM Head
+        lm_head_name = self.loader.layout.lm_head_tensor()
+
+        lm_head_weight = self.loader.load_weight(lm_head_name)
+
+        set_module_tensor_to_device(
+            self.model,
+            self.loader.layout.module_name(lm_head_name),
+            device=self.loader.DEVICE,
+            value=lm_head_weight,
+
+        )
+        # Move RoPE buffers (inv_freq, original_inv_freq) to GPU
+        text_model = self.adapter.text_model
+
+        if hasattr(text_model, "rotary_emb"):
+            text_model.rotary_emb = text_model.rotary_emb.to(self.loader.DEVICE)
+
     @torch.no_grad()
-    def execute_layer(self, layer_id, hidden_states, attention_mask, position_ids, position_embeddings, kv_cache=None):
+    def execute_layer(
+        self,
+        layer_id,
+        hidden_states,
+        attention_mask,
+        position_ids,
+        position_embeddings,
+        kv_cache=None,
+    ):
+
         layer_module = self.adapter.layers()[layer_id]
 
-        # Initialize profiling lists if not present
         if not hasattr(self, "attn_times"):
             self.attn_times = []
             self.moe_times = []
 
-        # 2. Execute Layernorm & Self-Attention (weights are preloaded!)
+        # ---------------- Attention ----------------
+
         t_start_attn = time.time()
+
         residual = hidden_states
-        normed_hidden = layer_module.input_layernorm(hidden_states)
-        
-        attn_output, _ = layer_module.self_attn(
-            hidden_states=normed_hidden,
-            attention_mask=attention_mask,
-            position_ids=position_ids,
-            position_embeddings=position_embeddings,
-            past_key_values=kv_cache,
+
+        normed_hidden = self.layer_layout.input_norm(layer_module)(
+            hidden_states
         )
+
+        if hasattr(layer_module, "linear_attn"):
+
+            attn_output = layer_module.linear_attn(
+                hidden_states=normed_hidden,
+                cache_params=kv_cache,
+                attention_mask=attention_mask,
+            )
+
+        else:
+
+            attn_output, _ = layer_module.self_attn(
+                hidden_states=normed_hidden,
+                position_embeddings=position_embeddings,
+                attention_mask=attention_mask,
+                past_key_values=kv_cache,
+            )
+
         hidden_states = residual + attn_output
-        self.attn_times.append(time.time() - t_start_attn)
-        
-        # 3. Post-attention Norm & MoE MLP
+
+        self.attn_times.append(
+            time.time() - t_start_attn
+        )
+
+        # ---------------- MoE ----------------
+
         t_start_moe = time.time()
+
         residual = hidden_states
-        normed_attn = layer_module.post_attention_layernorm(hidden_states)
-        
-        # Router computation (preloaded!)
-        top_k_indices, top_k_weights = self.router_exec.compute_routing(layer_id, normed_attn)
-        
-        # Execute experts sequentially
-        orig_shape = normed_attn.shape
-        hidden_flatten = normed_attn.view(-1, orig_shape[-1])
-        moe_output = self.moe_exec.execute_layer(layer_id, hidden_flatten, top_k_indices, top_k_weights)
-        moe_output = moe_output.view(orig_shape)
-        
+
+        normed_attn = self.layer_layout.post_norm(layer_module)(
+            hidden_states
+        )
+
+        top_k_indices, top_k_weights = (
+            self.router_exec.compute_routing(
+                layer_id,
+                normed_attn,
+            )
+        )
+
+        original_shape = normed_attn.shape
+
+        hidden_flat = normed_attn.view(
+            -1,
+            original_shape[-1],
+        )
+
+        moe_output = self.moe_exec.execute_layer(
+            layer_id,
+            hidden_flat,
+            top_k_indices,
+            top_k_weights,
+        )
+
+        moe_output = moe_output.view(original_shape)
+
         hidden_states = residual + moe_output
-        self.moe_times.append(time.time() - t_start_moe)
+
+        self.moe_times.append(
+            time.time() - t_start_moe
+        )
         
-        kv = kv_cache.get(layer_id) if kv_cache is not None else None
-        return hidden_states, kv
+        return hidden_states, None  

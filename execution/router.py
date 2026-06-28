@@ -9,7 +9,7 @@ class RouterExecutor:
         self.routers = {}
         # Preload router weights to VRAM (only 24 MB total)
         for i in range(self.num_layers):
-            weight_name = f"model.layers.{i}.mlp.gate.weight"
+            weight_name = self.loader.layout.router_tensor(i)
             self.routers[i] = self.loader.load_weight(weight_name)
 
     def compute_routing(self, layer_id, hidden_states, top_k=None):

@@ -1,7 +1,8 @@
 import torch
+from .base_cache import BaseCache
 
 
-class KVCache:
+class KVCache(BaseCache):
     """
     Pre-allocated KV cache with O(1) per-token append.
 
@@ -12,12 +13,13 @@ class KVCache:
     Buffers are lazily allocated per-layer on first update(), so shapes
     (batch, num_kv_heads, head_dim, dtype) are inferred automatically.
     """
-
-    def __init__(self, max_seq_len=4096):
+    def __init__(self, max_seq_len=4096, cache_type="standard"):
         self.max_seq_len = max_seq_len
-        self._keys = {}       # layer_idx -> [batch, heads, max_seq_len, dim]
-        self._values = {}     # layer_idx -> [batch, heads, max_seq_len, dim]
-        self._seq_lengths = {}  # layer_idx -> int (current valid length)
+        self.cache_type = cache_type
+
+        self._keys = {}
+        self._values = {}
+        self._seq_lengths = {}
 
     # ------------------------------------------------------------------
     # HF-compatible interface (called by self_attn.forward)
@@ -125,3 +127,10 @@ class KVCache:
             dtype=dtype, device=device
         )
         self._seq_lengths[layer_idx] = 0
+    @property
+    def is_empty(self):
+        return len(self._seq_lengths) == 0
+    
+    def reset_layer(self, layer_idx):
+        if layer_idx in self._seq_lengths:
+            self._seq_lengths[layer_idx] = 0
