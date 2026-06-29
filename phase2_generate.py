@@ -11,6 +11,8 @@ def generate(
         model,
         prompt,
         max_new_tokens=50,
+        temperature=0.0,
+        top_p=1.0,
         config=None,
         chat=False,
         system_prompt=None,
@@ -59,6 +61,8 @@ def generate(
     return engine.generate(
         prompt=prompt,
         max_new_tokens=max_new_tokens,
+        temperature=temperature,
+        top_p=top_p,
         config=config,
         chat=chat,
         system_prompt=system_prompt,

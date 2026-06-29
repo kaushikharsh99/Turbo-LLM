@@ -18,6 +18,8 @@ def run_generation(
         model=model,
         prompt=prompt,
         max_new_tokens=max_new_tokens,
+        temperature=temperature,
+        top_p=top_p,
         config=config,
         chat=chat,
         system_prompt=system_prompt,

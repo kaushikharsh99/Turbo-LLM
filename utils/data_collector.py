@@ -38,6 +38,8 @@ class DataCollector:
         position,
         generation_step,
         thinking,
+        temperature,
+        top_p,
     ):
 
         if self.num_layers is None:
@@ -55,6 +57,8 @@ class DataCollector:
             "thinking": thinking,
             # Decode step (1,2,3,...)
             "generation_step": generation_step,
+            "temperature": temperature,
+            "top_p": top_p,
 
             "routes": [None] * self.num_layers
         }
@@ -93,6 +97,9 @@ class DataCollector:
                 "position": self.current_token["position"],
                 "generation_step": self.current_token["generation_step"],
                 "thinking": self.current_token["thinking"],
+
+                "temperature": self.current_token["temperature"],
+                "top_p": self.current_token["top_p"],
 
                 "layer_id": layer,
 

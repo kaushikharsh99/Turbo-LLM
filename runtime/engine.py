@@ -29,11 +29,14 @@ class TurboEngine:
         self,
         prompt,
         max_new_tokens=50,
+        temperature=0.0,
+        top_p=1.0,
         config=None,
         chat=False,
         system_prompt=None,
         collector=None,
         thinking="off",
+
 
     ):
         
@@ -59,7 +62,7 @@ class TurboEngine:
                 "role": "user",
                 "content": prompt,
             })
-            print(f"Thinking mode: {thinking}")
+            
 
             formatted_prompt = tokenizer.apply_chat_template(
                 messages,
@@ -114,13 +117,15 @@ class TurboEngine:
                 position_ids=position_ids
             )
             if collector is not None:
-                print("Thinking passed to collector:", thinking, thinking == "on")
+                
                 collector.begin_token(
                     token_id=-1,
                     token_text="",
                     position=position_ids[0, -1].item() + 1,
                     generation_step=step + 1,
                     thinking=(thinking == "on"),
+                    temperature=temperature,
+                    top_p=top_p,
                 )
             # 7. Layer-by-Layer Execution
             if self.adapter.capabilities["is_moe"]:
@@ -151,7 +156,60 @@ class TurboEngine:
 
             # 10. Argmax & Get Token
             next_token_logits = logits[0, -1, :]
-            next_token_id = torch.argmax(next_token_logits, dim=-1)
+
+            # Greedy decoding
+            if temperature <= 0:
+                next_token_id = torch.argmax(next_token_logits, dim=-1)
+
+            # Sampling
+            else:
+                # Apply temperature
+                next_token_logits = next_token_logits / temperature
+
+                # Convert to probabilities
+                probs = torch.softmax(next_token_logits, dim=-1)
+
+                # Top-p (nucleus) filtering
+                if top_p < 1.0:
+
+                    sorted_probs, sorted_indices = torch.sort(
+                        probs,
+                        descending=True,
+                    )
+
+                    cumulative_probs = torch.cumsum(
+                        sorted_probs,
+                        dim=-1,
+                    )
+
+                    remove_mask = cumulative_probs > top_p
+
+                    # Keep at least one token
+                    remove_mask[..., 1:] = remove_mask[..., :-1].clone()
+                    remove_mask[..., 0] = False
+
+                    sorted_probs[remove_mask] = 0
+
+                    total = sorted_probs.sum()
+
+                    if total > 0:
+                        sorted_probs /= total
+                    else:
+                        sorted_probs = torch.softmax(next_token_logits, dim=-1)
+
+                    sampled = torch.multinomial(
+                        sorted_probs,
+                        1,
+                    )
+
+                    next_token_id = sorted_indices[sampled]
+
+                else:
+
+                    next_token_id = torch.multinomial(
+                        probs,
+                        1,
+                    ).squeeze(-1)
             next_token = tokenizer.decode([next_token_id.item()])
 
             generated_text += next_token
