@@ -56,6 +56,13 @@ def parse_args():
     )
 
     parser.add_argument(
+        "--thinking",
+        choices=["on", "off"],
+        default="off",
+        help="Qwen thinking mode (default: off)"
+    )
+
+    parser.add_argument(
         "--system",
         type=str,
         default=None,

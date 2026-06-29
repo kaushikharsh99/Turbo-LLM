@@ -11,6 +11,7 @@ def run_generation(
     chat=False,
     system_prompt=None,
     collector=None,
+    thinking="off",
 ):
 
     return generate(

@@ -31,6 +31,7 @@ def main():
             config=cfg,
             chat=args.chat,
             system_prompt=args.system,
+            thinking=args.thinking,
         )
 
         print("\nOutput:\n")

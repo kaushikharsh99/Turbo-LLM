@@ -33,6 +33,8 @@ class TurboEngine:
         chat=False,
         system_prompt=None,
         collector=None,
+        thinking="off",
+
     ):
         
         self.layer.collector = collector        
@@ -57,10 +59,13 @@ class TurboEngine:
                 "role": "user",
                 "content": prompt,
             })
+            print(f"Thinking mode: {thinking}")
+
             formatted_prompt = tokenizer.apply_chat_template(
                 messages,
                 tokenize=False,
                 add_generation_prompt=True,
+                enable_thinking=(thinking == "on"),
             )
             print(f"Prompt (chat mode): {prompt}")
         else:
@@ -83,8 +88,9 @@ class TurboEngine:
         start_time = time.time()
         next_token_id = None
         generated_text = ""
+        generated_tokens = 0
+
         ttft = None
-        decode_start = None
         
         for step in range(max_new_tokens):
             step_start_time = time.time()
@@ -147,20 +153,19 @@ class TurboEngine:
             next_token = tokenizer.decode([next_token_id.item()])
 
             generated_text += next_token
-            
+            generated_tokens += 1
+
+            # Record TTFT immediately after the first token is produced
+            if step == 0:
+                ttft = time.time() - start_time
+                
+
             if collector is not None:
                 collector.current_token["token_id"] = next_token_id.item()
                 collector.current_token["token_text"] = next_token
                 collector.finish_token()
 
-            # Stop if EOS token is generated
-            if tokenizer.eos_token_id is not None and next_token_id.item() == tokenizer.eos_token_id:
-                print("\nEOS token generated. Stopping generation.")
-                break
             
-            if step == 0:
-                ttft = time.time() - start_time
-                decode_start = time.time()
             
             # Memory tracking
             if DEVICE == "cuda":
@@ -192,7 +197,11 @@ class TurboEngine:
             else:
                 print(f"Step {step:02d} | Token: {repr(next_token):<10} (ID: {next_token_id.item():<5}) | "
                       f"Peak VRAM: {peak_vram_step:.2f} MB | Cache VRAM: {kv_mb:.2f} MB | Time: {step_duration:.2f}s")
-
+            
+            # Stop if EOS token is generated
+            if tokenizer.eos_token_id is not None and next_token_id.item() == tokenizer.eos_token_id:
+                print("\nEOS token generated. Stopping generation.")
+                break
         total_duration = time.time() - start_time
 
         decode_duration = (
@@ -201,7 +210,7 @@ class TurboEngine:
             else total_duration
         )
 
-        decode_tokens = max(max_new_tokens - 1, 0)
+        decode_tokens = max(generated_tokens - 1, 0)
 
         decode_tokens_per_sec = (
             decode_tokens / decode_duration
@@ -210,7 +219,7 @@ class TurboEngine:
         )
 
         overall_tokens_per_sec = (
-            max_new_tokens / total_duration
+            generated_tokens / total_duration
             if total_duration > 0
             else 0.0
         )
@@ -220,11 +229,14 @@ class TurboEngine:
 
         print(f"Prompt            : {prompt}")
         print(f"Generated text    : {generated_text}")
-        print(f"Generated tokens  : {max_new_tokens}")
+        print(f"Generated tokens  : {generated_tokens}")
 
         print("\nLatency")
         print("-" * 60)
-        print(f"Time to First Token : {ttft:.2f} s")
+        if ttft is not None:
+            print(f"Time to First Token : {ttft:.2f} s")
+        else:
+            print("Time to First Token : N/A")
 
         print("\nDecode")
         print("-" * 60)

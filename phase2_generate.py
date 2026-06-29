@@ -15,6 +15,7 @@ def generate(
         chat=False,
         system_prompt=None,
         collector=None,
+        thinking="off",
     ):
     # 1. Initialize Loader
     print(f"Loading weights index from {model}...")
