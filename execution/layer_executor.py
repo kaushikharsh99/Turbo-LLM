@@ -6,12 +6,20 @@ from accelerate.utils import set_module_tensor_to_device
 
 class LayerExecutor:
 
-    def __init__(self, adapter, loader, router_exec, moe_exec):
+    def __init__(
+        self,
+        adapter,
+        loader,
+        router_exec,
+        moe_exec,
+        collector=None,
+    ):
         self.adapter = adapter
         self.model = adapter.create_meta_model()
         self.loader = loader
         self.router_exec = router_exec
         self.moe_exec = moe_exec
+        self.collector = collector
 
         self.layer_layout = adapter.create_layer_layout()
 
@@ -163,6 +171,14 @@ class LayerExecutor:
             )
         )
 
+        if self.collector is not None:
+
+            self.collector.record_layer(
+                layer_id=layer_id,
+                experts=top_k_indices[-1].tolist(),
+                scores=top_k_weights[-1].tolist(),
+            )
+            
         original_shape = normed_attn.shape
 
         hidden_flat = normed_attn.view(

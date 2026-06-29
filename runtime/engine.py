@@ -25,7 +25,17 @@ class TurboEngine:
             self.layer = None
 
     @torch.no_grad()
-    def generate(self, prompt, max_new_tokens=50, config=None, chat=False, system_prompt=None):
+    def generate(
+        self,
+        prompt,
+        max_new_tokens=50,
+        config=None,
+        chat=False,
+        system_prompt=None,
+        collector=None,
+    ):
+        
+        self.layer.collector = collector        
         DEVICE = self.loader.DEVICE
         
         model_name_or_path = self.loader.snapshot_path
@@ -97,7 +107,13 @@ class TurboEngine:
                 kv_cache=kv_cache,
                 position_ids=position_ids
             )
-
+            if collector is not None:
+                collector.begin_token(
+                    token_id=-1,
+                    token_text="",
+                    position=position_ids[0, -1].item() + 1,
+                    generation_step=step + 1,
+                )
             # 7. Layer-by-Layer Execution
             if self.adapter.capabilities["is_moe"]:
                 for layer_id in range(self.adapter.num_layers):
@@ -129,8 +145,13 @@ class TurboEngine:
             next_token_logits = logits[0, -1, :]
             next_token_id = torch.argmax(next_token_logits, dim=-1)
             next_token = tokenizer.decode([next_token_id.item()])
-            generated_text += next_token
 
+            generated_text += next_token
+            
+            if collector is not None:
+                collector.current_token["token_id"] = next_token_id.item()
+                collector.current_token["token_text"] = next_token
+                collector.finish_token()
             if step == 0:
                 ttft = time.time() - start_time
                 decode_start = time.time()

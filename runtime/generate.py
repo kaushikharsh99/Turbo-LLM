@@ -10,6 +10,7 @@ def run_generation(
     config=None,
     chat=False,
     system_prompt=None,
+    collector=None,
 ):
 
     return generate(
@@ -19,5 +20,6 @@ def run_generation(
         config=config,
         chat=chat,
         system_prompt=system_prompt,
+        collector=collector,
     )
 

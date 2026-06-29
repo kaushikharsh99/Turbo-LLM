@@ -20,22 +20,53 @@ def main():
     temperature = args.temperature if args.temperature is not None else cfg["runtime"]["temperature"]
     top_p = args.top_p if args.top_p is not None else cfg["runtime"]["top_p"]
 
-    output = run_generation(
-        model=model_path,
-        prompt=args.prompt,
-        max_new_tokens=max_new_tokens,
-        temperature=temperature,
-        top_p=top_p,
-        config=cfg,
-        chat=args.chat,
-        system_prompt=args.system,
-    )
+    if args.collect is None:
 
-    print(
-        "\nOutput:\n"
-    )
+        output = run_generation(
+            model=model_path,
+            prompt=args.prompt,
+            max_new_tokens=max_new_tokens,
+            temperature=temperature,
+            top_p=top_p,
+            config=cfg,
+            chat=args.chat,
+            system_prompt=args.system,
+        )
 
-    print(output)
+        print("\nOutput:\n")
+        print(output)
+
+    else:
+
+        from utils.prompt_loader import PromptLoader
+        from utils.data_collector import DataCollector
+
+        prompt_loader = PromptLoader(args.prompts)
+
+        collector = DataCollector(
+            output_file=args.output,
+        )
+
+        for prompt in prompt_loader.load():
+
+            print("=" * 80)
+            print(prompt)
+            print("=" * 80)
+
+            run_generation(
+                model=model_path,
+                prompt=prompt,
+                max_new_tokens=max_new_tokens,
+                temperature=temperature,
+                top_p=top_p,
+                config=cfg,
+                chat=args.chat,
+                system_prompt=args.system,
+                collector=collector,
+            )
+
+        if args.collect is not None:
+            collector.close()
 
 
 if __name__=="__main__":

@@ -7,7 +7,15 @@ from runtime.model_factory import create_adapter
 from runtime.engine import TurboEngine
 
 @torch.no_grad()
-def generate(model, prompt, max_new_tokens=50, config=None, chat=False, system_prompt=None):
+def generate(
+        model,
+        prompt,
+        max_new_tokens=50,
+        config=None,
+        chat=False,
+        system_prompt=None,
+        collector=None,
+    ):
     # 1. Initialize Loader
     print(f"Loading weights index from {model}...")
     loader = ExpertLoader(model, config=config)
@@ -42,6 +50,9 @@ def generate(model, prompt, max_new_tokens=50, config=None, chat=False, system_p
     # 3. Instantiate adapter
     adapter = create_adapter(causal_model, loader, hf_config)
 
+    if collector is not None:
+        collector.num_layers = adapter.num_layers
+
     # 4. Instantiate TurboEngine and Generate
     engine = TurboEngine(adapter)
     return engine.generate(
@@ -50,6 +61,7 @@ def generate(model, prompt, max_new_tokens=50, config=None, chat=False, system_p
         config=config,
         chat=chat,
         system_prompt=system_prompt,
+        collector=collector,
     )
 
 
