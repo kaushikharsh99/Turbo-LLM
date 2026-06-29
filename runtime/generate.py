@@ -22,5 +22,6 @@ def run_generation(
         chat=chat,
         system_prompt=system_prompt,
         collector=collector,
+        thinking=thinking,
     )
 

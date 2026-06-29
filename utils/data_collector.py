@@ -37,6 +37,7 @@ class DataCollector:
         token_text,
         position,
         generation_step,
+        thinking,
     ):
 
         if self.num_layers is None:
@@ -51,6 +52,7 @@ class DataCollector:
             # Absolute transformer position
             "position": position,
 
+            "thinking": thinking,
             # Decode step (1,2,3,...)
             "generation_step": generation_step,
 
@@ -90,6 +92,7 @@ class DataCollector:
 
                 "position": self.current_token["position"],
                 "generation_step": self.current_token["generation_step"],
+                "thinking": self.current_token["thinking"],
 
                 "layer_id": layer,
 

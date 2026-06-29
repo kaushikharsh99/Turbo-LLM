@@ -64,6 +64,7 @@ def main():
                 chat=args.chat,
                 system_prompt=args.system,
                 collector=collector,
+                thinking=args.thinking,
             )
 
         if args.collect is not None:

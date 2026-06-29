@@ -114,11 +114,13 @@ class TurboEngine:
                 position_ids=position_ids
             )
             if collector is not None:
+                print("Thinking passed to collector:", thinking, thinking == "on")
                 collector.begin_token(
                     token_id=-1,
                     token_text="",
                     position=position_ids[0, -1].item() + 1,
                     generation_step=step + 1,
+                    thinking=(thinking == "on"),
                 )
             # 7. Layer-by-Layer Execution
             if self.adapter.capabilities["is_moe"]:
