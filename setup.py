@@ -2,7 +2,7 @@ from setuptools import setup, find_packages
 
 setup(
     name="turbo-llm",
-    version="0.1.1",
+    version="0.1.2",
     description="Turbo-LLM: Fast memory-efficient inference engine for large MoE models",
     author="kaushikharsh99",
     url="https://github.com/kaushikharsh99/Turbo-LLM",

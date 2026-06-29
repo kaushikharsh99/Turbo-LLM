@@ -73,6 +73,8 @@ class TurboEngine:
         start_time = time.time()
         next_token_id = None
         generated_text = ""
+        ttft = None
+        decode_start = None
         
         for step in range(max_new_tokens):
             step_start_time = time.time()
@@ -128,6 +130,10 @@ class TurboEngine:
             next_token_id = torch.argmax(next_token_logits, dim=-1)
             next_token = tokenizer.decode([next_token_id.item()])
             generated_text += next_token
+
+            if step == 0:
+                ttft = time.time() - start_time
+                decode_start = time.time()
             
             # Memory tracking
             if DEVICE == "cuda":
@@ -160,16 +166,49 @@ class TurboEngine:
                 print(f"Step {step:02d} | Token: {repr(next_token):<10} (ID: {next_token_id.item():<5}) | "
                       f"Peak VRAM: {peak_vram_step:.2f} MB | Cache VRAM: {kv_mb:.2f} MB | Time: {step_duration:.2f}s")
 
-        duration = time.time() - start_time
-        tokens_per_sec = max_new_tokens / duration
+        total_duration = time.time() - start_time
+
+        decode_duration = (
+            total_duration - ttft
+            if ttft is not None
+            else total_duration
+        )
+
+        decode_tokens = max(max_new_tokens - 1, 0)
+
+        decode_tokens_per_sec = (
+            decode_tokens / decode_duration
+            if decode_duration > 0 and decode_tokens > 0
+            else 0.0
+        )
+
+        overall_tokens_per_sec = (
+            max_new_tokens / total_duration
+            if total_duration > 0
+            else 0.0
+        )
         print("\n" + "=" * 60)
         print("BENCHMARK RESULTS")
         print("=" * 60)
+
         print(f"Prompt            : {prompt}")
         print(f"Generated text    : {generated_text}")
         print(f"Generated tokens  : {max_new_tokens}")
-        print(f"Total time taken  : {duration:.2f} seconds")
-        print(f"Speed (tokens/sec): {tokens_per_sec:.2f} tok/s")
+
+        print("\nLatency")
+        print("-" * 60)
+        print(f"Time to First Token : {ttft:.2f} s")
+
+        print("\nDecode")
+        print("-" * 60)
+        print(f"Decode Tokens       : {decode_tokens}")
+        print(f"Decode Time         : {decode_duration:.2f} s")
+        print(f"Decode Speed        : {decode_tokens_per_sec:.2f} tok/s")
+
+        print("\nOverall")
+        print("-" * 60)
+        print(f"Total Runtime       : {total_duration:.2f} s")
+        print(f"End-to-End Speed    : {overall_tokens_per_sec:.2f} tok/s")
         
         if DEVICE == "cuda":
             print(f"Peak VRAM used    : {torch.cuda.max_memory_allocated() / 1024**2:.2f} MB")
