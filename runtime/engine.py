@@ -152,6 +152,12 @@ class TurboEngine:
                 collector.current_token["token_id"] = next_token_id.item()
                 collector.current_token["token_text"] = next_token
                 collector.finish_token()
+
+            # Stop if EOS token is generated
+            if tokenizer.eos_token_id is not None and next_token_id.item() == tokenizer.eos_token_id:
+                print("\nEOS token generated. Stopping generation.")
+                break
+            
             if step == 0:
                 ttft = time.time() - start_time
                 decode_start = time.time()
