@@ -1,0 +1,57 @@
+{"prompt":"Explain how blockchain achieves consensus without a central authority."}
+{"prompt":"Describe the differences between symmetric and asymmetric encryption with practical examples."}
+{"prompt":"Write a Bash script to recursively rename all .txt files to .md while preserving filenames."}
+{"prompt":"Design a normalized database schema for a hospital management system."}
+{"prompt":"Explain the CAP theorem and its implications for distributed databases."}
+{"prompt":"Implement a Least Recently Used (LRU) cache in Java."}
+{"prompt":"Explain how garbage collection works in Java and compare it with manual memory management."}
+{"prompt":"Describe how Docker containers differ from virtual machines."}
+{"prompt":"Explain the purpose of DNS and describe how a domain name is resolved into an IP address."}
+{"prompt":"Describe how operating system schedulers allocate CPU time among processes."}
+
+{"prompt":"Solve the system of linear equations using Gaussian elimination."}
+{"prompt":"Explain the concept of Fourier transforms and their applications."}
+{"prompt":"Derive the area formula for a circle from first principles."}
+{"prompt":"Describe the Central Limit Theorem and why it is important in statistics."}
+{"prompt":"Explain the difference between correlation and causation with examples."}
+{"prompt":"Find the determinant and inverse of a 3×3 matrix."}
+{"prompt":"Explain Markov chains using an everyday example."}
+{"prompt":"Describe the concept of entropy in information theory."}
+
+{"prompt":"Explain how vaccines train the immune system to fight diseases."}
+{"prompt":"Describe the structure and function of the human kidney."}
+{"prompt":"Explain the greenhouse effect and distinguish it from global warming."}
+{"prompt":"Describe how earthquakes occur and how seismic waves propagate."}
+{"prompt":"Explain how GPS determines your location on Earth."}
+{"prompt":"Describe the life cycle of a butterfly and the biological purpose of metamorphosis."}
+{"prompt":"Explain how airplanes generate lift despite their heavy weight."}
+{"prompt":"Describe how nuclear fusion differs from nuclear fission."}
+
+{"prompt":"Write a persuasive speech encouraging people to reduce plastic waste."}
+{"prompt":"Write a mystery story where the narrator is unreliable."}
+{"prompt":"Write a letter from an astronaut to their family after arriving on Mars."}
+{"prompt":"Create an original myth explaining why the ocean has tides."}
+{"prompt":"Write a children's bedtime story featuring a clever turtle."}
+{"prompt":"Write a newspaper article reporting the discovery of a new planet."}
+
+{"prompt":"Evaluate the ethical implications of using facial recognition technology in public places."}
+{"prompt":"Compare capitalism, socialism, and mixed economies objectively."}
+{"prompt":"Explain the philosophy of Stoicism and how it applies to modern life."}
+{"prompt":"Discuss the psychological effects of social media on teenagers."}
+{"prompt":"Analyze the causes and consequences of inflation."}
+{"prompt":"Describe the role of the United Nations in maintaining global peace."}
+
+{"prompt":"Convert the following paragraph into concise bullet points while preserving all important information."}
+{"prompt":"Classify the following animals into mammals, reptiles, birds, amphibians, and fish."}
+{"prompt":"Generate five research questions about renewable energy suitable for undergraduate students."}
+{"prompt":"Create a decision tree for choosing an appropriate machine learning algorithm."}
+
+{"prompt":"Plan a disaster response strategy for a city after a major earthquake."}
+{"prompt":"Develop a marketing strategy for launching a new electric bicycle company."}
+{"prompt":"Design a curriculum for teaching introductory programming to high school students."}
+{"prompt":"Create a budget plan for a student living independently for one month."}
+
+{"prompt":"Explain how robots use sensors and actuators to interact with their environment."}
+{"prompt":"Describe the principles behind augmented reality and virtual reality."}
+{"prompt":"Explain how recommendation systems personalize content on streaming platforms."}
+{"prompt":"Discuss the challenges involved in building trustworthy artificial general intelligence."}

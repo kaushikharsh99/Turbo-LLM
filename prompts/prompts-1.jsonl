@@ -1,0 +1,57 @@
+{"prompt":"Explain how transformer-based large language models generate text from a user's prompt."}
+{"prompt":"Compare TCP and UDP, including their advantages, disadvantages, and common use cases."}
+{"prompt":"Write a Python function that performs binary search on a sorted list."}
+{"prompt":"Debug the following Python code that raises an IndexError and explain the cause."}
+{"prompt":"Implement Dijkstra's shortest path algorithm in C++ with comments."}
+{"prompt":"Explain the difference between a process and a thread with practical examples."}
+{"prompt":"Design a REST API for an online bookstore, including endpoints and request formats."}
+{"prompt":"Write an SQL query to find the second highest salary from an employee table."}
+{"prompt":"Explain how hash tables work, including collision handling techniques."}
+{"prompt":"Describe the advantages and disadvantages of using Rust instead of C++."}
+
+{"prompt":"Solve the quadratic equation x² − 7x + 12 = 0 and explain each step."}
+{"prompt":"Explain Bayes' theorem using a real-world medical diagnosis example."}
+{"prompt":"Find the derivative of x² sin(x) and simplify the result."}
+{"prompt":"Calculate the probability of drawing two aces consecutively without replacement from a standard deck."}
+{"prompt":"Prove that the sum of the first n natural numbers is n(n+1)/2."}
+{"prompt":"Explain eigenvalues and eigenvectors intuitively."}
+{"prompt":"Describe how gradient descent works in machine learning."}
+{"prompt":"Solve a Sudoku puzzle using logical reasoning instead of brute force."}
+
+{"prompt":"Why do seasons occur on Earth?"}
+{"prompt":"Explain how CRISPR gene editing works."}
+{"prompt":"Describe the process of photosynthesis in simple terms."}
+{"prompt":"What caused the Industrial Revolution, and what were its major impacts?"}
+{"prompt":"Compare the economies of China and India."}
+{"prompt":"Explain how lithium-ion batteries store energy."}
+{"prompt":"Describe the lifecycle of a star from formation to its final stage."}
+{"prompt":"Why is the sky blue during the day and red during sunset?"}
+
+{"prompt":"Write a short science-fiction story about humans discovering an ancient AI civilization."}
+{"prompt":"Write a dialogue between a detective and a suspect where both are hiding secrets."}
+{"prompt":"Write a motivational speech for students preparing for difficult exams."}
+{"prompt":"Write a horror story that takes place entirely inside an abandoned space station."}
+{"prompt":"Write a fantasy world description with unique geography, creatures, and cultures."}
+{"prompt":"Continue the following story in an unexpected but logical direction."}
+
+{"prompt":"Summarize the key ideas behind the theory of evolution."}
+{"prompt":"Summarize the advantages and disadvantages of electric vehicles."}
+{"prompt":"Compare supervised, unsupervised, and reinforcement learning."}
+{"prompt":"Analyze the strengths and weaknesses of renewable energy."}
+{"prompt":"Rewrite a formal business email in a friendlier tone while preserving professionalism."}
+{"prompt":"Extract the key action items from a meeting transcript."}
+
+{"prompt":"Translate the following English paragraph into French while preserving the original meaning."}
+{"prompt":"Translate the following sentence into Hindi and explain any idioms used."}
+{"prompt":"Correct the grammar and improve the clarity of the following paragraph."}
+{"prompt":"Rewrite the following technical explanation so that a 10-year-old can understand it."}
+
+{"prompt":"Plan a three-day itinerary for visiting Tokyo on a moderate budget."}
+{"prompt":"Create a healthy vegetarian meal plan for one week."}
+{"prompt":"Suggest a step-by-step study plan for learning linear algebra in two months."}
+{"prompt":"Design a weekly workout plan for improving endurance and upper-body strength."}
+
+{"prompt":"Critique the argument presented in an opinion article and identify any logical fallacies."}
+{"prompt":"Generate ten interview questions for a machine learning engineer position."}
+{"prompt":"Brainstorm ten startup ideas that combine artificial intelligence with healthcare."}
+{"prompt":"Explain the ethical challenges of deploying autonomous vehicles at scale."}

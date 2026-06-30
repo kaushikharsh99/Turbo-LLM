@@ -80,56 +80,32 @@ class DataCollector:
 
         routes = self.current_token["routes"]
 
+        layers = routes
+
         assert all(route is not None for route in routes), (
             "Not all layer routes were recorded."
         )
 
-        for layer in range(self.num_layers):
+        sample = {
 
-            current = routes[layer]
+            "token_id": self.current_token["token_id"],
 
-            sample = {
+            "token_text": self.current_token["token_text"],
 
-                "token_id": self.current_token["token_id"],
+            "position": self.current_token["position"],
 
-                "token_text": self.current_token["token_text"],
+            "generation_step": self.current_token["generation_step"],
 
-                "position": self.current_token["position"],
-                "generation_step": self.current_token["generation_step"],
-                "thinking": self.current_token["thinking"],
+            "thinking": self.current_token["thinking"],
 
-                "temperature": self.current_token["temperature"],
-                "top_p": self.current_token["top_p"],
+            "temperature": self.current_token["temperature"],
 
-                "layer_id": layer,
+            "top_p": self.current_token["top_p"],
 
-                "current_route": {
-                    "experts": current["experts"],
-                    "scores": current["scores"],
-                },
+            "layers": layers,
+        }
 
-                "past_layer_routes": [
-
-                    {
-                        "experts": route["experts"],
-                        "scores": route["scores"],
-                    }
-
-                    for route in routes[:layer]
-                ],
-
-                "future_layer_routes": [
-
-                    {
-                        "experts": route["experts"],
-                        "scores": route["scores"],
-                    }
-
-                    for route in routes[layer + 1:]
-                ],
-            }
-
-            self.buffer.append(sample)
+        self.buffer.append(sample)
 
         self.current_token = None
 

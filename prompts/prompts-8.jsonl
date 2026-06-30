@@ -1,0 +1,58 @@
+{"prompt":"You are hired to redesign the entire internet for the year 2050. Describe the architecture, protocols, security model, and migration strategy from today's internet."}
+{"prompt":"Build a complete execution plan for launching a reusable orbital launch vehicle company with a budget of $10 billion."}
+{"prompt":"You are reviewing a pull request containing 25,000 lines of code. Explain your systematic review process before approving it."}
+{"prompt":"Design a compiler optimization pipeline that balances compilation speed with runtime performance."}
+{"prompt":"Explain how you would implement snapshot isolation inside a distributed SQL database."}
+{"prompt":"Design a peer-to-peer decentralized social media platform that can operate without centralized servers."}
+{"prompt":"You are tasked with reducing inference latency of a 600B parameter Mixture-of-Experts model by 50%. Describe your optimization roadmap."}
+{"prompt":"Explain how you would build an AI agent capable of autonomously fixing software bugs across multiple repositories."}
+{"prompt":"You inherit an abandoned open-source project with thousands of unresolved issues. Describe how you would revive the community and project."}
+{"prompt":"Design an autonomous quality assurance system capable of discovering software bugs without human-written tests."}
+
+{"prompt":"You have access to email, Slack, GitHub, Jira, Google Calendar, and a browser. Describe how you would autonomously prepare a daily executive briefing."}
+{"prompt":"Design an AI scientist capable of proposing hypotheses, planning experiments, interpreting results, and refining future experiments."}
+{"prompt":"Plan the deployment of thousands of autonomous delivery drones across a major metropolitan city while minimizing safety risks."}
+{"prompt":"Explain how an autonomous AI should recover after repeatedly failing to complete a long multi-step objective."}
+{"prompt":"Design an AI project manager that coordinates multiple specialized AI agents working on the same software project."}
+{"prompt":"You are responsible for autonomously migrating a company from one cloud provider to another with minimal downtime. Describe every stage."}
+{"prompt":"Explain how an AI assistant should prioritize dozens of competing user requests with conflicting deadlines."}
+{"prompt":"Create a workflow where an AI automatically investigates production incidents using logs, metrics, traces, and source code."}
+
+{"prompt":"Design an anti-cheat system for a competitive online game that minimizes false positives."}
+{"prompt":"Describe how you would detect coordinated bot networks operating across multiple social media platforms."}
+{"prompt":"Explain how to build a secure voting system for national elections using modern cryptographic techniques."}
+{"prompt":"Perform a security review of a password reset workflow and identify potential attack vectors."}
+{"prompt":"Design a secure identity management platform for an international enterprise with millions of employees."}
+{"prompt":"Explain how you would investigate a suspicious cryptocurrency exchange hack involving hundreds of millions of dollars."}
+
+{"prompt":"Design a distributed scheduler for running millions of machine learning jobs across thousands of GPUs."}
+{"prompt":"Explain how gradient checkpointing, activation recomputation, and offloading reduce GPU memory usage."}
+{"prompt":"Compare modern sparse Mixture-of-Experts architectures with dense transformer architectures from both training and inference perspectives."}
+{"prompt":"Describe how you would evaluate whether a new LLM benchmark genuinely measures reasoning instead of memorization."}
+{"prompt":"Explain how reinforcement learning could be used to improve autonomous software engineering agents."}
+{"prompt":"Design a continual learning pipeline allowing an AI model to improve without catastrophic forgetting."}
+
+{"prompt":"You are appointed Chief Risk Officer of a multinational bank during a global financial crisis. Outline your first ninety days."}
+{"prompt":"Develop a recovery strategy for rebuilding communications after a massive solar storm disables satellites worldwide."}
+{"prompt":"Design a long-term urban planning strategy for a coastal city threatened by rising sea levels."}
+{"prompt":"Suppose a new energy source provides virtually unlimited electricity. Predict its impact across every major industry."}
+{"prompt":"Explain how governments could coordinate internationally to regulate highly capable artificial intelligence systems."}
+
+{"prompt":"Review a proposal claiming to achieve room-temperature quantum computing. Explain the evidence you would require before believing it."}
+{"prompt":"Design an experiment to determine whether an AI system has developed genuinely novel scientific reasoning abilities."}
+{"prompt":"Explain how you would organize a global collaboration to search for extraterrestrial microbial life within the Solar System."}
+{"prompt":"Create a research roadmap toward building artificial general intelligence while minimizing existential risks."}
+
+{"prompt":"Roleplay as the Chief Technology Officer presenting a five-year technology vision to the company's board of directors."}
+{"prompt":"Pretend you are leading the first diplomatic negotiations between humans and a fully autonomous AI civilization."}
+{"prompt":"Act as a military strategist defending a country entirely through cyber capabilities rather than conventional weapons."}
+{"prompt":"Roleplay as the director of a global pandemic response task force making decisions under extreme uncertainty."}
+{"prompt":"Pretend you are an AI alignment researcher explaining your work to world leaders who have no technical background."}
+
+{"prompt":"Imagine humanity has achieved faster-than-light communication but not faster-than-light travel. Analyze the consequences for civilization."}
+{"prompt":"Design an educational system optimized for the year 2100 assuming AI tutors are universally available."}
+{"prompt":"Explain how you would rebuild the global semiconductor supply chain after a catastrophic disruption."}
+{"prompt":"Design a complete roadmap for transitioning an entire country's transportation infrastructure to autonomous electric vehicles."}
+{"prompt":"Imagine you are responsible for preserving all human knowledge for one million years. Describe your strategy."}
+{"prompt":"Develop a comprehensive plan for creating a self-sustaining underwater city capable of supporting 100,000 residents."}
+{"prompt":"You are appointed governor of the first permanent lunar colony. Draft your priorities, policies, and long-term development strategy."}

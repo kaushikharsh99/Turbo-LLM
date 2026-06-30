@@ -1,0 +1,63 @@
+{"prompt":"Convince me why open-source software has become one of the most important movements in computing history."}
+{"prompt":"Pretend you are an archaeologist who has just discovered an unknown civilization. Describe your findings in a scientific report."}
+{"prompt":"Imagine gravity suddenly became twice as strong for one day. Explain the consequences on daily life."}
+{"prompt":"Rank the following programming paradigms from easiest to hardest to learn for beginners and justify your ranking."}
+{"prompt":"Identify the mistakes in a student's study schedule and suggest improvements."}
+{"prompt":"Debate both sides of the argument: Should governments regulate artificial intelligence?"}
+{"prompt":"Predict how education might change over the next 50 years because of AI."}
+{"prompt":"Suppose humans discovered faster-than-light travel tomorrow. How would international politics change?"}
+{"prompt":"Interview Isaac Newton about his discoveries. Write both the questions and answers."}
+{"prompt":"Reverse engineer how a vending machine might be implemented internally using software and hardware components."}
+
+{"prompt":"Explain why some materials are conductors while others are insulators."}
+{"prompt":"Describe how the Internet routes packets across the world."}
+{"prompt":"Teach me the concept of recursion without writing any code."}
+{"prompt":"Explain why floating-point numbers sometimes produce unexpected results in computers."}
+{"prompt":"Describe the purpose of a compiler and the stages involved in translating source code into machine code."}
+{"prompt":"Compare relational databases with graph databases using real-world examples."}
+{"prompt":"Explain the Producer-Consumer problem and common synchronization techniques."}
+{"prompt":"Describe how memory fragmentation occurs and how operating systems deal with it."}
+
+{"prompt":"Explain the concept of opportunity cost using everyday financial decisions."}
+{"prompt":"Describe how stock markets function from order placement to trade execution."}
+{"prompt":"Explain compound interest with a practical investment example."}
+{"prompt":"Compare debit cards, credit cards, and digital wallets."}
+{"prompt":"Explain how insurance companies estimate financial risk."}
+{"prompt":"Describe how central banks influence inflation through monetary policy."}
+
+{"prompt":"Explain why humans dream according to modern psychological theories."}
+{"prompt":"Describe how habits are formed and how they can be changed."}
+{"prompt":"Explain the cognitive biases that commonly affect human decision-making."}
+{"prompt":"Discuss the role of sleep in memory formation."}
+{"prompt":"Describe how stress affects the human body over long periods."}
+{"prompt":"Explain why people often remember false memories with confidence."}
+
+{"prompt":"Explain how satellites remain in orbit around Earth."}
+{"prompt":"Describe the process of forming a black hole from a massive star."}
+{"prompt":"Compare comets, asteroids, meteoroids, meteors, and meteorites."}
+{"prompt":"Explain how telescopes detect planets orbiting distant stars."}
+{"prompt":"Describe why time appears to slow down near extremely massive objects."}
+
+{"prompt":"Explain the difference between acids and bases without using complex chemistry terminology."}
+{"prompt":"Describe how soap removes grease from dirty dishes."}
+{"prompt":"Explain why metals expand when heated."}
+{"prompt":"Describe how catalysts speed up chemical reactions."}
+{"prompt":"Explain why diamonds and graphite have such different properties despite both being made of carbon."}
+
+{"prompt":"Rewrite the following paragraph to sound more persuasive while keeping the same meaning."}
+{"prompt":"Turn the following technical documentation into a beginner-friendly tutorial."}
+{"prompt":"Create five catchy titles for an article about renewable energy."}
+{"prompt":"Write a FAQ section for someone buying their first laptop."}
+{"prompt":"Generate an outline for a university lecture on cybersecurity."}
+
+{"prompt":"Design a board game that teaches children about environmental conservation."}
+{"prompt":"Invent a new Olympic sport and explain its rules."}
+{"prompt":"Create an escape room puzzle based on mathematical logic."}
+{"prompt":"Design a city that can operate entirely on renewable energy."}
+{"prompt":"Invent a new programming language and describe its unique features."}
+
+{"prompt":"If you had to explain the entire history of human civilization in ten minutes, what would you include?"}
+{"prompt":"Recommend five books for someone interested in learning philosophy, explaining why each is valuable."}
+{"prompt":"You have been hired as a consultant to improve a failing restaurant. What changes would you make first?"}
+{"prompt":"Imagine you are the first AI elected as the mayor of a city. What would your first 100 days look like?"}
+{"prompt":"What is one technology that you believe will fundamentally reshape society within the next twenty years, and why?"}

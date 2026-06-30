@@ -1,0 +1,57 @@
+{"prompt":"You inherit a 5-million-line legacy C++ codebase with no documentation. Describe your first month of work to understand, stabilize, and improve it."}
+{"prompt":"Design a distributed URL shortening service capable of handling one billion requests per day. Justify every architectural decision."}
+{"prompt":"You are given root access to a Linux server that suddenly became unresponsive. Describe your debugging process from start to finish."}
+{"prompt":"Review the architecture of a large e-commerce platform and identify its biggest scalability bottlenecks."}
+{"prompt":"Design a recommendation system for an online video platform that serves hundreds of millions of users."}
+{"prompt":"You are responsible for migrating a company's infrastructure from on-premise servers to the cloud. Create a detailed migration plan."}
+{"prompt":"Implement a compiler for a small programming language supporting variables, loops, functions, and recursion. Explain each compilation stage."}
+{"prompt":"Design an operating system scheduler optimized for interactive desktop workloads."}
+{"prompt":"Explain how you would build a distributed file system similar to Google File System from scratch."}
+{"prompt":"Design a globally distributed chat application supporting real-time messaging, offline synchronization, and end-to-end encryption."}
+
+{"prompt":"You are an autonomous AI agent responsible for booking an international business trip. Describe every action you would perform using available tools."}
+{"prompt":"Plan how an AI assistant should automatically triage 10,000 unread emails while minimizing important mistakes."}
+{"prompt":"Design an AI workflow that receives customer bug reports, reproduces the issue, creates GitHub tickets, and notifies developers."}
+{"prompt":"Describe how an autonomous warehouse robot should react when multiple delivery tasks conflict with each other."}
+{"prompt":"You are building an AI software engineer. Explain how it should plan, execute, verify, and recover from failures while modifying code."}
+{"prompt":"Given access to a browser, terminal, Python interpreter, and database, explain how you would investigate declining company revenue."}
+{"prompt":"Create a strategy for an AI research assistant that automatically reads, summarizes, and categorizes newly published machine learning papers."}
+{"prompt":"Design an autonomous disaster-response drone coordination system capable of adapting to changing conditions."}
+
+{"prompt":"You are conducting a security audit of a banking application. Identify the most critical vulnerabilities and propose mitigations."}
+{"prompt":"Perform a threat model for a password manager application."}
+{"prompt":"Explain how you would detect and investigate an advanced persistent threat inside a corporate network."}
+{"prompt":"Review an authentication architecture supporting billions of users and identify possible weaknesses."}
+{"prompt":"Design a secure software update mechanism resistant to supply-chain attacks."}
+{"prompt":"Describe how you would build a zero-trust enterprise network from the ground up."}
+
+{"prompt":"Design a training pipeline for a 70-billion-parameter language model from raw data collection through deployment."}
+{"prompt":"Explain how you would optimize inference latency for a Mixture-of-Experts language model running on limited GPU memory."}
+{"prompt":"Design a distributed training strategy for a trillion-parameter transformer model."}
+{"prompt":"Compare tensor parallelism, pipeline parallelism, sequence parallelism, and expert parallelism in large-scale AI training."}
+{"prompt":"Explain how you would debug an unstable deep learning training run that occasionally diverges after several thousand optimization steps."}
+{"prompt":"Design a benchmark suite for evaluating reasoning capabilities of modern language models."}
+
+{"prompt":"Suppose a nationwide power outage lasts for thirty days. Develop a national recovery strategy prioritizing critical infrastructure."}
+{"prompt":"You are appointed director of a space agency with a fixed budget. Prioritize missions for the next twenty years and justify every choice."}
+{"prompt":"Develop a long-term strategy for ensuring freshwater availability in a rapidly growing megacity."}
+{"prompt":"Design the governance structure for the first permanent human settlement on Mars."}
+{"prompt":"Create a contingency plan for recovering the global financial system after a catastrophic cyberattack."}
+
+{"prompt":"Review a scientific paper claiming room-temperature superconductivity. Describe how you would verify the claims before accepting the results."}
+{"prompt":"Design an experimental protocol to evaluate whether a newly developed drug is both safe and effective."}
+{"prompt":"Compare competing explanations for the Fermi Paradox and argue which is currently most plausible."}
+{"prompt":"Develop a framework for evaluating whether an AI-generated scientific discovery should be trusted."}
+
+{"prompt":"You are asked to lead negotiations between three companies competing to acquire the same startup. Develop your negotiation strategy."}
+{"prompt":"Act as chief strategy officer for a company that must survive disruptive AI automation over the next decade."}
+{"prompt":"Design a hiring process that minimizes interviewer bias while maximizing candidate quality."}
+{"prompt":"Develop a pricing strategy for a new SaaS product entering a highly competitive market."}
+
+{"prompt":"Design a realistic simulation environment for training autonomous delivery robots before deployment in real cities."}
+{"prompt":"Suppose humanity receives an encrypted message from another civilization. Describe the global scientific response over the next five years."}
+{"prompt":"Imagine you are the lead engineer responsible for restarting civilization after a global technological collapse. Prioritize what should be rebuilt first."}
+{"prompt":"Design the constitution of the world's first AI-governed digital nation."}
+{"prompt":"You are responsible for coordinating the evacuation of one million people before an approaching supervolcano eruption. Produce a detailed operational plan."}
+{"prompt":"Develop a complete strategy for detecting misinformation campaigns across multiple social media platforms while minimizing censorship of legitimate speech."}
+{"prompt":"Explain how you would build a fully autonomous research laboratory capable of generating, testing, and publishing scientific discoveries with minimal human intervention."}

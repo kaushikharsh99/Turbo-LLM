@@ -1,0 +1,62 @@
+{"prompt":"Act as a linguist and explain how languages evolve over centuries with concrete examples."}
+{"prompt":"A startup wants to expand into five countries. Develop a framework for deciding which markets to enter first."}
+{"prompt":"Review the following product idea and identify the three biggest business risks before launch."}
+{"prompt":"You're mentoring a first-time founder. List the mistakes they are most likely to make during their first year."}
+{"prompt":"Describe how supply chains recover after a major natural disaster."}
+{"prompt":"Explain the role of logistics in modern e-commerce from warehouse to customer delivery."}
+{"prompt":"Describe how airports coordinate hundreds of flights safely every day."}
+{"prompt":"Explain how shipping containers revolutionized international trade."}
+{"prompt":"Describe the complete journey of coffee beans from farm to a cup of coffee."}
+{"prompt":"Explain how modern semiconductor chips are manufactured from raw silicon."}
+
+{"prompt":"Teach someone with no musical background how harmony and melody work together."}
+{"prompt":"Compare acoustic instruments with digital instruments from both a performer and listener perspective."}
+{"prompt":"Explain how movie soundtracks influence the emotions of an audience."}
+{"prompt":"Describe how orchestras coordinate dozens of musicians during a live performance."}
+{"prompt":"Write a guide for someone attending their first classical music concert."}
+
+{"prompt":"Explain the purpose of user experience (UX) research before building software."}
+{"prompt":"Critique the design of a cluttered mobile application and recommend usability improvements."}
+{"prompt":"Describe how accessibility features help users with visual impairments interact with software."}
+{"prompt":"Explain why consistency is important in interface design."}
+{"prompt":"Design a user onboarding experience for a language-learning application."}
+
+{"prompt":"Explain how legal contracts protect both parties in a business agreement."}
+{"prompt":"Describe the difference between civil law and criminal law."}
+{"prompt":"Explain the role of intellectual property rights in innovation."}
+{"prompt":"Describe how patents differ from copyrights and trademarks."}
+{"prompt":"Explain the legal challenges of autonomous drones operating in cities."}
+
+{"prompt":"Explain how sustainable farming differs from conventional farming."}
+{"prompt":"Describe modern irrigation techniques used in agriculture."}
+{"prompt":"Explain how crop rotation improves soil quality."}
+{"prompt":"Discuss the challenges farmers face because of climate change."}
+{"prompt":"Describe how vertical farming works inside urban environments."}
+
+{"prompt":"Explain how manufacturing quality control reduces production defects."}
+{"prompt":"Describe how industrial robots improve efficiency in factories."}
+{"prompt":"Compare additive manufacturing (3D printing) with traditional manufacturing."}
+{"prompt":"Explain the principles of lean manufacturing."}
+{"prompt":"Describe how predictive maintenance reduces equipment downtime."}
+
+{"prompt":"Analyze the strategy behind the Prisoner's Dilemma in game theory."}
+{"prompt":"Explain Nash Equilibrium using a simple real-world example."}
+{"prompt":"Describe why cooperation sometimes emerges even when competition seems more beneficial."}
+{"prompt":"Explain how auctions are designed to encourage fair competition."}
+
+{"prompt":"Describe how anthropologists study ancient human societies."}
+{"prompt":"Explain how cultural traditions change when societies become more globalized."}
+{"prompt":"Compare oral history with written historical records as sources of information."}
+{"prompt":"Describe how museums preserve fragile historical artifacts."}
+
+{"prompt":"Explain how cloud computing allows businesses to scale their applications."}
+{"prompt":"Describe the purpose of continuous integration and continuous deployment (CI/CD)."}
+{"prompt":"Explain why monitoring and observability are essential in production systems."}
+{"prompt":"Describe the responsibilities of a Site Reliability Engineer (SRE)."}
+{"prompt":"Explain how load balancing improves the availability of web services."}
+
+{"prompt":"Imagine you are an investigative journalist uncovering a major financial scandal. Describe your investigation process."}
+{"prompt":"Explain how forensic scientists reconstruct events at a crime scene."}
+{"prompt":"Describe the ethical responsibilities of journalists when reporting breaking news."}
+{"prompt":"Create a checklist for evaluating whether an online news article is trustworthy."}
+{"prompt":"Suppose a city suddenly loses internet connectivity for an entire week. Analyze the cascading effects across businesses, education, healthcare, transportation, and emergency services."}
