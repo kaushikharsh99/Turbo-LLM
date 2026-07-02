@@ -337,5 +337,6 @@ class TurboEngine:
             print(f"SSD hits:\n{ssd_pct:.0f}%")
             print("=" * 60)
 
-        self.loader.close()
+        if not (config and config.get("server_mode", False)):
+            self.loader.close()
         return generated_text

@@ -193,6 +193,15 @@ class LayerExecutor:
             top_k_weights,
         )
 
+        if self.collector is not None and hasattr(self.collector, "record_layer_timing"):
+            self.collector.record_layer_timing(
+                layer_id=layer_id,
+                load_ms=self.loader.load_ms_accum,
+                dequant_ms=self.loader.dequant_ms_accum,
+                evict_ms=self.loader.evict_ms_accum,
+                gemm_ms=getattr(self.moe_exec, "last_gemm_ms", 0.0),
+            )
+
         moe_output = moe_output.view(original_shape)
 
         hidden_states = residual + moe_output

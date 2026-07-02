@@ -85,6 +85,7 @@ class MoEExecutor:
         final_output += shared_gate_score * shared_output
 
         gemm_ms = (time.time() - t_gemm_start) * 1000.0
+        self.last_gemm_ms = gemm_ms
         
         if layer_id == 21:
             print(f"\nLayer 21\n")
