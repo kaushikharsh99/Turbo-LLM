@@ -358,7 +358,12 @@ class EngineManager:
         
         while True:
             item = token_queue.get()
+
+            if item["type"] == "token":
+                print(f"[QUEUE] {time.time():.3f} -> {repr(item['token'])}")
+
             yield item
+
             if item["type"] in ("done", "error"):
                 break
 

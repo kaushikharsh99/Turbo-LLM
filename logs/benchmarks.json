@@ -35,6 +35,42 @@
       "gpu_utilization": 85.0,
       "cpu_utilization": 6.0,
       "energy": "N/A"
+    },
+    {
+      "id": "bench-1783069236",
+      "timestamp": 1783069236.4454,
+      "model": "Qwen/Qwen3.6-35B-A3B-FP8",
+      "prompt": "Explain what a mixture-of-experts transformer is.",
+      "max_tokens": 500,
+      "temperature": 0.0,
+      "ttft_ms": 2898.12,
+      "tps": 2.32,
+      "duration_s": 219.9,
+      "ram_peak_mb": 11222.46,
+      "vram_peak_mb": 5417.36,
+      "ssd_reads": 73932,
+      "gpu_hits": 3490,
+      "gpu_utilization": 85.0,
+      "cpu_utilization": 4.7,
+      "energy": "N/A"
+    },
+    {
+      "id": "bench-1783069362",
+      "timestamp": 1783069362.7206814,
+      "model": "Qwen/Qwen3.6-35B-A3B-FP8",
+      "prompt": "Explain what a mixture-of-experts transformer is.",
+      "max_tokens": 100,
+      "temperature": 0.0,
+      "ttft_ms": 2452.21,
+      "tps": 2.38,
+      "duration_s": 46.97,
+      "ram_peak_mb": 11402.16,
+      "vram_peak_mb": 5429.35,
+      "ssd_reads": 6350,
+      "gpu_hits": 1279,
+      "gpu_utilization": 85.0,
+      "cpu_utilization": 4.1,
+      "energy": "N/A"
     }
   ]
 }

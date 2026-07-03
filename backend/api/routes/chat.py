@@ -6,6 +6,7 @@ from fastapi.responses import StreamingResponse
 from pydantic import BaseModel, Field
 from typing import Optional, List, Dict, Any, Union
 from backend.api.engine_manager import engine_manager
+import asyncio
 
 router = APIRouter()
 
@@ -69,8 +70,12 @@ async def chat_completions(request: ChatCompletionRequest):
                 thinking=request.thinking
             ):
                 if update["type"] == "token":
-                    delta = {"content": update["token"]}
-                    # OpenAI chunk format
+                    print(f"[HTTP] {time.time():.3f} -> {repr(update['token'])}")
+
+                    delta = {
+                        "content": update["token"]
+                    }
+
                     chunk = {
                         "id": request_id,
                         "object": "chat.completion.chunk",
@@ -82,7 +87,12 @@ async def chat_completions(request: ChatCompletionRequest):
                             "finish_reason": None
                         }]
                     }
+
                     yield f"data: {json.dumps(chunk)}\n\n"
+
+                    # Give the event loop a chance to flush the chunk immediately.
+                    await asyncio.sleep(0)
+                    
                 elif update["type"] == "error":
                     yield f"data: {json.dumps({'error': update['error']})}\n\n"
                 elif update["type"] == "done":
@@ -98,8 +108,12 @@ async def chat_completions(request: ChatCompletionRequest):
                             "finish_reason": "stop"
                         }]
                     }
+                    if update["type"] == "token":
+                        print(f"[HTTP] {time.time():.3f} -> {repr(update['token'])}")
+                
                     yield f"data: {json.dumps(chunk)}\n\n"
                     yield "data: [DONE]\n\n"
+                    await asyncio.sleep(0)
 
         return StreamingResponse(event_generator(), media_type="text/event-stream")
     else:
@@ -187,6 +201,7 @@ async def completions(request: CompletionRequest):
                             "finish_reason": "stop"
                         }]
                     }
+                    
                     yield f"data: {json.dumps(chunk)}\n\n"
                     yield "data: [DONE]\n\n"
 
