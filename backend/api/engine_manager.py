@@ -99,18 +99,6 @@ class ServerMetricsCollector:
                     "evict_ms": evict_ms,
                     "gemm_ms": gemm_ms,
                 })
-                # Broadcast live pipeline/layer info to websocket
-                self.manager.broadcast_pipeline_update({
-                    "type": "layer_progress",
-                    "layer_id": layer_id,
-                    "experts": layer_data["experts"],
-                    "scores": layer_data["scores"],
-                    "load_ms": load_ms,
-                    "dequant_ms": dequant_ms,
-                    "evict_ms": evict_ms,
-                    "gemm_ms": gemm_ms,
-                    "status": "Done" if load_ms + dequant_ms + gemm_ms > 0 else "Executing"
-                })
 
     def finish_token(self):
         now = time.time()
@@ -159,6 +147,16 @@ class ServerMetricsCollector:
         
         # Broadcast stats via WebSocket
         self.manager.broadcast_stats_update(stats_payload)
+
+        # Broadcast all layer pipeline data in a single batch (instead of per-layer)
+        if self.current_token and self.current_token["layers"]:
+            self.manager.broadcast_pipeline_update({
+                "type": "token_layers",
+                "layers": {
+                    i: layer for i, layer in enumerate(self.current_token["layers"])
+                    if layer is not None
+                }
+            })
 
 
 class EngineManager:
@@ -326,6 +324,8 @@ class EngineManager:
 
         collector = ServerMetricsCollector(self, token_queue)
         collector.num_layers = self.adapter.num_layers
+        import threading
+        collector.is_cancelled = threading.Event()
         
         def _run_gen():
             try:
@@ -356,16 +356,19 @@ class EngineManager:
 
         threading.Thread(target=_run_gen).start()
         
-        while True:
-            item = token_queue.get()
+        try:
+            while True:
+                item = token_queue.get()
 
-            if item["type"] == "token":
-                print(f"[QUEUE] {time.time():.3f} -> {repr(item['token'])}")
+                if item["type"] == "token":
+                    pass  # Token streamed to client via yield below
 
-            yield item
+                yield item
 
-            if item["type"] in ("done", "error"):
-                break
+                if item["type"] in ("done", "error"):
+                    break
+        finally:
+            collector.is_cancelled.set()
 
     def broadcast_stats_update(self, stats_payload):
         # We also send this in the ws stats
@@ -387,8 +390,6 @@ class EngineManager:
         import json
         while True:
             time.sleep(1.0)
-            if not self.stats_websockets:
-                continue
 
             # Fetch metrics
             ram = psutil.virtual_memory()

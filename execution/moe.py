@@ -4,7 +4,15 @@ import threading
 import queue
 import time
 
+try:
+    import turbollm_cpp
+except ImportError:
+    turbollm_cpp = None
+
 def moe_seq(hidden_states, gate_weights, up_weights, down_weights, top_k_weights):
+    if turbollm_cpp is not None:
+        return turbollm_cpp.execute_moe(hidden_states, gate_weights, up_weights, down_weights, top_k_weights)
+        
     final_output = torch.zeros_like(hidden_states)
     top_k = top_k_weights.shape[1]
     for i in range(top_k):
@@ -38,16 +46,6 @@ class MoEExecutor:
         self.loader.clear_pinned_slots()
         expert_ids = top_k_indices[0].tolist()
 
-        # 1. Fetch expert weights directly on main thread (handles cache hits & dequantization)
-        gate_weights = []
-        up_weights = []
-        down_weights = []
-        for exp_id in expert_ids:
-            gate, up, down = self.loader.load_expert(layer_id, exp_id)
-            gate_weights.append(gate)
-            up_weights.append(up)
-            down_weights.append(down)
-            
         prefix = self.loader.layout.layer_prefix_name(layer_id)
 
         shared_gate = self.loader.load_weight(
@@ -66,9 +64,27 @@ class MoEExecutor:
             f"{prefix}.mlp.shared_expert_gate.weight"
         )
 
-        # 2. Sequential matrix multiplication (no stacked weight allocations or copy kernels)
         t_gemm_start = time.time()
-        final_output = moe_seq(hidden_states, gate_weights, up_weights, down_weights, top_k_weights)
+        
+        if turbollm_cpp is not None and hasattr(turbollm_cpp, "execute_moe_with_cache"):
+            final_output = turbollm_cpp.execute_moe_with_cache(
+                layer_id,
+                expert_ids,
+                hidden_states,
+                top_k_weights,
+                self.loader
+            )
+        else:
+            # Fallback path if C++ cache isn't available
+            gate_weights = []
+            up_weights = []
+            down_weights = []
+            for exp_id in expert_ids:
+                gate, up, down = self.loader.load_expert(layer_id, exp_id)
+                gate_weights.append(gate)
+                up_weights.append(up)
+                down_weights.append(down)
+            final_output = moe_seq(hidden_states, gate_weights, up_weights, down_weights, top_k_weights)
         
         # Shared expert
         shared_gate_out = F.linear(hidden_states, shared_gate)
@@ -86,13 +102,6 @@ class MoEExecutor:
 
         gemm_ms = (time.time() - t_gemm_start) * 1000.0
         self.last_gemm_ms = gemm_ms
-        
-        if layer_id == 21:
-            print(f"\nLayer 21\n")
-            print(f"load:\n{self.loader.load_ms_accum:.1f}\n")
-            print(f"dequant:\n{self.loader.dequant_ms_accum:.1f}\n")
-            print(f"gemm:\n{gemm_ms:.1f}\n")
-            print(f"evict:\n{self.loader.evict_ms_accum:.1f}")
 
         return final_output
 

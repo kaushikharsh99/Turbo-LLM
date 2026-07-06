@@ -120,6 +120,10 @@ class LayerExecutor:
         if not hasattr(self, "attn_times"):
             self.attn_times = []
             self.moe_times = []
+            self.load_times = []
+            self.dequant_times = []
+            self.evict_times = []
+            self.gemm_times = []
 
         # ---------------- Attention ----------------
 
@@ -209,5 +213,10 @@ class LayerExecutor:
         self.moe_times.append(
             time.time() - t_start_moe
         )
+        
+        self.load_times.append(self.loader.load_ms_accum)
+        self.dequant_times.append(self.loader.dequant_ms_accum)
+        self.evict_times.append(self.loader.evict_ms_accum)
+        self.gemm_times.append(getattr(self.moe_exec, "last_gemm_ms", 0.0))
         
         return hidden_states, None  

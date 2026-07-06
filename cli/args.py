@@ -1,7 +1,9 @@
 import argparse
-
+import os
 
 def parse_args():
+    package_root = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+    default_config = os.path.join(package_root, "config", "default.yaml")
 
     parser = argparse.ArgumentParser(
         prog="TurboLLM",
@@ -10,7 +12,7 @@ def parse_args():
 
     parser.add_argument(
         "--config",
-        default="config/default.yaml",
+        default=default_config,
         help="Path to config file"
     )
 

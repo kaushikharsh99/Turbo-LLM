@@ -96,6 +96,9 @@ class TurboEngine:
         ttft = None
         
         for step in range(max_new_tokens):
+            if collector is not None and hasattr(collector, "is_cancelled") and collector.is_cancelled.is_set():
+                print("Generation cancelled by client. Stopping engine.")
+                break
             step_start_time = time.time()
             
             # Prefill vs Decode setup
@@ -248,15 +251,16 @@ class TurboEngine:
             )
             step_duration = time.time() - step_start_time
             
-            if self.adapter.capabilities["is_moe"]:
-                exp_cache_count = len(self.loader.expert_cache)
-                exp_cache_limit = self.loader.cache_limit
-                print(f"Step {step:02d} | Token: {repr(next_token):<10} (ID: {next_token_id.item():<5}) | "
-                      f"Peak VRAM: {peak_vram_step:.2f} MB | Cache VRAM: {kv_mb:.2f} MB | "
-                      f"Expert Cache: {exp_cache_count}/{exp_cache_limit} | Time: {step_duration:.2f}s")
-            else:
-                print(f"Step {step:02d} | Token: {repr(next_token):<10} (ID: {next_token_id.item():<5}) | "
-                      f"Peak VRAM: {peak_vram_step:.2f} MB | Cache VRAM: {kv_mb:.2f} MB | Time: {step_duration:.2f}s")
+            if not (config and config.get("server_mode", False)):
+                if self.adapter.capabilities["is_moe"]:
+                    exp_cache_count = len(self.loader.expert_cache)
+                    exp_cache_limit = self.loader.cache_limit
+                    print(f"Step {step:02d} | Token: {repr(next_token):<10} (ID: {next_token_id.item():<5}) | "
+                          f"Peak VRAM: {peak_vram_step:.2f} MB | Cache VRAM: {kv_mb:.2f} MB | "
+                          f"Expert Cache: {exp_cache_count}/{exp_cache_limit} | Time: {step_duration:.2f}s")
+                else:
+                    print(f"Step {step:02d} | Token: {repr(next_token):<10} (ID: {next_token_id.item():<5}) | "
+                          f"Peak VRAM: {peak_vram_step:.2f} MB | Cache VRAM: {kv_mb:.2f} MB | Time: {step_duration:.2f}s")
             
             # Stop if EOS token is generated
             if tokenizer.eos_token_id is not None and next_token_id.item() == tokenizer.eos_token_id:
@@ -320,8 +324,16 @@ class TurboEngine:
         if self.adapter.capabilities["is_moe"] and hasattr(self.layer, "attn_times") and len(self.layer.attn_times) > 0:
             avg_attn = sum(self.layer.attn_times) / len(self.layer.attn_times)
             avg_moe = sum(self.layer.moe_times) / len(self.layer.moe_times)
+            avg_load = sum(self.layer.load_times) / len(self.layer.load_times)
+            avg_dequant = sum(self.layer.dequant_times) / len(self.layer.dequant_times)
+            avg_evict = sum(self.layer.evict_times) / len(self.layer.evict_times)
+            avg_gemm = sum(self.layer.gemm_times) / len(self.layer.gemm_times)
             print(f"Avg Attention time per layer: {avg_attn*1000:.2f} ms")
             print(f"Avg MoE/MLP time per layer  : {avg_moe*1000:.2f} ms")
+            print(f"  └─ Load time              : {avg_load:.2f} ms")
+            print(f"  └─ Dequant time           : {avg_dequant:.2f} ms")
+            print(f"  └─ Evict time             : {avg_evict:.2f} ms")
+            print(f"  └─ GEMM time              : {avg_gemm:.2f} ms")
             
         if self.adapter.capabilities["is_moe"]:
             total_hits = self.loader.gpu_hits + self.loader.ram_hits + self.loader.ssd_hits

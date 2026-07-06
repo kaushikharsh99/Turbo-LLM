@@ -121,6 +121,7 @@ export default function App() {
   const logsEndRef = useRef(null);
   const chatEndRef = useRef(null);
   const activeReader = useRef(null);
+  const wasCancelled = useRef(false);
 
   const filterControlTokens = (text) => {
     if (!text) return "";
@@ -227,7 +228,11 @@ export default function App() {
     const pipeWs = new WebSocket(`${WS_BASE}/ws/pipeline`);
     pipeWs.onmessage = (event) => {
       const update = JSON.parse(event.data);
-      if (update.type === 'layer_progress') {
+      if (update.type === 'token_layers') {
+        // Batch update: all layers for the token arrive in one message
+        setPipelineLayers(update.layers || {});
+      } else if (update.type === 'layer_progress') {
+        // Legacy single-layer update (kept for backward compat)
         setPipelineLayers(prev => ({
           ...prev,
           [update.layer_id]: update
@@ -315,6 +320,7 @@ export default function App() {
 
   const handleCancelGeneration = () => {
     if (activeReader.current) {
+      wasCancelled.current = true;
       try {
         activeReader.current.cancel();
       } catch (err) {
@@ -339,6 +345,7 @@ export default function App() {
   const handleSendMessage = async () => {
     if (!inputText.trim() || isGenerating) return;
     
+    wasCancelled.current = false;
     const userMsg = inputText;
     setMessages(prev => [...prev, { role: 'user', content: userMsg }]);
     setInputText('');
@@ -434,22 +441,28 @@ export default function App() {
         }
         
         // Finalize streaming
-        const cleanContent = filterControlTokens(accumulatedText);
-        const cleanThink = filterControlTokens(accumulatedThinking);
-        setMessages(prev => [...prev, { 
-          role: 'assistant', 
-          content: cleanContent, 
-          thinkingContent: cleanThink 
-        }]);
-        setGenerationOutput('');
-        setThinkingOutput('');
+        if (!wasCancelled.current) {
+          const cleanContent = filterControlTokens(accumulatedText);
+          const cleanThink = filterControlTokens(accumulatedThinking);
+          setMessages(prev => [...prev, { 
+            role: 'assistant', 
+            content: cleanContent, 
+            thinkingContent: cleanThink 
+          }]);
+          setGenerationOutput('');
+          setThinkingOutput('');
+        }
       } else {
         const data = await res.json();
-        setMessages(prev => [...prev, { role: 'assistant', content: filterControlTokens(data.choices[0].message.content) }]);
+        if (!wasCancelled.current) {
+          setMessages(prev => [...prev, { role: 'assistant', content: filterControlTokens(data.choices[0].message.content) }]);
+        }
       }
     } catch (e) {
       console.error(e);
-      setMessages(prev => [...prev, { role: 'assistant', content: `Error: ${e.message}. Make sure a model is loaded in the Models tab.` }]);
+      if (!wasCancelled.current) {
+        setMessages(prev => [...prev, { role: 'assistant', content: `Error: ${e.message}. Make sure a model is loaded in the Models tab.` }]);
+      }
     } finally {
       setIsGenerating(false);
       activeReader.current = null;
@@ -527,34 +540,34 @@ export default function App() {
 
         <ul className="sidebar-menu">
           <li className={`sidebar-item ${activePage === 'chat' ? 'active' : ''}`} onClick={() => setActivePage('chat')}>
-            <MessageSquare size={16} /> 💬 Chat
+            <MessageSquare size={16} />  Chat
           </li>
           <li className={`sidebar-item ${activePage === 'models' ? 'active' : ''}`} onClick={() => setActivePage('models')}>
-            <Folder size={16} /> 📁 Models
+            <Folder size={16} />  Models
           </li>
           <li className={`sidebar-item ${activePage === 'engine' ? 'active' : ''}`} onClick={() => setActivePage('engine')}>
-            <Zap size={16} /> ⚡ Engine Settings
+            <Zap size={16} />  Engine Settings
           </li>
           <li className={`sidebar-item ${activePage === 'kv' ? 'active' : ''}`} onClick={() => setActivePage('kv')}>
-            <Database size={16} /> 🧠 KV Cache
+            <Database size={16} />  KV Cache
           </li>
           <li className={`sidebar-item ${activePage === 'moe' ? 'active' : ''}`} onClick={() => setActivePage('moe')}>
-            <Box size={16} /> 📦 MoE Page
+            <Box size={16} />  MoE Page
           </li>
           <li className={`sidebar-item ${activePage === 'visualizer' ? 'active' : ''}`} onClick={() => setActivePage('visualizer')}>
-            <Layers size={16} /> 💾 Storage Viz
+            <Layers size={16} />  Storage Viz
           </li>
           <li className={`sidebar-item ${activePage === 'performance' ? 'active' : ''}`} onClick={() => setActivePage('performance')}>
-            <Activity size={16} /> 📈 Performance
+            <Activity size={16} />  Performance
           </li>
           <li className={`sidebar-item ${activePage === 'benchmarks' ? 'active' : ''}`} onClick={() => setActivePage('benchmarks')}>
-            <BarChart2 size={16} /> 📊 Benchmarks
+            <BarChart2 size={16} />  Benchmarks
           </li>
           <li className={`sidebar-item ${activePage === 'logs' ? 'active' : ''}`} onClick={() => setActivePage('logs')}>
-            <Terminal size={16} /> 📝 Logs
+            <Terminal size={16} />  Logs
           </li>
           <li className={`sidebar-item ${activePage === 'settings' ? 'active' : ''}`} onClick={() => setActivePage('settings')}>
-            <Settings size={16} /> ⚙ Settings
+            <Settings size={16} />  Settings
           </li>
         </ul>
 

@@ -70,7 +70,6 @@ async def chat_completions(request: ChatCompletionRequest):
                 thinking=request.thinking
             ):
                 if update["type"] == "token":
-                    print(f"[HTTP] {time.time():.3f} -> {repr(update['token'])}")
 
                     delta = {
                         "content": update["token"]
@@ -108,9 +107,6 @@ async def chat_completions(request: ChatCompletionRequest):
                             "finish_reason": "stop"
                         }]
                     }
-                    if update["type"] == "token":
-                        print(f"[HTTP] {time.time():.3f} -> {repr(update['token'])}")
-                
                     yield f"data: {json.dumps(chunk)}\n\n"
                     yield "data: [DONE]\n\n"
                     await asyncio.sleep(0)
