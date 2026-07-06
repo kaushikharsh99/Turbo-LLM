@@ -10,6 +10,7 @@ struct CachedExpert {
     torch::Tensor gate;
     torch::Tensor up;
     torch::Tensor down;
+    int64_t hits = 1; // Track hits for LFU eviction policy
 };
 
 struct TupleHash {
@@ -24,9 +25,9 @@ struct TupleHash {
 class DequantCache {
 private:
     std::unordered_map<std::tuple<int64_t, int64_t>, CachedExpert, TupleHash> cache_;
-    std::vector<std::tuple<int64_t, int64_t>> key_order_; // Track FIFO insertion order
+    std::vector<std::tuple<int64_t, int64_t>> key_order_; // Track FIFO insertion order for tie-breaking
     std::mutex mutex_;
-    size_t cache_limit_ = 16; // Safely scale down default limit
+    size_t cache_limit_ = 16;
 
 public:
     DequantCache() = default;
@@ -35,6 +36,7 @@ public:
     bool has(int64_t layer_id, int64_t expert_id);
     CachedExpert get(int64_t layer_id, int64_t expert_id);
     void put(int64_t layer_id, int64_t expert_id, const CachedExpert& expert);
+    size_t size();
     void clear();
 };
 

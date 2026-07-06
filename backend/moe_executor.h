@@ -23,3 +23,5 @@ torch::Tensor execute_moe_with_cache(
     torch::Tensor top_k_weights,
     pybind11::object loader
 );
+
+int64_t get_cache_size();

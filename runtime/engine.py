@@ -5,6 +5,11 @@ import gc
 import psutil
 from transformers import AutoTokenizer
 
+try:
+    import turbollm_cpp
+except ImportError:
+    turbollm_cpp = None
+
 class TurboEngine:
 
     def __init__(self, adapter):
@@ -253,7 +258,10 @@ class TurboEngine:
             
             if not (config and config.get("server_mode", False)):
                 if self.adapter.capabilities["is_moe"]:
-                    exp_cache_count = len(self.loader.expert_cache)
+                    if turbollm_cpp is not None and hasattr(turbollm_cpp, "get_cache_size"):
+                        exp_cache_count = turbollm_cpp.get_cache_size()
+                    else:
+                        exp_cache_count = len(self.loader.expert_cache)
                     exp_cache_limit = self.loader.cache_limit
                     print(f"Step {step:02d} | Token: {repr(next_token):<10} (ID: {next_token_id.item():<5}) | "
                           f"Peak VRAM: {peak_vram_step:.2f} MB | Cache VRAM: {kv_mb:.2f} MB | "

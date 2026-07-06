@@ -44,6 +44,11 @@ torch::Tensor execute_moe_with_cache(
             gate_weights[i] = cached.gate;
             up_weights[i] = cached.up;
             down_weights[i] = cached.down;
+
+            // Increment Python loader's gpu_hits count
+            if (py::hasattr(loader, "gpu_hits")) {
+                loader.attr("gpu_hits") = loader.attr("gpu_hits").cast<int64_t>() + 1;
+            }
         } else {
             miss_indices.push_back(i);
         }
@@ -106,4 +111,8 @@ torch::Tensor execute_moe_with_cache(
     }
 
     return grouped_gemm_moe(hidden_states, gate_weights, up_weights, down_weights, top_k_weights);
+}
+
+int64_t get_cache_size() {
+    return g_dequant_cache.size();
 }

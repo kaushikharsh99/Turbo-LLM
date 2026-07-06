@@ -4,4 +4,5 @@
 PYBIND11_MODULE(TORCH_EXTENSION_NAME, m) {
     m.def("execute_moe", &execute_moe, "Execute sequential MoE layer (LibTorch C++ implementation)");
     m.def("execute_moe_with_cache", &execute_moe_with_cache, "Execute sequential MoE layer with C++ dequant cache");
+    m.def("get_cache_size", &get_cache_size, "Get current number of experts cached in C++ dequant cache");
 }

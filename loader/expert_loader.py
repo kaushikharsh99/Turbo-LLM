@@ -579,16 +579,82 @@ class ExpertLoader:
 
     def load_expert_raw(self, layer_id, expert_id, is_decode=True):
         """
-        Helper method to retrieve raw FP8 weight and scale tensors directly from disk/VRAM.
+        Helper method to retrieve raw FP8 weight and scale tensors.
+        Uses RAM cache first if available, otherwise loads from SSD.
         """
-        prefix = self.layout.expert_prefix_name(
-            layer_id,
-            expert_id,
+        key = (layer_id, expert_id)
+        with self.lock:
+            cached_expert = self.ram_cache.get(key)
+
+        if cached_expert is not None:
+            with self.lock:
+                self.ram_hits += 1
+            gate_fp8_cpu, gate_scale_cpu, up_fp8_cpu, up_scale_cpu, down_fp8_cpu, down_scale_cpu = cached_expert
+            return (
+                self._prepare_fp8_tensor(gate_fp8_cpu, self.DEVICE),
+                self._prepare_fp8_tensor(gate_scale_cpu, self.DEVICE),
+                self._prepare_fp8_tensor(up_fp8_cpu, self.DEVICE),
+                self._prepare_fp8_tensor(up_scale_cpu, self.DEVICE),
+                self._prepare_fp8_tensor(down_fp8_cpu, self.DEVICE),
+                self._prepare_fp8_tensor(down_scale_cpu, self.DEVICE)
+            )
+
+        # RAM Cache miss -> load from SSD
+        with self.lock:
+            self.ssd_hits += 1
+            
+        gate_fp8_cpu = self._get_tensor(
+                            self.layout.gate_tensor(
+                                layer_id,
+                                expert_id,
+                            )
+                        )
+        gate_scale_name = (
+            self.layout.gate_tensor(layer_id, expert_id)
+            + "_scale_inv"
         )
-        gate_fp8, gate_scale = self.load_weight_raw(f"{prefix}.gate_proj.weight")
-        up_fp8, up_scale = self.load_weight_raw(f"{prefix}.up_proj.weight")
-        down_fp8, down_scale = self.load_weight_raw(f"{prefix}.down_proj.weight")
-        return gate_fp8, gate_scale, up_fp8, up_scale, down_fp8, down_scale
+        gate_scale_cpu = self._get_tensor(gate_scale_name) if gate_scale_name in self.weight_map else None
+
+        up_fp8_cpu = self._get_tensor(
+                        self.layout.up_tensor(
+                            layer_id,
+                            expert_id,
+                        )
+                    )
+        up_scale_name = (
+            self.layout.up_tensor(layer_id, expert_id)
+            + "_scale_inv"
+        )
+        up_scale_cpu = self._get_tensor(up_scale_name) if up_scale_name in self.weight_map else None
+
+        down_fp8_cpu = self._get_tensor(
+                            self.layout.down_tensor(
+                                layer_id,
+                                expert_id,
+                            )
+                        )
+        down_scale_name = (
+            self.layout.down_tensor(layer_id, expert_id)
+            + "_scale_inv"
+        )
+        down_scale_cpu = self._get_tensor(down_scale_name) if down_scale_name in self.weight_map else None
+
+        cached_expert = (
+            gate_fp8_cpu, gate_scale_cpu,
+            up_fp8_cpu, up_scale_cpu,
+            down_fp8_cpu, down_scale_cpu
+        )
+        with self.lock:
+            self.ram_cache.put(key, cached_expert)
+            
+        return (
+            self._prepare_fp8_tensor(gate_fp8_cpu, self.DEVICE),
+            self._prepare_fp8_tensor(gate_scale_cpu, self.DEVICE),
+            self._prepare_fp8_tensor(up_fp8_cpu, self.DEVICE),
+            self._prepare_fp8_tensor(up_scale_cpu, self.DEVICE),
+            self._prepare_fp8_tensor(down_fp8_cpu, self.DEVICE),
+            self._prepare_fp8_tensor(down_scale_cpu, self.DEVICE)
+        )
 
     def close(self):
         with self.lock:
