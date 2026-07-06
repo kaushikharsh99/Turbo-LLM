@@ -1,0 +1,3 @@
+from debug.reports.bottleneck import generate_bottleneck_report
+from debug.reports.cache_report import generate_cache_report
+from debug.reports.memory_report import generate_memory_report
