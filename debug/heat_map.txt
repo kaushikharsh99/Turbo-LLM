@@ -1,0 +1,30 @@
+============================================================
+EXPERT RESIDENCY & HEAT MAP REPORT
+============================================================
+Total Expert Accesses : 262
+Total SSD Reloads    : 0
+Overall GPU Hit Rate : 3.8%
+------------------------------------------------------------
+Top Active Experts (Heat Map):
+------------------------------------------------------------
+1 . Layer 13 Expert 28 | Accesses: 12  | ████████████         | Avg Reuse Dist: 21.4 layers | Reloads: 0
+2 . Layer 3  Expert 202 | Accesses: 10  | ██████████           | Avg Reuse Dist: 26.6 layers | Reloads: 0
+3 . Layer 3  Expert 199 | Accesses: 8   | ████████             | Avg Reuse Dist: 34.0 layers | Reloads: 0
+4 . Layer 23 Expert 145 | Accesses: 8   | ████████             | Avg Reuse Dist: 26.0 layers | Reloads: 0
+5 . Layer 14 Expert 131 | Accesses: 7   | ███████              | Avg Reuse Dist: 39.3 layers | Reloads: 0
+6 . Layer 35 Expert 212 | Accesses: 7   | ███████              | Avg Reuse Dist: 40.0 layers | Reloads: 0
+7 . Layer 28 Expert 179 | Accesses: 6   | ██████               | Avg Reuse Dist: 28.4 layers | Reloads: 0
+8 . Layer 19 Expert 228 | Accesses: 5   | █████                | Avg Reuse Dist: 50.2 layers | Reloads: 0
+9 . Layer 2  Expert 158 | Accesses: 5   | █████                | Avg Reuse Dist: 16.0 layers | Reloads: 0
+10. Layer 14 Expert 189 | Accesses: 5   | █████                | Avg Reuse Dist: 43.5 layers | Reloads: 0
+11. Layer 17 Expert 166 | Accesses: 5   | █████                | Avg Reuse Dist: 39.2 layers | Reloads: 0
+12. Layer 29 Expert 218 | Accesses: 5   | █████                | Avg Reuse Dist: 26.0 layers | Reloads: 0
+13. Layer 16 Expert 20 | Accesses: 5   | █████                | Avg Reuse Dist: 28.8 layers | Reloads: 0
+14. Layer 24 Expert 191 | Accesses: 4   | ████                 | Avg Reuse Dist: 41.3 layers | Reloads: 0
+15. Layer 5  Expert 120 | Accesses: 4   | ████                 | Avg Reuse Dist: 49.3 layers | Reloads: 0
+16. Layer 33 Expert 58 | Accesses: 4   | ████                 | Avg Reuse Dist: 26.0 layers | Reloads: 0
+17. Layer 3  Expert 228 | Accesses: 4   | ████                 | Avg Reuse Dist: 43.0 layers | Reloads: 0
+18. Layer 11 Expert 56 | Accesses: 4   | ████                 | Avg Reuse Dist: 45.0 layers | Reloads: 0
+19. Layer 6  Expert 52 | Accesses: 4   | ████                 | Avg Reuse Dist: 33.0 layers | Reloads: 0
+20. Layer 9  Expert 98 | Accesses: 4   | ████                 | Avg Reuse Dist: 38.0 layers | Reloads: 0
+============================================================

@@ -1,0 +1,10 @@
+# ninja log v7
+0	31625	1783325665932514270	/home/harsh/coding/Turbollm/Turbo-LLM/benchmarks/gemm/build/temp.linux-x86_64-cpython-313/cutlass_gemm.o	7c6f05a4fa56a7cb
+11	17430	1783325806350429649	/home/harsh/coding/Turbollm/Turbo-LLM/benchmarks/gemm/build/temp.linux-x86_64-cpython-313/cutlass_gemm.o	df82334f175d31d0
+9	31044	1783325838383638469	/home/harsh/coding/Turbollm/Turbo-LLM/benchmarks/gemm/build/temp.linux-x86_64-cpython-313/cutlass_gemm.o	7c6f05a4fa56a7cb
+9	31737	1783325838385260519	/home/harsh/coding/Turbollm/Turbo-LLM/benchmarks/gemm/build/temp.linux-x86_64-cpython-313/cutlass_grouped_gemm.o	55cc285d8c1cdfd0
+8	16379	1783325885996948857	/home/harsh/coding/Turbollm/Turbo-LLM/benchmarks/gemm/build/temp.linux-x86_64-cpython-313/cutlass_gemm.o	7c6f05a4fa56a7cb
+8	16116	1783326244969280906	/home/harsh/coding/Turbollm/Turbo-LLM/benchmarks/gemm/build/temp.linux-x86_64-cpython-313/cutlass_gemm.o	7c6f05a4fa56a7cb
+9	16468	1783326287749554737	/home/harsh/coding/Turbollm/Turbo-LLM/benchmarks/gemm/build/temp.linux-x86_64-cpython-313/cutlass_gemm.o	7c6f05a4fa56a7cb
+10	20202	1783326399851272255	/home/harsh/coding/Turbollm/Turbo-LLM/benchmarks/gemm/build/temp.linux-x86_64-cpython-313/cutlass_gemm.o	7c6f05a4fa56a7cb
+101	20848	1783329085050335771	/home/harsh/coding/Turbollm/Turbo-LLM/benchmarks/gemm/build/temp.linux-x86_64-cpython-313/cutlass_gemm.o	7c6f05a4fa56a7cb

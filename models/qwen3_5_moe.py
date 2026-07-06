@@ -1,3 +1,4 @@
+import torch
 from models.base import BaseModelAdapter
 from execution.layouts import Qwen35LayerLayout
 from transformers.models.qwen3_5_moe.modeling_qwen3_5_moe import create_causal_mask
@@ -52,6 +53,9 @@ class Qwen35MoeAdapter(BaseModelAdapter):
         return self.text_model.norm(hidden)
 
     def lm_head(self, hidden):
+        weight = self.model.lm_head.weight
+        if weight.device != hidden.device:
+            return torch.matmul(hidden.to(weight.device), weight.t()).to(hidden.device)
         return self.model.lm_head(hidden)
 
     def create_attention_mask(self, hidden, kv_cache, position_ids):

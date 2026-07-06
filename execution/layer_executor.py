@@ -37,6 +37,10 @@ class LayerExecutor:
             f"Preloading backbone weights for all {self.adapter.num_layers} layers to {device_type}..."
         )
 
+        if getattr(self.loader, "gguf_loader", None) is not None:
+            print("GGUF Mode: On-demand layer loading enabled (saving CPU RAM)...")
+            return
+
         for layer_id in range(self.adapter.num_layers):
 
             prefix = self.loader.layout.layer_prefix_name(layer_id)
@@ -88,15 +92,24 @@ class LayerExecutor:
 
         # LM Head
         lm_head_name = self.loader.layout.lm_head_tensor()
-
-        lm_head_weight = self.loader.load_weight(lm_head_name)
+        
+        # Check if lm_head shares weight with embed_tokens (tied embeddings)
+        config = self.adapter.load_config()
+        if getattr(config, "tie_word_embeddings", False):
+            print(f"Detected tied word embeddings. Reusing embed_tokens weight for {lm_head_name}...")
+            lm_head_weight = embed_weight
+        else:
+            try:
+                lm_head_weight = self.loader.load_weight(lm_head_name)
+            except torch.OutOfMemoryError:
+                print(f"VRAM limited: Loading {lm_head_name} to CPU RAM fallback...")
+                lm_head_weight = self.loader.load_weight(lm_head_name, device="cpu")
 
         set_module_tensor_to_device(
             self.model,
             self.loader.layout.module_name(lm_head_name),
-            device=self.loader.DEVICE,
+            device=lm_head_weight.device,
             value=lm_head_weight,
-
         )
         # Move RoPE buffers (inv_freq, original_inv_freq) to GPU
         text_model = self.adapter.text_model
@@ -124,10 +137,20 @@ class LayerExecutor:
             self.dequant_times = []
             self.evict_times = []
             self.gemm_times = []
+            self.shared_gate_times = []
+            self.shared_up_times = []
+            self.shared_down_times = []
+            self.shared_score_times = []
+            self.accum_times = []
+            self.list_build_times = []
+            self.concat_times = []
+            self.boundary_times = []
 
         # ---------------- Attention ----------------
 
-        t_start_attn = time.time()
+        if self.loader.DEVICE == "cuda":
+            torch.cuda.synchronize()
+        t_start_attn = time.perf_counter()
 
         residual = hidden_states
 
@@ -154,13 +177,23 @@ class LayerExecutor:
 
         hidden_states = residual + attn_output
 
+        if self.loader.DEVICE == "cuda":
+            torch.cuda.synchronize()
         self.attn_times.append(
-            time.time() - t_start_attn
+            (time.perf_counter() - t_start_attn) * 1000.0
         )
+
+        # Initialize router_times and shared_load_times arrays if not initialized
+        if not hasattr(self, "router_times"):
+            self.router_times = []
+        if not hasattr(self, "shared_load_times"):
+            self.shared_load_times = []
 
         # ---------------- MoE ----------------
 
-        t_start_moe = time.time()
+        if self.loader.DEVICE == "cuda":
+            torch.cuda.synchronize()
+        t_start_moe = time.perf_counter()
 
         residual = hidden_states
 
@@ -168,12 +201,22 @@ class LayerExecutor:
             hidden_states
         )
 
+        t_route_start = time.perf_counter()
         top_k_indices, top_k_weights = (
             self.router_exec.compute_routing(
                 layer_id,
                 normed_attn,
             )
         )
+        t_route_ms = (time.perf_counter() - t_route_start) * 1000.0
+
+        if hasattr(self.loader, "prefetch_pipeline"):
+            self.loader.prefetch_pipeline.working_set_est.record_layer_access(
+                layer_id, top_k_indices[-1].tolist()
+            )
+            self.loader.prefetch_pipeline.submit_prefetch_candidates(
+                current_layer=layer_id
+            )
 
         if self.collector is not None:
 
@@ -210,13 +253,25 @@ class LayerExecutor:
 
         hidden_states = residual + moe_output
 
+        if self.loader.DEVICE == "cuda":
+            torch.cuda.synchronize()
         self.moe_times.append(
-            time.time() - t_start_moe
+            (time.perf_counter() - t_start_moe) * 1000.0
         )
         
+        self.router_times.append(t_route_ms)
+        self.shared_load_times.append(getattr(self.moe_exec, "last_shared_load_ms", 0.0))
         self.load_times.append(self.loader.load_ms_accum)
         self.dequant_times.append(self.loader.dequant_ms_accum)
         self.evict_times.append(self.loader.evict_ms_accum)
         self.gemm_times.append(getattr(self.moe_exec, "last_gemm_ms", 0.0))
+        self.shared_gate_times.append(getattr(self.moe_exec, "last_shared_gate_ms", 0.0))
+        self.shared_up_times.append(getattr(self.moe_exec, "last_shared_up_ms", 0.0))
+        self.shared_down_times.append(getattr(self.moe_exec, "last_shared_down_ms", 0.0))
+        self.shared_score_times.append(getattr(self.moe_exec, "last_shared_score_ms", 0.0))
+        self.accum_times.append(getattr(self.moe_exec, "last_accum_ms", 0.0))
+        self.list_build_times.append(getattr(self.moe_exec, "last_list_build_ms", 0.0))
+        self.concat_times.append(getattr(self.moe_exec, "last_concat_ms", 0.0))
+        self.boundary_times.append(getattr(self.moe_exec, "last_boundary_ms", 0.0))
         
         return hidden_states, None  

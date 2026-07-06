@@ -34,9 +34,16 @@ class ExpertLoader:
 
         # Model layout (NEW)
         from loader.model_layout import ModelLayout
+        from loader.gguf_loader import GGUFLoader
 
         self.layout = ModelLayout(snapshot_path)
         self.weight_map = self.layout.weight_map
+
+        if self.layout.is_gguf_file:
+            print(f"Detected GGUF model file: {snapshot_path}")
+            self.gguf_loader = GGUFLoader(snapshot_path)
+        else:
+            self.gguf_loader = None
 
         # Cache of safe_open handles
         self.files = {}
@@ -55,8 +62,7 @@ class ExpertLoader:
         self.lock = threading.Lock()
 
         # Lazy allocation variables for static slots
-        self.static_expert_gate = None
-        self.static_expert_up = None
+        self.static_expert_gate_up = None
         self.static_expert_down = None
         self.num_slots = 0
         self.free_slots = []
@@ -75,15 +81,23 @@ class ExpertLoader:
         self.load_counter = 0
         self.ssd_load_counter = 0
 
+        # Residency Manager & Tracer (Milestone 2.5)
+        from runtime.residency_manager import ResidencyManager
+        from cache.adaptive_residency import AdaptiveResidencyController
+        from cache.prefetch_engine import AsyncPrefetchPipeline
+        self.residency_ctrl = AdaptiveResidencyController()
+        self.prefetch_pipeline = AsyncPrefetchPipeline(self)
+
         
-    def _get_tensor(self, weight_name):
+    def _get_tensor(self, weight_name, expert_idx=None):
+        if self.gguf_loader is not None:
+            return self.gguf_loader.load_tensor(weight_name, device="cpu", dtype=self.dtype, expert_idx=expert_idx)
+            
         filename = self.weight_map[weight_name]
         if filename not in self.files:
-            file_path = os.path.join(self.snapshot_path, filename)
+            file_path = os.path.join(self.layout.snapshot_dir, filename)
             self.files[filename] = safe_open(file_path, framework="pt", device="cpu")
         
-        # Qwen3 MoE might have stacked weights even in safetensors or might be individual.
-        # Based on index.json, they are named model.layers.0.mlp.experts.0.gate_proj.weight
         return self.files[filename].get_tensor(weight_name)
 
     def load_weight(self, weight_name, device=DEVICE, dtype=None):
@@ -165,28 +179,28 @@ class ExpertLoader:
         """
         if dtype is None:
             dtype = self.dtype
-        t_copy_start = time.time()
+        t_copy_start = time.perf_counter()
         tensor = self._get_tensor(weight_name)
         w_fp8 = self._prepare_fp8_tensor(tensor, device)
         
         scale_name = f"{weight_name}_scale_inv"
         if scale_name in self.weight_map:
             scale_fp8 = self._prepare_fp8_tensor(self._get_tensor(scale_name), device)
-            copy_ms = (time.time() - t_copy_start) * 1000.0
+            copy_ms = (time.perf_counter() - t_copy_start) * 1000.0
             
-            t_dequant_start = time.time()
+            t_dequant_start = time.perf_counter()
             w = w_fp8.to(dtype=dtype)
             scale = scale_fp8.to(dtype=dtype)
             M, N = w.shape
             w_dequant = (w.view(M // 128, 128, N // 128, 128) * scale.view(M // 128, 1, N // 128, 1)).view(M, N)
-            dequant_ms = (time.time() - t_dequant_start) * 1000.0
+            dequant_ms = (time.perf_counter() - t_dequant_start) * 1000.0
             
             return w_dequant.to(device=device), copy_ms, dequant_ms
         else:
-            copy_ms = (time.time() - t_copy_start) * 1000.0
-            t_dequant_start = time.time()
+            copy_ms = (time.perf_counter() - t_copy_start) * 1000.0
+            t_dequant_start = time.perf_counter()
             w_dequant = w_fp8.to(dtype=dtype)
-            dequant_ms = (time.time() - t_dequant_start) * 1000.0
+            dequant_ms = (time.perf_counter() - t_dequant_start) * 1000.0
             return w_dequant.to(device=device), copy_ms, dequant_ms
 
     def clear_pinned_slots(self):
@@ -214,10 +228,9 @@ class ExpertLoader:
         
         # Calculate size of all experts currently in cache (FP16 static format)
         cache_vram = 0
-        if self.static_expert_gate is not None:
+        if self.static_expert_gate_up is not None:
             cache_vram = (
-                self.static_expert_gate.element_size() * self.static_expert_gate.nelement() +
-                self.static_expert_up.element_size() * self.static_expert_up.nelement() +
+                self.static_expert_gate_up.element_size() * self.static_expert_gate_up.nelement() +
                 self.static_expert_down.element_size() * self.static_expert_down.nelement()
             )
                 
@@ -244,14 +257,14 @@ class ExpertLoader:
             for d in self._expert_down_shape:
                 down_els *= d
             # gate + up (same shape) + down, each in self.dtype
-            elem_size = 2  # FP16/BF16 = 2 bytes
+            elem_size = getattr(self.dtype, 'itemsize', 2)
             avg_expert_size = (gate_els + gate_els + down_els) * elem_size
         else:
             avg_expert_size = 9.0 * 1024**2  # fallback ~9 MB for Qwen3
         dynamic_limit = int(available_bytes // avg_expert_size)
         
-        # Keep limit bounds between 16 and 450
-        self.cache_limit = max(16, min(450, dynamic_limit))
+        # Keep limit bounds between 16 and 1000
+        self.cache_limit = max(16, min(1000, dynamic_limit))
         
         print(f"[DEBUG Cache Limit] current_allocated: {current_allocated/1024**2:.2f} MB, "
               f"non_cache_allocated: {non_cache_allocated/1024**2:.2f} MB, "
@@ -265,6 +278,13 @@ class ExpertLoader:
             return None
         if device == "mps":
             return tensor
+        if device == "cuda" and tensor.device.type == "cpu":
+            if not tensor.is_pinned():
+                try:
+                    tensor = tensor.pin_memory()
+                except Exception:
+                    pass
+            return tensor.to(device=device, non_blocking=True)
         return tensor.to(device=device)
 
     def load_expert_dynamic(self, layer_id, expert_id):
@@ -302,7 +322,8 @@ class ExpertLoader:
                                 self.layout.gate_tensor(
                                     layer_id,
                                     expert_id,
-                                )
+                                ),
+                                expert_idx=expert_id
                             )
             gate_scale_name = (
                 self.layout.gate_tensor(layer_id, expert_id)
@@ -314,7 +335,8 @@ class ExpertLoader:
                             self.layout.up_tensor(
                                 layer_id,
                                 expert_id,
-                            )
+                            ),
+                            expert_idx=expert_id
                         )
             up_scale_name = (
                 self.layout.up_tensor(layer_id, expert_id)
@@ -326,7 +348,8 @@ class ExpertLoader:
                                 self.layout.down_tensor(
                                     layer_id,
                                     expert_id,
-                                )
+                                ),
+                                expert_idx=expert_id
                             )
             down_scale_name = (
                 self.layout.down_tensor(layer_id, expert_id)
@@ -369,7 +392,7 @@ class ExpertLoader:
         
         with self.lock:
             # 1. Lazy allocation of static weight buffers
-            if self.static_expert_gate is None:
+            if self.static_expert_gate_up is None:
                 if self.DEVICE == "cuda":
                     torch.cuda.empty_cache() # Clear preloading temp memory first
                 elif self.DEVICE == "mps" and hasattr(torch, "mps") and hasattr(torch.mps, "empty_cache"):
@@ -393,8 +416,7 @@ class ExpertLoader:
                 print(f"  Expert gate/up shape: {list(self._expert_gate_shape)}, down shape: {list(self._expert_down_shape)}")
                 
                 # Pre-allocate weights with actual shapes
-                self.static_expert_gate = torch.zeros(self.num_slots, *self._expert_gate_shape, dtype=self.dtype, device=self.DEVICE)
-                self.static_expert_up = torch.zeros(self.num_slots, *self._expert_gate_shape, dtype=self.dtype, device=self.DEVICE)
+                self.static_expert_gate_up = torch.zeros(self.num_slots, 2 * self._expert_gate_shape[0], self._expert_gate_shape[1], dtype=self.dtype, device=self.DEVICE)
                 self.static_expert_down = torch.zeros(self.num_slots, *self._expert_down_shape, dtype=self.dtype, device=self.DEVICE)
                 
                 self.free_slots = list(range(self.num_slots))
@@ -406,31 +428,44 @@ class ExpertLoader:
                 self.expert_metadata[slot_idx]['hits'] += 1
                 self.pinned_slots.add(slot_idx)
                 self.gpu_hits += 1
+                if hasattr(self, "residency_ctrl"):
+                    self.residency_ctrl.record_access(layer_id, expert_id)
                 return (
-                    self.static_expert_gate[slot_idx],
-                    self.static_expert_up[slot_idx],
+                    self.static_expert_gate_up[slot_idx],
                     self.static_expert_down[slot_idx]
                 )
                 
             # 3. Cache miss: obtain a slot
-            t_evict_start = time.time()
+            if hasattr(self, "residency_ctrl"):
+                self.residency_ctrl.record_access(layer_id, expert_id)
+            t_evict_start = time.perf_counter()
             if self.free_slots:
                 slot_idx = self.free_slots.pop()
             else:
-                # Evict the expert with the lowest score (excluding pinned slots)
+                # Evict expert with lowest layer-aware TurboCache residency score (excluding pinned slots)
                 min_score = float('inf')
                 slot_to_evict = None
                 for s_idx, meta in self.expert_metadata.items():
                     if s_idx in self.pinned_slots:
                         continue
-                    cost = max(1, meta['vram_cost'])
-                    score = meta['hits'] * meta['load_ms'] / cost
+                    e_layer, e_id = meta['key']
+                    if hasattr(self, "residency_ctrl"):
+                        score = self.residency_ctrl.compute_residency_score(e_layer, e_id)
+                    else:
+                        score = meta['hits']
+
                     if score < min_score:
                         min_score = score
                         slot_to_evict = s_idx
                         
+                if slot_to_evict is None and self.expert_metadata:
+                    # Fallback if all slots are pinned: pick slot with lowest score
+                    slot_to_evict = min(self.expert_metadata.keys(), key=lambda s: self.expert_metadata[s].get('hits', 0))
+
                 if slot_to_evict is not None:
                     evicted_key = self.expert_metadata[slot_to_evict]['key']
+                    if hasattr(self, "residency_ctrl"):
+                        self.residency_ctrl.log_eviction(evicted_key[0], evicted_key[1], min_score)
                     self.expert_cache.pop(evicted_key)
                     self.expert_metadata.pop(slot_to_evict)
                     slot_idx = slot_to_evict
@@ -438,7 +473,7 @@ class ExpertLoader:
                     slot_idx = 0
             
             self.pinned_slots.add(slot_idx)
-            evict_ms = (time.time() - t_evict_start) * 1000.0
+            evict_ms = (time.perf_counter() - t_evict_start) * 1000.0
             self.evict_ms_accum += evict_ms
             
         # 4. Load raw weights from CPU (RAM Cache or SSD) to GPU (split timing)
@@ -447,7 +482,7 @@ class ExpertLoader:
             expert_id,
         )
         
-        t_copy_start = time.time()
+        t_copy_start = time.perf_counter()
         with self.lock:
             cached_expert = self.ram_cache.get(key)
             
@@ -520,35 +555,40 @@ class ExpertLoader:
             down_fp8 = self._prepare_fp8_tensor(down_fp8_cpu, self.DEVICE)
             down_scale = self._prepare_fp8_tensor(down_scale_cpu, self.DEVICE)
 
-        copy_ms = (time.time() - t_copy_start) * 1000.0
+        if self.DEVICE == "cuda":
+            torch.cuda.synchronize()
+        copy_ms = (time.perf_counter() - t_copy_start) * 1000.0
         self.load_ms_accum += copy_ms
         
         # 5. Dequantize raw weights to FP16
-        t_dequant_start = time.time()
+        t_dequant_start = time.perf_counter()
         gate_proj = self.dequantize_weight(gate_fp8, gate_scale)
         up_proj = self.dequantize_weight(up_fp8, up_scale)
         down_proj = self.dequantize_weight(down_fp8, down_scale)
-        dequant_ms = (time.time() - t_dequant_start) * 1000.0
+        if self.DEVICE == "cuda":
+            torch.cuda.synchronize()
+        dequant_ms = (time.perf_counter() - t_dequant_start) * 1000.0
         self.dequant_ms_accum += dequant_ms
         
         # 6. Copy dequantized weights to pre-allocated FP16 slots inside lock
-        t_copy_static_start = time.time()
+        t_copy_static_start = time.perf_counter()
         with self.lock:
             # Check one more time in case another thread loaded concurrently
             if key in self.expert_cache:
                 self.free_slots.append(slot_idx)
                 slot_idx = self.expert_cache[key]
                 self.expert_metadata[slot_idx]['hits'] += 1
-                copy_to_static_ms = (time.time() - t_copy_static_start) * 1000.0
+                if self.DEVICE == "cuda":
+                    torch.cuda.synchronize()
+                copy_to_static_ms = (time.perf_counter() - t_copy_static_start) * 1000.0
                 self.load_ms_accum += copy_to_static_ms
                 return (
-                    self.static_expert_gate[slot_idx],
-                    self.static_expert_up[slot_idx],
+                    self.static_expert_gate_up[slot_idx],
                     self.static_expert_down[slot_idx]
                 )
                 
-            self.static_expert_gate[slot_idx].copy_(gate_proj)
-            self.static_expert_up[slot_idx].copy_(up_proj)
+            gate_up_fused = torch.cat([gate_proj, up_proj], 0)
+            self.static_expert_gate_up[slot_idx].copy_(gate_up_fused)
             self.static_expert_down[slot_idx].copy_(down_proj)
             
             vram_cost = (
@@ -563,7 +603,9 @@ class ExpertLoader:
                 'key': key
             }
             
-        copy_to_static_ms = (time.time() - t_copy_static_start) * 1000.0
+        if self.DEVICE == "cuda":
+            torch.cuda.synchronize()
+        copy_to_static_ms = (time.perf_counter() - t_copy_static_start) * 1000.0
         self.load_ms_accum += copy_to_static_ms
 
         if trigger_gc:
@@ -571,8 +613,7 @@ class ExpertLoader:
             gc.collect(1)
         
         return (
-            self.static_expert_gate[slot_idx],
-            self.static_expert_up[slot_idx],
+            self.static_expert_gate_up[slot_idx],
             self.static_expert_down[slot_idx]
         )
 

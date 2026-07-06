@@ -17,7 +17,7 @@ class RAMCache:
 
         available = psutil.virtual_memory().available
 
-        ram_percent = 35
+        ram_percent = 10
 
         if (
             self.config
@@ -26,7 +26,9 @@ class RAMCache:
         ):
             ram_percent = self.config["memory"]["max_ram_percent"]
 
-        return int(available * (ram_percent / 100.0))
+        computed = int(available * (ram_percent / 100.0))
+        # Cap RAM cache at 1 GB max to prevent system RAM pressure
+        return min(1024 * 1024 * 1024, max(256 * 1024 * 1024, computed))
 
     def get(self, key):
 

@@ -19,8 +19,12 @@ setup(
                 "backend/dequant_cache.cpp",
                 "backend/fp8_dequant.cpp",
                 "backend/tensor_utils.cpp",
+                "benchmarks/gemm/cutlass_gemm.cpp",
             ],
-            extra_compile_args=["-std=c++20"],
+            include_dirs=["third_party/cutlass/include", "third_party/cutlass/tools/util/include", "/usr/local/cuda/include"],
+            library_dirs=["/usr/local/cuda/lib64"],
+            libraries=["cudart", "cublas", "cublasLt"],
+            extra_compile_args=["-O3", "-std=c++17"],
         )
     ],
     cmdclass={

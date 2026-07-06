@@ -4,12 +4,12 @@ Turbo Profile
 Model:              Qwen/Qwen3.6-35B-A3B-FP8
 Prompt:             Explain how transformers work.
 Prompt Length:      6 tokens
-Generated Tokens:   100
-TTFT:               1.64 s
-Decode TPS:         0.61 tokens/s
-Peak VRAM:          5463.43 MB
-Peak RAM:           9364.94 MB
-Total Runtime:      164.41 s
+Generated Tokens:   15
+TTFT:               2.85 s
+Decode TPS:         0.35 tokens/s
+Peak VRAM:          5439.74 MB
+Peak RAM:           9364.16 MB
+Total Runtime:      42.81 s
 ===================================================
 
 Token Timeline:
@@ -17,1323 +17,1077 @@ Token Timeline:
 
 Layer Breakdown & Cache Summary:
 ------------------------------------------------------------
-Layer 0  (Total: 38246.08 ms)
-  ├─ Attention            : 1512.67 ms
-  ├─ Load base weight model.language_model.layers.0.mlp.shared_expert.gate_proj.weight : 120.30 ms
-  ├─ Load base weight model.language_model.layers.0.mlp.shared_expert.up_proj.weight : 64.49 ms
-  ├─ Load base weight model.language_model.layers.0.mlp.shared_expert.down_proj.weight : 58.14 ms
-  ├─ Load base weight model.language_model.layers.0.mlp.shared_expert_gate.weight : 9.59 ms
-  ├─ MoE / MLP            : 5973.88 ms
-  ├─ Router               : 121.40 ms
-  ├─ Layer 0              : 7496.01 ms
-  ├─ Expert Load (SSD)    : 3904.45 ms
-  ├─ C++ Execution (Dequant + GEMM) : 4721.57 ms
-  ├─ GPU Copy (SSD)       : 3975.04 ms
-  ├─ Grouped GEMM         : 4751.84 ms
-  ├─ MoE Decode Loop      : 5048.05 ms
-  ├─ Expert Load (RAM)    : 236.49 ms
-  ├─ GPU Copy (RAM)       : 252.16 ms
-  └─ Cache: GPU=0 RAM=200 SSD=592
-Layer 1  (Total: 27018.44 ms)
-  ├─ Attention            : 326.31 ms
-  ├─ Load base weight model.language_model.layers.1.mlp.shared_expert.gate_proj.weight : 85.55 ms
-  ├─ Load base weight model.language_model.layers.1.mlp.shared_expert.up_proj.weight : 59.97 ms
-  ├─ Load base weight model.language_model.layers.1.mlp.shared_expert.down_proj.weight : 55.79 ms
-  ├─ Load base weight model.language_model.layers.1.mlp.shared_expert_gate.weight : 10.27 ms
-  ├─ MoE / MLP            : 4495.97 ms
-  ├─ Router               : 38.62 ms
-  ├─ Layer 1              : 4834.63 ms
-  ├─ Expert Load (SSD)    : 2725.38 ms
-  ├─ C++ Execution (Dequant + GEMM) : 3546.51 ms
-  ├─ GPU Copy (SSD)       : 2778.58 ms
-  ├─ Grouped GEMM         : 3581.91 ms
-  ├─ MoE Decode Loop      : 3831.25 ms
-  ├─ Expert Load (RAM)    : 314.82 ms
-  ├─ GPU Copy (RAM)       : 332.90 ms
-  └─ Cache: GPU=0 RAM=275 SSD=517
-Layer 2  (Total: 29105.94 ms)
-  ├─ Attention            : 298.96 ms
-  ├─ Load base weight model.language_model.layers.2.mlp.shared_expert.gate_proj.weight : 74.81 ms
-  ├─ Load base weight model.language_model.layers.2.mlp.shared_expert.up_proj.weight : 57.91 ms
-  ├─ Load base weight model.language_model.layers.2.mlp.shared_expert.down_proj.weight : 53.51 ms
-  ├─ Load base weight model.language_model.layers.2.mlp.shared_expert_gate.weight : 9.26 ms
-  ├─ MoE / MLP            : 4721.29 ms
-  ├─ Router               : 35.52 ms
-  ├─ Layer 2              : 5032.89 ms
-  ├─ Expert Load (SSD)    : 3081.34 ms
-  ├─ C++ Execution (Dequant + GEMM) : 3885.88 ms
-  ├─ GPU Copy (SSD)       : 3131.94 ms
-  ├─ Grouped GEMM         : 3925.41 ms
-  ├─ MoE Decode Loop      : 4151.29 ms
-  ├─ Expert Load (RAM)    : 313.86 ms
-  ├─ GPU Copy (RAM)       : 332.05 ms
-  └─ Cache: GPU=0 RAM=287 SSD=505
-Layer 3  (Total: 25105.68 ms)
-  ├─ Attention            : 265.85 ms
-  ├─ Load base weight model.language_model.layers.3.mlp.shared_expert.gate_proj.weight : 79.89 ms
-  ├─ Load base weight model.language_model.layers.3.mlp.shared_expert.up_proj.weight : 59.89 ms
-  ├─ Load base weight model.language_model.layers.3.mlp.shared_expert.down_proj.weight : 65.30 ms
-  ├─ Load base weight model.language_model.layers.3.mlp.shared_expert_gate.weight : 10.02 ms
-  ├─ MoE / MLP            : 4174.77 ms
-  ├─ Router               : 35.21 ms
-  ├─ Layer 3              : 4452.56 ms
-  ├─ Expert Load (SSD)    : 2446.87 ms
-  ├─ C++ Execution (Dequant + GEMM) : 3317.17 ms
-  ├─ GPU Copy (SSD)       : 2491.38 ms
-  ├─ Grouped GEMM         : 3353.55 ms
-  ├─ MoE Decode Loop      : 3588.14 ms
-  ├─ Expert Load (RAM)    : 371.98 ms
-  ├─ GPU Copy (RAM)       : 393.11 ms
-  └─ Cache: GPU=0 RAM=339 SSD=453
-Layer 4  (Total: 26257.82 ms)
-  ├─ Attention            : 309.79 ms
-  ├─ Load base weight model.language_model.layers.4.mlp.shared_expert.gate_proj.weight : 89.20 ms
-  ├─ Load base weight model.language_model.layers.4.mlp.shared_expert.up_proj.weight : 63.82 ms
-  ├─ Load base weight model.language_model.layers.4.mlp.shared_expert.down_proj.weight : 57.40 ms
-  ├─ Load base weight model.language_model.layers.4.mlp.shared_expert_gate.weight : 10.05 ms
-  ├─ MoE / MLP            : 4409.10 ms
-  ├─ Router               : 36.36 ms
-  ├─ Layer 4              : 4731.15 ms
-  ├─ Expert Load (SSD)    : 2498.28 ms
-  ├─ C++ Execution (Dequant + GEMM) : 3428.92 ms
-  ├─ GPU Copy (SSD)       : 2539.16 ms
-  ├─ Grouped GEMM         : 3466.82 ms
-  ├─ MoE Decode Loop      : 3720.52 ms
-  ├─ Expert Load (RAM)    : 436.49 ms
-  ├─ GPU Copy (RAM)       : 460.78 ms
-  └─ Cache: GPU=0 RAM=390 SSD=402
-Layer 5  (Total: 22613.96 ms)
-  ├─ Attention            : 301.99 ms
-  ├─ Load base weight model.language_model.layers.5.mlp.shared_expert.gate_proj.weight : 75.62 ms
-  ├─ Load base weight model.language_model.layers.5.mlp.shared_expert.up_proj.weight : 56.36 ms
-  ├─ Load base weight model.language_model.layers.5.mlp.shared_expert.down_proj.weight : 53.59 ms
-  ├─ Load base weight model.language_model.layers.5.mlp.shared_expert_gate.weight : 9.26 ms
-  ├─ MoE / MLP            : 3751.34 ms
-  ├─ Router               : 35.31 ms
-  ├─ Layer 5              : 4065.97 ms
-  ├─ Expert Load (SSD)    : 2012.08 ms
-  ├─ C++ Execution (Dequant + GEMM) : 2975.18 ms
-  ├─ GPU Copy (SSD)       : 2049.97 ms
-  ├─ Grouped GEMM         : 3012.68 ms
-  ├─ MoE Decode Loop      : 3240.49 ms
-  ├─ Expert Load (RAM)    : 473.90 ms
-  ├─ GPU Copy (RAM)       : 500.21 ms
-  └─ Cache: GPU=0 RAM=430 SSD=362
-Layer 6  (Total: 19915.85 ms)
-  ├─ Attention            : 296.63 ms
-  ├─ Load base weight model.language_model.layers.6.mlp.shared_expert.gate_proj.weight : 75.77 ms
-  ├─ Load base weight model.language_model.layers.6.mlp.shared_expert.up_proj.weight : 56.91 ms
-  ├─ Load base weight model.language_model.layers.6.mlp.shared_expert.down_proj.weight : 56.44 ms
-  ├─ Load base weight model.language_model.layers.6.mlp.shared_expert_gate.weight : 9.49 ms
-  ├─ MoE / MLP            : 3317.19 ms
-  ├─ Router               : 35.53 ms
-  ├─ Layer 6              : 3626.92 ms
-  ├─ Expert Load (SSD)    : 1571.47 ms
-  ├─ C++ Execution (Dequant + GEMM) : 2604.77 ms
-  ├─ GPU Copy (SSD)       : 1602.96 ms
-  ├─ Grouped GEMM         : 2643.01 ms
-  ├─ MoE Decode Loop      : 2875.97 ms
-  ├─ Expert Load (RAM)    : 556.73 ms
-  ├─ GPU Copy (RAM)       : 586.05 ms
-  └─ Cache: GPU=0 RAM=478 SSD=314
-Layer 7  (Total: 18442.42 ms)
-  ├─ Attention            : 220.50 ms
-  ├─ Load base weight model.language_model.layers.7.mlp.shared_expert.gate_proj.weight : 78.46 ms
-  ├─ Load base weight model.language_model.layers.7.mlp.shared_expert.up_proj.weight : 58.82 ms
-  ├─ Load base weight model.language_model.layers.7.mlp.shared_expert.down_proj.weight : 56.76 ms
-  ├─ Load base weight model.language_model.layers.7.mlp.shared_expert_gate.weight : 9.95 ms
-  ├─ MoE / MLP            : 3125.23 ms
-  ├─ Router               : 35.79 ms
-  ├─ Layer 7              : 3358.25 ms
-  ├─ Expert Load (SSD)    : 1306.52 ms
-  ├─ C++ Execution (Dequant + GEMM) : 2438.29 ms
-  ├─ GPU Copy (SSD)       : 1333.90 ms
-  ├─ Grouped GEMM         : 2477.73 ms
-  ├─ MoE Decode Loop      : 2708.54 ms
-  ├─ Expert Load (RAM)    : 581.50 ms
-  ├─ GPU Copy (RAM)       : 652.19 ms
-  └─ Cache: GPU=0 RAM=520 SSD=272
-Layer 8  (Total: 15540.63 ms)
-  ├─ Attention            : 288.92 ms
-  ├─ Load base weight model.language_model.layers.8.mlp.shared_expert.gate_proj.weight : 74.65 ms
-  ├─ Load base weight model.language_model.layers.8.mlp.shared_expert.up_proj.weight : 57.06 ms
-  ├─ Load base weight model.language_model.layers.8.mlp.shared_expert.down_proj.weight : 54.60 ms
-  ├─ Load base weight model.language_model.layers.8.mlp.shared_expert_gate.weight : 9.60 ms
-  ├─ MoE / MLP            : 2666.13 ms
-  ├─ Router               : 34.64 ms
-  ├─ Layer 8              : 2969.29 ms
-  ├─ Expert Load (SSD)    : 939.19 ms
-  ├─ C++ Execution (Dequant + GEMM) : 1983.46 ms
-  ├─ GPU Copy (SSD)       : 961.46 ms
-  ├─ Grouped GEMM         : 2024.87 ms
-  ├─ MoE Decode Loop      : 2252.01 ms
-  ├─ Expert Load (RAM)    : 596.17 ms
-  ├─ GPU Copy (RAM)       : 628.58 ms
-  └─ Cache: GPU=0 RAM=556 SSD=236
-Layer 9  (Total: 17213.04 ms)
-  ├─ Attention            : 289.91 ms
-  ├─ Load base weight model.language_model.layers.9.mlp.shared_expert.gate_proj.weight : 76.32 ms
-  ├─ Load base weight model.language_model.layers.9.mlp.shared_expert.up_proj.weight : 57.31 ms
-  ├─ Load base weight model.language_model.layers.9.mlp.shared_expert.down_proj.weight : 55.65 ms
-  ├─ Load base weight model.language_model.layers.9.mlp.shared_expert_gate.weight : 9.68 ms
-  ├─ MoE / MLP            : 2945.04 ms
-  ├─ Router               : 34.90 ms
-  ├─ Layer 9              : 3249.33 ms
-  ├─ Expert Load (SSD)    : 1169.02 ms
-  ├─ C++ Execution (Dequant + GEMM) : 2207.34 ms
-  ├─ GPU Copy (SSD)       : 1194.21 ms
-  ├─ Grouped GEMM         : 2247.93 ms
-  ├─ MoE Decode Loop      : 2476.96 ms
-  ├─ Expert Load (RAM)    : 583.69 ms
-  ├─ GPU Copy (RAM)       : 615.75 ms
-  └─ Cache: GPU=0 RAM=533 SSD=259
-Layer 10 (Total: 20799.81 ms)
-  ├─ Attention            : 282.82 ms
-  ├─ Load base weight model.language_model.layers.10.mlp.shared_expert.gate_proj.weight : 71.87 ms
-  ├─ Load base weight model.language_model.layers.10.mlp.shared_expert.up_proj.weight : 53.84 ms
-  ├─ Load base weight model.language_model.layers.10.mlp.shared_expert.down_proj.weight : 52.20 ms
-  ├─ Load base weight model.language_model.layers.10.mlp.shared_expert_gate.weight : 8.77 ms
-  ├─ MoE / MLP            : 3571.71 ms
-  ├─ Router               : 33.71 ms
-  ├─ Layer 10             : 3867.46 ms
-  ├─ Expert Load (SSD)    : 1698.28 ms
-  ├─ C++ Execution (Dequant + GEMM) : 2691.27 ms
-  ├─ GPU Copy (SSD)       : 1731.83 ms
-  ├─ Grouped GEMM         : 2730.95 ms
-  ├─ MoE Decode Loop      : 2947.44 ms
-  ├─ Expert Load (RAM)    : 514.15 ms
-  ├─ GPU Copy (RAM)       : 543.51 ms
-  └─ Cache: GPU=0 RAM=454 SSD=338
-Layer 11 (Total: 20801.20 ms)
-  ├─ Attention            : 220.63 ms
-  ├─ Load base weight model.language_model.layers.11.mlp.shared_expert.gate_proj.weight : 79.13 ms
-  ├─ Load base weight model.language_model.layers.11.mlp.shared_expert.up_proj.weight : 58.63 ms
-  ├─ Load base weight model.language_model.layers.11.mlp.shared_expert.down_proj.weight : 54.91 ms
-  ├─ Load base weight model.language_model.layers.11.mlp.shared_expert_gate.weight : 9.78 ms
-  ├─ MoE / MLP            : 3778.85 ms
-  ├─ Router               : 35.77 ms
-  ├─ Layer 11             : 4012.28 ms
-  ├─ Expert Load (SSD)    : 1634.63 ms
-  ├─ C++ Execution (Dequant + GEMM) : 2625.83 ms
-  ├─ GPU Copy (SSD)       : 1669.55 ms
-  ├─ Grouped GEMM         : 2666.34 ms
-  ├─ MoE Decode Loop      : 2893.99 ms
-  ├─ Expert Load (RAM)    : 517.39 ms
-  ├─ GPU Copy (RAM)       : 543.49 ms
-  └─ Cache: GPU=0 RAM=434 SSD=358
-Layer 12 (Total: 24102.66 ms)
-  ├─ Attention            : 285.23 ms
-  ├─ Load base weight model.language_model.layers.12.mlp.shared_expert.gate_proj.weight : 75.37 ms
-  ├─ Load base weight model.language_model.layers.12.mlp.shared_expert.up_proj.weight : 56.12 ms
-  ├─ Load base weight model.language_model.layers.12.mlp.shared_expert.down_proj.weight : 57.41 ms
-  ├─ Load base weight model.language_model.layers.12.mlp.shared_expert_gate.weight : 9.32 ms
-  ├─ MoE / MLP            : 4978.26 ms
-  ├─ Router               : 33.97 ms
-  ├─ Layer 12             : 5277.16 ms
-  ├─ Expert Load (SSD)    : 1741.67 ms
-  ├─ C++ Execution (Dequant + GEMM) : 2780.81 ms
-  ├─ GPU Copy (SSD)       : 1770.54 ms
-  ├─ Grouped GEMM         : 2821.04 ms
-  ├─ MoE Decode Loop      : 3044.29 ms
-  ├─ Expert Load (RAM)    : 570.37 ms
-  ├─ GPU Copy (RAM)       : 601.08 ms
-  └─ Cache: GPU=0 RAM=516 SSD=276
-Layer 13 (Total: 21023.71 ms)
-  ├─ Attention            : 289.76 ms
-  ├─ Load base weight model.language_model.layers.13.mlp.shared_expert.gate_proj.weight : 75.98 ms
-  ├─ Load base weight model.language_model.layers.13.mlp.shared_expert.up_proj.weight : 58.27 ms
-  ├─ Load base weight model.language_model.layers.13.mlp.shared_expert.down_proj.weight : 56.42 ms
-  ├─ Load base weight model.language_model.layers.13.mlp.shared_expert_gate.weight : 9.45 ms
-  ├─ MoE / MLP            : 4469.23 ms
-  ├─ Router               : 34.83 ms
-  ├─ Layer 13             : 4772.89 ms
-  ├─ Expert Load (SSD)    : 1316.24 ms
-  ├─ C++ Execution (Dequant + GEMM) : 2364.44 ms
-  ├─ GPU Copy (SSD)       : 1341.62 ms
-  ├─ Grouped GEMM         : 2404.78 ms
-  ├─ MoE Decode Loop      : 2630.79 ms
-  ├─ Expert Load (RAM)    : 583.58 ms
-  ├─ GPU Copy (RAM)       : 615.40 ms
-  └─ Cache: GPU=0 RAM=529 SSD=263
-Layer 14 (Total: 16848.03 ms)
-  ├─ Attention            : 312.08 ms
-  ├─ Load base weight model.language_model.layers.14.mlp.shared_expert.gate_proj.weight : 75.66 ms
-  ├─ Load base weight model.language_model.layers.14.mlp.shared_expert.up_proj.weight : 58.36 ms
-  ├─ Load base weight model.language_model.layers.14.mlp.shared_expert.down_proj.weight : 56.13 ms
-  ├─ Load base weight model.language_model.layers.14.mlp.shared_expert_gate.weight : 9.39 ms
-  ├─ MoE / MLP            : 3323.87 ms
-  ├─ Router               : 35.07 ms
-  ├─ Layer 14             : 3650.76 ms
-  ├─ Expert Load (SSD)    : 899.96 ms
-  ├─ C++ Execution (Dequant + GEMM) : 1975.26 ms
-  ├─ GPU Copy (SSD)       : 919.48 ms
-  ├─ Grouped GEMM         : 2015.22 ms
-  ├─ MoE Decode Loop      : 2242.26 ms
-  ├─ Expert Load (RAM)    : 619.96 ms
-  ├─ GPU Copy (RAM)       : 654.58 ms
-  └─ Cache: GPU=0 RAM=589 SSD=203
-Layer 15 (Total: 24144.08 ms)
-  ├─ Attention            : 235.53 ms
-  ├─ Load base weight model.language_model.layers.15.mlp.shared_expert.gate_proj.weight : 110.46 ms
-  ├─ Load base weight model.language_model.layers.15.mlp.shared_expert.up_proj.weight : 59.85 ms
-  ├─ Load base weight model.language_model.layers.15.mlp.shared_expert.down_proj.weight : 58.91 ms
-  ├─ Load base weight model.language_model.layers.15.mlp.shared_expert_gate.weight : 9.18 ms
-  ├─ MoE / MLP            : 6207.26 ms
-  ├─ Router               : 35.68 ms
-  ├─ Layer 15             : 6456.40 ms
-  ├─ Expert Load (SSD)    : 1246.61 ms
-  ├─ C++ Execution (Dequant + GEMM) : 2310.85 ms
-  ├─ GPU Copy (SSD)       : 1271.06 ms
-  ├─ Grouped GEMM         : 2346.81 ms
-  ├─ MoE Decode Loop      : 2583.65 ms
-  ├─ Expert Load (RAM)    : 589.52 ms
-  ├─ GPU Copy (RAM)       : 622.30 ms
-  └─ Cache: GPU=0 RAM=544 SSD=248
-Layer 16 (Total: 17614.92 ms)
-  ├─ Attention            : 320.55 ms
-  ├─ Load base weight model.language_model.layers.16.mlp.shared_expert.gate_proj.weight : 77.09 ms
-  ├─ Load base weight model.language_model.layers.16.mlp.shared_expert.up_proj.weight : 58.32 ms
-  ├─ Load base weight model.language_model.layers.16.mlp.shared_expert.down_proj.weight : 56.45 ms
-  ├─ Load base weight model.language_model.layers.16.mlp.shared_expert_gate.weight : 10.24 ms
-  ├─ MoE / MLP            : 2990.29 ms
-  ├─ Router               : 36.74 ms
-  ├─ Layer 16             : 3324.50 ms
-  ├─ Expert Load (SSD)    : 1233.37 ms
-  ├─ C++ Execution (Dequant + GEMM) : 2266.96 ms
-  ├─ GPU Copy (SSD)       : 1263.59 ms
-  ├─ Grouped GEMM         : 2305.94 ms
-  ├─ MoE Decode Loop      : 2535.65 ms
-  ├─ Expert Load (RAM)    : 552.91 ms
-  ├─ GPU Copy (RAM)       : 582.30 ms
-  └─ Cache: GPU=0 RAM=483 SSD=309
-Layer 17 (Total: 15928.12 ms)
-  ├─ Attention            : 294.63 ms
-  ├─ Load base weight model.language_model.layers.17.mlp.shared_expert.gate_proj.weight : 78.00 ms
-  ├─ Load base weight model.language_model.layers.17.mlp.shared_expert.up_proj.weight : 57.89 ms
-  ├─ Load base weight model.language_model.layers.17.mlp.shared_expert.down_proj.weight : 55.11 ms
-  ├─ Load base weight model.language_model.layers.17.mlp.shared_expert_gate.weight : 9.99 ms
-  ├─ MoE / MLP            : 2845.69 ms
-  ├─ Router               : 34.73 ms
-  ├─ Layer 17             : 3153.86 ms
-  ├─ Expert Load (SSD)    : 925.95 ms
-  ├─ C++ Execution (Dequant + GEMM) : 1989.80 ms
-  ├─ GPU Copy (SSD)       : 949.89 ms
-  ├─ Grouped GEMM         : 2029.32 ms
-  ├─ MoE Decode Loop      : 2255.17 ms
-  ├─ Expert Load (RAM)    : 608.04 ms
-  ├─ GPU Copy (RAM)       : 640.05 ms
-  └─ Cache: GPU=0 RAM=543 SSD=249
-Layer 18 (Total: 17846.02 ms)
-  ├─ Attention            : 286.22 ms
-  ├─ Load base weight model.language_model.layers.18.mlp.shared_expert.gate_proj.weight : 74.87 ms
-  ├─ Load base weight model.language_model.layers.18.mlp.shared_expert.up_proj.weight : 56.25 ms
-  ├─ Load base weight model.language_model.layers.18.mlp.shared_expert.down_proj.weight : 53.79 ms
-  ├─ Load base weight model.language_model.layers.18.mlp.shared_expert_gate.weight : 9.17 ms
-  ├─ MoE / MLP            : 3149.23 ms
-  ├─ Router               : 34.45 ms
-  ├─ Layer 18             : 3448.37 ms
-  ├─ Expert Load (SSD)    : 1223.83 ms
-  ├─ C++ Execution (Dequant + GEMM) : 2262.97 ms
-  ├─ GPU Copy (SSD)       : 1252.17 ms
-  ├─ Grouped GEMM         : 2302.41 ms
-  ├─ MoE Decode Loop      : 2523.50 ms
-  ├─ Expert Load (RAM)    : 569.02 ms
-  ├─ GPU Copy (RAM)       : 599.77 ms
-  └─ Cache: GPU=0 RAM=504 SSD=288
-Layer 19 (Total: 16070.05 ms)
-  ├─ Attention            : 219.69 ms
-  ├─ Load base weight model.language_model.layers.19.mlp.shared_expert.gate_proj.weight : 76.97 ms
-  ├─ Load base weight model.language_model.layers.19.mlp.shared_expert.up_proj.weight : 56.04 ms
-  ├─ Load base weight model.language_model.layers.19.mlp.shared_expert.down_proj.weight : 67.97 ms
-  ├─ Load base weight model.language_model.layers.19.mlp.shared_expert_gate.weight : 9.69 ms
-  ├─ MoE / MLP            : 2780.61 ms
-  ├─ Router               : 34.80 ms
-  ├─ Layer 19             : 3013.79 ms
-  ├─ Expert Load (SSD)    : 971.44 ms
-  ├─ C++ Execution (Dequant + GEMM) : 2079.70 ms
-  ├─ GPU Copy (SSD)       : 994.46 ms
-  ├─ Grouped GEMM         : 2118.65 ms
-  ├─ MoE Decode Loop      : 2358.18 ms
-  ├─ Expert Load (RAM)    : 627.57 ms
-  ├─ GPU Copy (RAM)       : 660.50 ms
-  └─ Cache: GPU=0 RAM=558 SSD=234
-Layer 20 (Total: 14579.50 ms)
-  ├─ Attention            : 291.71 ms
-  ├─ Load base weight model.language_model.layers.20.mlp.shared_expert.gate_proj.weight : 74.24 ms
-  ├─ Load base weight model.language_model.layers.20.mlp.shared_expert.up_proj.weight : 56.61 ms
-  ├─ Load base weight model.language_model.layers.20.mlp.shared_expert.down_proj.weight : 53.42 ms
-  ├─ Load base weight model.language_model.layers.20.mlp.shared_expert_gate.weight : 9.18 ms
-  ├─ MoE / MLP            : 2549.32 ms
-  ├─ Router               : 34.10 ms
-  ├─ Layer 20             : 2854.83 ms
-  ├─ Expert Load (SSD)    : 747.68 ms
-  ├─ C++ Execution (Dequant + GEMM) : 1846.31 ms
-  ├─ GPU Copy (SSD)       : 767.50 ms
-  ├─ Grouped GEMM         : 1885.03 ms
-  ├─ MoE Decode Loop      : 2107.40 ms
-  ├─ Expert Load (RAM)    : 634.63 ms
-  ├─ GPU Copy (RAM)       : 667.54 ms
-  └─ Cache: GPU=0 RAM=585 SSD=207
-Layer 21 (Total: 17159.93 ms)
-  ├─ Attention            : 284.97 ms
-  ├─ Load base weight model.language_model.layers.21.mlp.shared_expert.gate_proj.weight : 71.27 ms
-  ├─ Load base weight model.language_model.layers.21.mlp.shared_expert.up_proj.weight : 55.32 ms
-  ├─ Load base weight model.language_model.layers.21.mlp.shared_expert.down_proj.weight : 53.00 ms
-  ├─ Load base weight model.language_model.layers.21.mlp.shared_expert_gate.weight : 8.90 ms
-  ├─ MoE / MLP            : 2907.16 ms
-  ├─ Router               : 33.97 ms
-  ├─ Layer 21             : 3205.21 ms
-  ├─ Expert Load (SSD)    : 1129.66 ms
-  ├─ C++ Execution (Dequant + GEMM) : 2224.98 ms
-  ├─ GPU Copy (SSD)       : 1150.41 ms
-  ├─ Grouped GEMM         : 2264.08 ms
-  ├─ MoE Decode Loop      : 2480.85 ms
-  ├─ Expert Load (RAM)    : 628.31 ms
-  ├─ GPU Copy (RAM)       : 661.85 ms
-  └─ Cache: GPU=0 RAM=572 SSD=220
-Layer 22 (Total: 19631.60 ms)
-  ├─ Attention            : 287.81 ms
-  ├─ Load base weight model.language_model.layers.22.mlp.shared_expert.gate_proj.weight : 73.83 ms
-  ├─ Load base weight model.language_model.layers.22.mlp.shared_expert.up_proj.weight : 56.80 ms
-  ├─ Load base weight model.language_model.layers.22.mlp.shared_expert.down_proj.weight : 54.05 ms
-  ├─ Load base weight model.language_model.layers.22.mlp.shared_expert_gate.weight : 9.80 ms
-  ├─ MoE / MLP            : 3319.17 ms
-  ├─ Router               : 34.32 ms
-  ├─ Layer 22             : 3620.48 ms
-  ├─ Expert Load (SSD)    : 1528.82 ms
-  ├─ C++ Execution (Dequant + GEMM) : 2567.84 ms
-  ├─ GPU Copy (SSD)       : 1561.85 ms
-  ├─ Grouped GEMM         : 2606.12 ms
-  ├─ MoE Decode Loop      : 2829.19 ms
-  ├─ Expert Load (RAM)    : 526.60 ms
-  ├─ GPU Copy (RAM)       : 554.93 ms
-  └─ Cache: GPU=0 RAM=464 SSD=328
-Layer 23 (Total: 24301.20 ms)
-  ├─ Attention            : 1719.56 ms
-  ├─ Load base weight model.language_model.layers.23.mlp.shared_expert.gate_proj.weight : 76.17 ms
-  ├─ Load base weight model.language_model.layers.23.mlp.shared_expert.up_proj.weight : 59.10 ms
-  ├─ Load base weight model.language_model.layers.23.mlp.shared_expert.down_proj.weight : 54.34 ms
-  ├─ Load base weight model.language_model.layers.23.mlp.shared_expert_gate.weight : 9.13 ms
-  ├─ MoE / MLP            : 3615.48 ms
-  ├─ Router               : 34.76 ms
-  ├─ Layer 23             : 5350.19 ms
-  ├─ Expert Load (SSD)    : 1814.30 ms
-  ├─ C++ Execution (Dequant + GEMM) : 2801.50 ms
-  ├─ GPU Copy (SSD)       : 1848.98 ms
-  ├─ Grouped GEMM         : 2839.07 ms
-  ├─ MoE Decode Loop      : 3066.51 ms
-  ├─ Expert Load (RAM)    : 492.44 ms
-  ├─ GPU Copy (RAM)       : 519.67 ms
-  └─ Cache: GPU=0 RAM=448 SSD=344
-Layer 24 (Total: 18519.83 ms)
-  ├─ Attention            : 291.91 ms
-  ├─ Load base weight model.language_model.layers.24.mlp.shared_expert.gate_proj.weight : 73.24 ms
-  ├─ Load base weight model.language_model.layers.24.mlp.shared_expert.up_proj.weight : 56.09 ms
-  ├─ Load base weight model.language_model.layers.24.mlp.shared_expert.down_proj.weight : 53.86 ms
-  ├─ Load base weight model.language_model.layers.24.mlp.shared_expert_gate.weight : 9.27 ms
-  ├─ MoE / MLP            : 3266.32 ms
-  ├─ Router               : 33.98 ms
-  ├─ Layer 24             : 3572.53 ms
-  ├─ Expert Load (SSD)    : 1301.28 ms
-  ├─ C++ Execution (Dequant + GEMM) : 2353.71 ms
-  ├─ GPU Copy (SSD)       : 1326.91 ms
-  ├─ Grouped GEMM         : 2393.32 ms
-  ├─ MoE Decode Loop      : 2612.09 ms
-  ├─ Expert Load (RAM)    : 572.58 ms
-  ├─ GPU Copy (RAM)       : 602.75 ms
-  └─ Cache: GPU=0 RAM=522 SSD=270
-Layer 25 (Total: 17913.62 ms)
-  ├─ Attention            : 286.63 ms
-  ├─ Load base weight model.language_model.layers.25.mlp.shared_expert.gate_proj.weight : 74.06 ms
-  ├─ Load base weight model.language_model.layers.25.mlp.shared_expert.up_proj.weight : 55.25 ms
-  ├─ Load base weight model.language_model.layers.25.mlp.shared_expert.down_proj.weight : 53.50 ms
-  ├─ Load base weight model.language_model.layers.25.mlp.shared_expert_gate.weight : 9.58 ms
-  ├─ MoE / MLP            : 3027.71 ms
-  ├─ Router               : 34.63 ms
-  ├─ Layer 25             : 3329.08 ms
-  ├─ Expert Load (SSD)    : 1295.00 ms
-  ├─ C++ Execution (Dequant + GEMM) : 2328.79 ms
-  ├─ GPU Copy (SSD)       : 1322.92 ms
-  ├─ Grouped GEMM         : 2368.75 ms
-  ├─ MoE Decode Loop      : 2590.01 ms
-  ├─ Expert Load (RAM)    : 553.75 ms
-  ├─ GPU Copy (RAM)       : 583.96 ms
-  └─ Cache: GPU=0 RAM=509 SSD=283
-Layer 26 (Total: 14783.91 ms)
-  ├─ Attention            : 304.66 ms
-  ├─ Load base weight model.language_model.layers.26.mlp.shared_expert.gate_proj.weight : 74.71 ms
-  ├─ Load base weight model.language_model.layers.26.mlp.shared_expert.up_proj.weight : 56.65 ms
-  ├─ Load base weight model.language_model.layers.26.mlp.shared_expert.down_proj.weight : 53.59 ms
-  ├─ Load base weight model.language_model.layers.26.mlp.shared_expert_gate.weight : 9.63 ms
-  ├─ MoE / MLP            : 2522.98 ms
-  ├─ Router               : 35.12 ms
-  ├─ Layer 26             : 2840.59 ms
-  ├─ Expert Load (SSD)    : 795.68 ms
-  ├─ C++ Execution (Dequant + GEMM) : 1891.63 ms
-  ├─ GPU Copy (SSD)       : 814.46 ms
-  ├─ Grouped GEMM         : 1932.39 ms
-  ├─ MoE Decode Loop      : 2149.94 ms
-  ├─ Expert Load (RAM)    : 633.87 ms
-  ├─ GPU Copy (RAM)       : 668.00 ms
-  └─ Cache: GPU=0 RAM=596 SSD=196
-Layer 27 (Total: 16550.10 ms)
-  ├─ Attention            : 205.00 ms
-  ├─ Load base weight model.language_model.layers.27.mlp.shared_expert.gate_proj.weight : 74.12 ms
-  ├─ Load base weight model.language_model.layers.27.mlp.shared_expert.up_proj.weight : 55.59 ms
-  ├─ Load base weight model.language_model.layers.27.mlp.shared_expert.down_proj.weight : 54.38 ms
-  ├─ Load base weight model.language_model.layers.27.mlp.shared_expert_gate.weight : 9.21 ms
-  ├─ MoE / MLP            : 2842.13 ms
-  ├─ Router               : 33.93 ms
-  ├─ Layer 27             : 3061.09 ms
-  ├─ Expert Load (SSD)    : 1120.13 ms
-  ├─ Expert Load (RAM)    : 572.56 ms
-  ├─ C++ Execution (Dequant + GEMM) : 2157.26 ms
-  ├─ GPU Copy (SSD)       : 1145.65 ms
-  ├─ GPU Copy (RAM)       : 603.34 ms
-  ├─ Grouped GEMM         : 2198.31 ms
-  ├─ MoE Decode Loop      : 2417.41 ms
-  └─ Cache: GPU=0 RAM=525 SSD=267
-Layer 28 (Total: 17313.65 ms)
-  ├─ Attention            : 286.37 ms
-  ├─ Load base weight model.language_model.layers.28.mlp.shared_expert.gate_proj.weight : 74.46 ms
-  ├─ Load base weight model.language_model.layers.28.mlp.shared_expert.up_proj.weight : 56.41 ms
-  ├─ Load base weight model.language_model.layers.28.mlp.shared_expert.down_proj.weight : 55.40 ms
-  ├─ Load base weight model.language_model.layers.28.mlp.shared_expert_gate.weight : 9.81 ms
-  ├─ MoE / MLP            : 2948.45 ms
-  ├─ Router               : 34.18 ms
-  ├─ Layer 28             : 3247.81 ms
-  ├─ Expert Load (RAM)    : 518.36 ms
-  ├─ C++ Execution (Dequant + GEMM) : 2238.99 ms
-  ├─ GPU Copy (RAM)       : 547.26 ms
-  ├─ Grouped GEMM         : 2276.23 ms
-  ├─ MoE Decode Loop      : 2501.18 ms
-  ├─ Expert Load (SSD)    : 1243.50 ms
-  ├─ GPU Copy (SSD)       : 1275.24 ms
-  └─ Cache: GPU=0 RAM=470 SSD=322
-Layer 29 (Total: 16111.83 ms)
-  ├─ Attention            : 288.59 ms
-  ├─ Load base weight model.language_model.layers.29.mlp.shared_expert.gate_proj.weight : 74.04 ms
-  ├─ Load base weight model.language_model.layers.29.mlp.shared_expert.up_proj.weight : 55.15 ms
-  ├─ Load base weight model.language_model.layers.29.mlp.shared_expert.down_proj.weight : 54.14 ms
-  ├─ Load base weight model.language_model.layers.29.mlp.shared_expert_gate.weight : 8.94 ms
-  ├─ MoE / MLP            : 2758.39 ms
-  ├─ Router               : 34.28 ms
-  ├─ Layer 29             : 3061.14 ms
-  ├─ Expert Load (RAM)    : 571.22 ms
-  ├─ Expert Load (SSD)    : 1023.95 ms
-  ├─ C++ Execution (Dequant + GEMM) : 2076.42 ms
-  ├─ GPU Copy (RAM)       : 602.83 ms
-  ├─ GPU Copy (SSD)       : 1049.06 ms
-  ├─ Grouped GEMM         : 2115.56 ms
-  ├─ MoE Decode Loop      : 2338.10 ms
-  └─ Cache: GPU=0 RAM=529 SSD=263
-Layer 30 (Total: 18670.45 ms)
-  ├─ Attention            : 301.95 ms
-  ├─ Load base weight model.language_model.layers.30.mlp.shared_expert.gate_proj.weight : 74.79 ms
-  ├─ Load base weight model.language_model.layers.30.mlp.shared_expert.up_proj.weight : 57.42 ms
-  ├─ Load base weight model.language_model.layers.30.mlp.shared_expert.down_proj.weight : 53.67 ms
-  ├─ Load base weight model.language_model.layers.30.mlp.shared_expert_gate.weight : 9.87 ms
-  ├─ MoE / MLP            : 3156.70 ms
-  ├─ Router               : 35.11 ms
-  ├─ Layer 30             : 3472.17 ms
-  ├─ Expert Load (RAM)    : 546.25 ms
-  ├─ C++ Execution (Dequant + GEMM) : 2421.57 ms
-  ├─ GPU Copy (RAM)       : 576.82 ms
-  ├─ Grouped GEMM         : 2461.14 ms
-  ├─ MoE Decode Loop      : 2682.12 ms
-  ├─ Expert Load (SSD)    : 1396.01 ms
-  ├─ GPU Copy (SSD)       : 1424.88 ms
-  └─ Cache: GPU=0 RAM=509 SSD=283
-Layer 31 (Total: 15804.47 ms)
-  ├─ Attention            : 212.66 ms
-  ├─ Load base weight model.language_model.layers.31.mlp.shared_expert.gate_proj.weight : 88.25 ms
-  ├─ Load base weight model.language_model.layers.31.mlp.shared_expert.up_proj.weight : 55.45 ms
-  ├─ Load base weight model.language_model.layers.31.mlp.shared_expert.down_proj.weight : 54.59 ms
-  ├─ Load base weight model.language_model.layers.31.mlp.shared_expert_gate.weight : 9.24 ms
-  ├─ MoE / MLP            : 2734.38 ms
-  ├─ Router               : 34.72 ms
-  ├─ Layer 31             : 2961.46 ms
-  ├─ Expert Load (RAM)    : 623.91 ms
-  ├─ C++ Execution (Dequant + GEMM) : 2038.67 ms
-  ├─ GPU Copy (RAM)       : 656.50 ms
-  ├─ Grouped GEMM         : 2079.95 ms
-  ├─ MoE Decode Loop      : 2309.82 ms
-  ├─ Expert Load (SSD)    : 961.34 ms
-  ├─ GPU Copy (SSD)       : 983.54 ms
-  └─ Cache: GPU=0 RAM=567 SSD=225
-Layer 32 (Total: 17795.05 ms)
-  ├─ Attention            : 284.50 ms
-  ├─ Load base weight model.language_model.layers.32.mlp.shared_expert.gate_proj.weight : 73.98 ms
-  ├─ Load base weight model.language_model.layers.32.mlp.shared_expert.up_proj.weight : 54.92 ms
-  ├─ Load base weight model.language_model.layers.32.mlp.shared_expert.down_proj.weight : 52.38 ms
-  ├─ Load base weight model.language_model.layers.32.mlp.shared_expert_gate.weight : 8.98 ms
-  ├─ MoE / MLP            : 3327.87 ms
-  ├─ Router               : 34.26 ms
-  ├─ Layer 32             : 3626.12 ms
-  ├─ Expert Load (RAM)    : 531.04 ms
-  ├─ Expert Load (SSD)    : 1176.87 ms
-  ├─ C++ Execution (Dequant + GEMM) : 2185.75 ms
-  ├─ GPU Copy (RAM)       : 559.01 ms
-  ├─ GPU Copy (SSD)       : 1209.57 ms
-  ├─ Grouped GEMM         : 2226.61 ms
-  ├─ MoE Decode Loop      : 2443.17 ms
-  └─ Cache: GPU=0 RAM=466 SSD=326
-Layer 33 (Total: 24860.06 ms)
-  ├─ Attention            : 296.20 ms
-  ├─ Load base weight model.language_model.layers.33.mlp.shared_expert.gate_proj.weight : 74.89 ms
-  ├─ Load base weight model.language_model.layers.33.mlp.shared_expert.up_proj.weight : 55.64 ms
-  ├─ Load base weight model.language_model.layers.33.mlp.shared_expert.down_proj.weight : 53.30 ms
-  ├─ Load base weight model.language_model.layers.33.mlp.shared_expert_gate.weight : 8.84 ms
-  ├─ MoE / MLP            : 6159.85 ms
-  ├─ Router               : 34.37 ms
-  ├─ Layer 33             : 6468.98 ms
-  ├─ Expert Load (SSD)    : 1525.55 ms
-  ├─ Expert Load (RAM)    : 454.62 ms
-  ├─ C++ Execution (Dequant + GEMM) : 2462.43 ms
-  ├─ GPU Copy (SSD)       : 1563.09 ms
-  ├─ GPU Copy (RAM)       : 480.16 ms
-  ├─ Grouped GEMM         : 2501.36 ms
-  ├─ MoE Decode Loop      : 2720.78 ms
-  └─ Cache: GPU=0 RAM=408 SSD=384
-Layer 34 (Total: 18406.24 ms)
-  ├─ Attention            : 296.19 ms
-  ├─ Load base weight model.language_model.layers.34.mlp.shared_expert.gate_proj.weight : 73.15 ms
-  ├─ Load base weight model.language_model.layers.34.mlp.shared_expert.up_proj.weight : 53.68 ms
-  ├─ Load base weight model.language_model.layers.34.mlp.shared_expert.down_proj.weight : 53.30 ms
-  ├─ Load base weight model.language_model.layers.34.mlp.shared_expert_gate.weight : 9.23 ms
-  ├─ MoE / MLP            : 3158.99 ms
-  ├─ Router               : 33.80 ms
-  ├─ Layer 34             : 3469.87 ms
-  ├─ Expert Load (SSD)    : 1402.70 ms
-  ├─ Expert Load (RAM)    : 455.34 ms
-  ├─ C++ Execution (Dequant + GEMM) : 2395.19 ms
-  ├─ GPU Copy (SSD)       : 1438.83 ms
-  ├─ GPU Copy (RAM)       : 479.51 ms
-  ├─ Grouped GEMM         : 2435.92 ms
-  ├─ MoE Decode Loop      : 2650.52 ms
-  └─ Cache: GPU=0 RAM=409 SSD=383
-Layer 35 (Total: 15684.99 ms)
-  ├─ Attention            : 213.55 ms
-  ├─ Load base weight model.language_model.layers.35.mlp.shared_expert.gate_proj.weight : 76.51 ms
-  ├─ Load base weight model.language_model.layers.35.mlp.shared_expert.up_proj.weight : 58.37 ms
-  ├─ Load base weight model.language_model.layers.35.mlp.shared_expert.down_proj.weight : 55.58 ms
-  ├─ Load base weight model.language_model.layers.35.mlp.shared_expert_gate.weight : 10.42 ms
-  ├─ MoE / MLP            : 2724.88 ms
-  ├─ Router               : 35.23 ms
-  ├─ Layer 35             : 2952.51 ms
-  ├─ Expert Load (RAM)    : 555.63 ms
-  ├─ C++ Execution (Dequant + GEMM) : 2025.78 ms
-  ├─ GPU Copy (RAM)       : 584.89 ms
-  ├─ Grouped GEMM         : 2066.28 ms
-  ├─ MoE Decode Loop      : 2291.55 ms
-  ├─ Expert Load (SSD)    : 1003.53 ms
-  ├─ GPU Copy (SSD)       : 1030.29 ms
-  └─ Cache: GPU=0 RAM=513 SSD=279
-Layer 36 (Total: 17732.17 ms)
-  ├─ Attention            : 291.19 ms
-  ├─ Load base weight model.language_model.layers.36.mlp.shared_expert.gate_proj.weight : 75.69 ms
-  ├─ Load base weight model.language_model.layers.36.mlp.shared_expert.up_proj.weight : 58.25 ms
-  ├─ Load base weight model.language_model.layers.36.mlp.shared_expert.down_proj.weight : 56.84 ms
-  ├─ Load base weight model.language_model.layers.36.mlp.shared_expert_gate.weight : 9.48 ms
-  ├─ MoE / MLP            : 3000.79 ms
-  ├─ Router               : 35.27 ms
-  ├─ Layer 36             : 3306.69 ms
-  ├─ Expert Load (RAM)    : 553.90 ms
-  ├─ C++ Execution (Dequant + GEMM) : 2298.01 ms
-  ├─ GPU Copy (RAM)       : 583.47 ms
-  ├─ Grouped GEMM         : 2336.36 ms
-  ├─ MoE Decode Loop      : 2565.35 ms
-  ├─ Expert Load (SSD)    : 1265.98 ms
-  ├─ GPU Copy (SSD)       : 1294.92 ms
-  └─ Cache: GPU=0 RAM=499 SSD=293
-Layer 37 (Total: 17674.41 ms)
-  ├─ Attention            : 282.76 ms
-  ├─ Load base weight model.language_model.layers.37.mlp.shared_expert.gate_proj.weight : 72.97 ms
-  ├─ Load base weight model.language_model.layers.37.mlp.shared_expert.up_proj.weight : 55.25 ms
-  ├─ Load base weight model.language_model.layers.37.mlp.shared_expert.down_proj.weight : 52.13 ms
-  ├─ Load base weight model.language_model.layers.37.mlp.shared_expert_gate.weight : 9.03 ms
-  ├─ MoE / MLP            : 3015.43 ms
-  ├─ Router               : 33.65 ms
-  ├─ Layer 37             : 3311.58 ms
-  ├─ Expert Load (RAM)    : 531.25 ms
-  ├─ C++ Execution (Dequant + GEMM) : 2283.58 ms
-  ├─ GPU Copy (RAM)       : 559.32 ms
-  ├─ Grouped GEMM         : 2325.18 ms
-  ├─ MoE Decode Loop      : 2536.28 ms
-  ├─ Expert Load (SSD)    : 1288.44 ms
-  ├─ GPU Copy (SSD)       : 1317.55 ms
-  └─ Cache: GPU=0 RAM=486 SSD=306
-Layer 38 (Total: 17213.26 ms)
-  ├─ Attention            : 286.22 ms
-  ├─ Load base weight model.language_model.layers.38.mlp.shared_expert.gate_proj.weight : 74.54 ms
-  ├─ Load base weight model.language_model.layers.38.mlp.shared_expert.up_proj.weight : 55.92 ms
-  ├─ Load base weight model.language_model.layers.38.mlp.shared_expert.down_proj.weight : 54.63 ms
-  ├─ Load base weight model.language_model.layers.38.mlp.shared_expert_gate.weight : 9.55 ms
-  ├─ MoE / MLP            : 2980.76 ms
-  ├─ Router               : 34.50 ms
-  ├─ Layer 38             : 3280.86 ms
-  ├─ Expert Load (RAM)    : 505.87 ms
-  ├─ Expert Load (SSD)    : 1229.41 ms
-  ├─ C++ Execution (Dequant + GEMM) : 2202.13 ms
-  ├─ GPU Copy (RAM)       : 532.16 ms
-  ├─ GPU Copy (SSD)       : 1260.48 ms
-  ├─ Grouped GEMM         : 2243.17 ms
-  ├─ MoE Decode Loop      : 2463.06 ms
-  └─ Cache: GPU=0 RAM=456 SSD=336
-Layer 39 (Total: 20900.85 ms)
-  ├─ Attention            : 215.33 ms
-  ├─ Load base weight model.language_model.layers.39.mlp.shared_expert.gate_proj.weight : 77.09 ms
-  ├─ Load base weight model.language_model.layers.39.mlp.shared_expert.up_proj.weight : 57.70 ms
-  ├─ Load base weight model.language_model.layers.39.mlp.shared_expert.down_proj.weight : 54.59 ms
-  ├─ Load base weight model.language_model.layers.39.mlp.shared_expert_gate.weight : 9.48 ms
-  ├─ MoE / MLP            : 3551.66 ms
-  ├─ Router               : 35.05 ms
-  ├─ Layer 39             : 3780.83 ms
-  ├─ Norm                 : 44.33 ms
-  ├─ LM Head              : 636.80 ms
-  ├─ Expert Load (RAM)    : 463.31 ms
-  ├─ Expert Load (SSD)    : 1653.39 ms
-  ├─ C++ Execution (Dequant + GEMM) : 2609.88 ms
-  ├─ GPU Copy (RAM)       : 494.04 ms
-  ├─ GPU Copy (SSD)       : 1691.88 ms
-  ├─ Grouped GEMM         : 2650.41 ms
-  ├─ MoE Decode Loop      : 2875.09 ms
-  └─ Cache: GPU=0 RAM=386 SSD=406
+Layer 0  (Total: 6833.83 ms)
+  ├─ Attention            : 1240.93 ms
+  ├─ Load base weight model.language_model.layers.0.mlp.shared_expert.gate_proj.weight : 13.24 ms
+  ├─ Load base weight model.language_model.layers.0.mlp.shared_expert.up_proj.weight : 8.29 ms
+  ├─ Load base weight model.language_model.layers.0.mlp.shared_expert.down_proj.weight : 8.05 ms
+  ├─ Load base weight model.language_model.layers.0.mlp.shared_expert_gate.weight : 1.14 ms
+  ├─ MoE / MLP            : 1727.24 ms
+  ├─ Router               : 93.89 ms
+  ├─ Layer 0              : 2971.09 ms
+  ├─ MoE Decode Loop      : 769.96 ms
+  └─ Cache: GPU=112 RAM=0 SSD=0
+Layer 1  (Total: 2866.88 ms)
+  ├─ Attention            : 51.80 ms
+  ├─ Load base weight model.language_model.layers.1.mlp.shared_expert.gate_proj.weight : 10.92 ms
+  ├─ Load base weight model.language_model.layers.1.mlp.shared_expert.up_proj.weight : 7.93 ms
+  ├─ Load base weight model.language_model.layers.1.mlp.shared_expert.down_proj.weight : 7.79 ms
+  ├─ Load base weight model.language_model.layers.1.mlp.shared_expert_gate.weight : 1.38 ms
+  ├─ MoE / MLP            : 1116.49 ms
+  ├─ Router               : 5.30 ms
+  ├─ Layer 1              : 1171.31 ms
+  ├─ MoE Decode Loop      : 493.96 ms
+  └─ Cache: GPU=112 RAM=0 SSD=0
+Layer 2  (Total: 2123.92 ms)
+  ├─ Attention            : 46.39 ms
+  ├─ Load base weight model.language_model.layers.2.mlp.shared_expert.gate_proj.weight : 10.04 ms
+  ├─ Load base weight model.language_model.layers.2.mlp.shared_expert.up_proj.weight : 7.74 ms
+  ├─ Load base weight model.language_model.layers.2.mlp.shared_expert.down_proj.weight : 7.42 ms
+  ├─ Load base weight model.language_model.layers.2.mlp.shared_expert_gate.weight : 1.19 ms
+  ├─ MoE / MLP            : 776.46 ms
+  ├─ Router               : 4.77 ms
+  ├─ Layer 2              : 826.11 ms
+  ├─ MoE Decode Loop      : 443.82 ms
+  └─ Cache: GPU=112 RAM=0 SSD=0
+Layer 3  (Total: 2096.45 ms)
+  ├─ Attention            : 59.12 ms
+  ├─ Load base weight model.language_model.layers.3.mlp.shared_expert.gate_proj.weight : 13.07 ms
+  ├─ Load base weight model.language_model.layers.3.mlp.shared_expert.up_proj.weight : 8.87 ms
+  ├─ Load base weight model.language_model.layers.3.mlp.shared_expert.down_proj.weight : 10.98 ms
+  ├─ Load base weight model.language_model.layers.3.mlp.shared_expert_gate.weight : 1.21 ms
+  ├─ MoE / MLP            : 770.93 ms
+  ├─ Router               : 4.60 ms
+  ├─ Layer 3              : 833.55 ms
+  ├─ MoE Decode Loop      : 394.13 ms
+  └─ Cache: GPU=112 RAM=0 SSD=0
+Layer 4  (Total: 1851.60 ms)
+  ├─ Attention            : 45.57 ms
+  ├─ Load base weight model.language_model.layers.4.mlp.shared_expert.gate_proj.weight : 10.41 ms
+  ├─ Load base weight model.language_model.layers.4.mlp.shared_expert.up_proj.weight : 8.03 ms
+  ├─ Load base weight model.language_model.layers.4.mlp.shared_expert.down_proj.weight : 7.84 ms
+  ├─ Load base weight model.language_model.layers.4.mlp.shared_expert_gate.weight : 1.16 ms
+  ├─ MoE / MLP            : 669.47 ms
+  ├─ Router               : 4.55 ms
+  ├─ Layer 4              : 719.03 ms
+  ├─ MoE Decode Loop      : 385.54 ms
+  └─ Cache: GPU=112 RAM=0 SSD=0
+Layer 5  (Total: 2118.19 ms)
+  ├─ Attention            : 44.11 ms
+  ├─ Load base weight model.language_model.layers.5.mlp.shared_expert.gate_proj.weight : 10.12 ms
+  ├─ Load base weight model.language_model.layers.5.mlp.shared_expert.up_proj.weight : 7.72 ms
+  ├─ Load base weight model.language_model.layers.5.mlp.shared_expert.down_proj.weight : 7.55 ms
+  ├─ Load base weight model.language_model.layers.5.mlp.shared_expert_gate.weight : 1.18 ms
+  ├─ MoE / MLP            : 770.34 ms
+  ├─ Router               : 4.47 ms
+  ├─ Layer 5              : 817.56 ms
+  ├─ MoE Decode Loop      : 455.14 ms
+  └─ Cache: GPU=112 RAM=0 SSD=0
+Layer 6  (Total: 2184.89 ms)
+  ├─ Attention            : 47.60 ms
+  ├─ Load base weight model.language_model.layers.6.mlp.shared_expert.gate_proj.weight : 10.74 ms
+  ├─ Load base weight model.language_model.layers.6.mlp.shared_expert.up_proj.weight : 8.63 ms
+  ├─ Load base weight model.language_model.layers.6.mlp.shared_expert.down_proj.weight : 8.46 ms
+  ├─ Load base weight model.language_model.layers.6.mlp.shared_expert_gate.weight : 1.63 ms
+  ├─ MoE / MLP            : 770.98 ms
+  ├─ Router               : 5.09 ms
+  ├─ Layer 6              : 822.02 ms
+  ├─ MoE Decode Loop      : 509.74 ms
+  └─ Cache: GPU=112 RAM=0 SSD=0
+Layer 7  (Total: 1989.41 ms)
+  ├─ Attention            : 28.67 ms
+  ├─ Load base weight model.language_model.layers.7.mlp.shared_expert.gate_proj.weight : 10.49 ms
+  ├─ Load base weight model.language_model.layers.7.mlp.shared_expert.up_proj.weight : 9.18 ms
+  ├─ Load base weight model.language_model.layers.7.mlp.shared_expert.down_proj.weight : 10.86 ms
+  ├─ Load base weight model.language_model.layers.7.mlp.shared_expert_gate.weight : 1.61 ms
+  ├─ MoE / MLP            : 725.55 ms
+  ├─ Router               : 4.66 ms
+  ├─ Layer 7              : 757.25 ms
+  ├─ MoE Decode Loop      : 441.15 ms
+  └─ Cache: GPU=112 RAM=0 SSD=0
+Layer 8  (Total: 1704.73 ms)
+  ├─ Attention            : 44.29 ms
+  ├─ Load base weight model.language_model.layers.8.mlp.shared_expert.gate_proj.weight : 10.02 ms
+  ├─ Load base weight model.language_model.layers.8.mlp.shared_expert.up_proj.weight : 8.18 ms
+  ├─ Load base weight model.language_model.layers.8.mlp.shared_expert.down_proj.weight : 8.45 ms
+  ├─ Load base weight model.language_model.layers.8.mlp.shared_expert_gate.weight : 1.25 ms
+  ├─ MoE / MLP            : 609.52 ms
+  ├─ Router               : 4.51 ms
+  ├─ Layer 8              : 658.43 ms
+  ├─ MoE Decode Loop      : 360.08 ms
+  └─ Cache: GPU=112 RAM=0 SSD=0
+Layer 9  (Total: 2149.10 ms)
+  ├─ Attention            : 42.58 ms
+  ├─ Load base weight model.language_model.layers.9.mlp.shared_expert.gate_proj.weight : 9.80 ms
+  ├─ Load base weight model.language_model.layers.9.mlp.shared_expert.up_proj.weight : 7.55 ms
+  ├─ Load base weight model.language_model.layers.9.mlp.shared_expert.down_proj.weight : 7.76 ms
+  ├─ Load base weight model.language_model.layers.9.mlp.shared_expert_gate.weight : 1.11 ms
+  ├─ MoE / MLP            : 762.32 ms
+  ├─ Router               : 4.19 ms
+  ├─ Layer 9              : 809.61 ms
+  ├─ MoE Decode Loop      : 504.17 ms
+  └─ Cache: GPU=112 RAM=0 SSD=0
+Layer 10 (Total: 1975.31 ms)
+  ├─ Attention            : 44.92 ms
+  ├─ Load base weight model.language_model.layers.10.mlp.shared_expert.gate_proj.weight : 9.50 ms
+  ├─ Load base weight model.language_model.layers.10.mlp.shared_expert.up_proj.weight : 7.28 ms
+  ├─ Load base weight model.language_model.layers.10.mlp.shared_expert.down_proj.weight : 7.05 ms
+  ├─ Load base weight model.language_model.layers.10.mlp.shared_expert_gate.weight : 1.10 ms
+  ├─ MoE / MLP            : 710.72 ms
+  ├─ Router               : 4.32 ms
+  ├─ Layer 10             : 759.48 ms
+  ├─ MoE Decode Loop      : 430.94 ms
+  └─ Cache: GPU=112 RAM=0 SSD=0
+Layer 11 (Total: 2078.10 ms)
+  ├─ Attention            : 26.06 ms
+  ├─ Load base weight model.language_model.layers.11.mlp.shared_expert.gate_proj.weight : 12.17 ms
+  ├─ Load base weight model.language_model.layers.11.mlp.shared_expert.up_proj.weight : 10.22 ms
+  ├─ Load base weight model.language_model.layers.11.mlp.shared_expert.down_proj.weight : 7.67 ms
+  ├─ Load base weight model.language_model.layers.11.mlp.shared_expert_gate.weight : 1.16 ms
+  ├─ MoE / MLP            : 792.81 ms
+  ├─ Router               : 4.51 ms
+  ├─ Layer 11             : 822.73 ms
+  ├─ MoE Decode Loop      : 400.77 ms
+  └─ Cache: GPU=112 RAM=0 SSD=0
+Layer 12 (Total: 1808.55 ms)
+  ├─ Attention            : 45.33 ms
+  ├─ Load base weight model.language_model.layers.12.mlp.shared_expert.gate_proj.weight : 10.83 ms
+  ├─ Load base weight model.language_model.layers.12.mlp.shared_expert.up_proj.weight : 8.03 ms
+  ├─ Load base weight model.language_model.layers.12.mlp.shared_expert.down_proj.weight : 8.04 ms
+  ├─ Load base weight model.language_model.layers.12.mlp.shared_expert_gate.weight : 1.56 ms
+  ├─ MoE / MLP            : 650.40 ms
+  ├─ Router               : 4.68 ms
+  ├─ Layer 12             : 699.59 ms
+  ├─ MoE Decode Loop      : 380.08 ms
+  └─ Cache: GPU=112 RAM=0 SSD=0
+Layer 13 (Total: 2032.65 ms)
+  ├─ Attention            : 44.27 ms
+  ├─ Load base weight model.language_model.layers.13.mlp.shared_expert.gate_proj.weight : 10.52 ms
+  ├─ Load base weight model.language_model.layers.13.mlp.shared_expert.up_proj.weight : 7.95 ms
+  ├─ Load base weight model.language_model.layers.13.mlp.shared_expert.down_proj.weight : 7.57 ms
+  ├─ Load base weight model.language_model.layers.13.mlp.shared_expert_gate.weight : 1.16 ms
+  ├─ MoE / MLP            : 723.43 ms
+  ├─ Router               : 4.74 ms
+  ├─ Layer 13             : 771.26 ms
+  ├─ MoE Decode Loop      : 461.75 ms
+  └─ Cache: GPU=112 RAM=0 SSD=0
+Layer 14 (Total: 1900.35 ms)
+  ├─ Attention            : 43.05 ms
+  ├─ Load base weight model.language_model.layers.14.mlp.shared_expert.gate_proj.weight : 10.00 ms
+  ├─ Load base weight model.language_model.layers.14.mlp.shared_expert.up_proj.weight : 8.13 ms
+  ├─ Load base weight model.language_model.layers.14.mlp.shared_expert.down_proj.weight : 8.39 ms
+  ├─ Load base weight model.language_model.layers.14.mlp.shared_expert_gate.weight : 1.34 ms
+  ├─ MoE / MLP            : 687.25 ms
+  ├─ Router               : 4.42 ms
+  ├─ Layer 14             : 734.29 ms
+  ├─ MoE Decode Loop      : 403.47 ms
+  └─ Cache: GPU=112 RAM=0 SSD=0
+Layer 15 (Total: 2325.08 ms)
+  ├─ Attention            : 28.20 ms
+  ├─ Load base weight model.language_model.layers.15.mlp.shared_expert.gate_proj.weight : 9.82 ms
+  ├─ Load base weight model.language_model.layers.15.mlp.shared_expert.up_proj.weight : 7.56 ms
+  ├─ Load base weight model.language_model.layers.15.mlp.shared_expert.down_proj.weight : 7.02 ms
+  ├─ Load base weight model.language_model.layers.15.mlp.shared_expert_gate.weight : 1.06 ms
+  ├─ MoE / MLP            : 851.26 ms
+  ├─ Router               : 4.93 ms
+  ├─ Layer 15             : 883.45 ms
+  ├─ MoE Decode Loop      : 531.78 ms
+  └─ Cache: GPU=112 RAM=0 SSD=0
+Layer 16 (Total: 2157.56 ms)
+  ├─ Attention            : 43.73 ms
+  ├─ Load base weight model.language_model.layers.16.mlp.shared_expert.gate_proj.weight : 10.47 ms
+  ├─ Load base weight model.language_model.layers.16.mlp.shared_expert.up_proj.weight : 7.96 ms
+  ├─ Load base weight model.language_model.layers.16.mlp.shared_expert.down_proj.weight : 8.14 ms
+  ├─ Load base weight model.language_model.layers.16.mlp.shared_expert_gate.weight : 1.17 ms
+  ├─ MoE / MLP            : 768.61 ms
+  ├─ Router               : 4.49 ms
+  ├─ Layer 16             : 816.40 ms
+  ├─ MoE Decode Loop      : 496.58 ms
+  └─ Cache: GPU=112 RAM=0 SSD=0
+Layer 17 (Total: 2037.53 ms)
+  ├─ Attention            : 41.88 ms
+  ├─ Load base weight model.language_model.layers.17.mlp.shared_expert.gate_proj.weight : 9.94 ms
+  ├─ Load base weight model.language_model.layers.17.mlp.shared_expert.up_proj.weight : 7.71 ms
+  ├─ Load base weight model.language_model.layers.17.mlp.shared_expert.down_proj.weight : 7.56 ms
+  ├─ Load base weight model.language_model.layers.17.mlp.shared_expert_gate.weight : 1.18 ms
+  ├─ MoE / MLP            : 766.32 ms
+  ├─ Router               : 4.50 ms
+  ├─ Layer 17             : 812.26 ms
+  ├─ MoE Decode Loop      : 386.18 ms
+  └─ Cache: GPU=112 RAM=0 SSD=0
+Layer 18 (Total: 2260.51 ms)
+  ├─ Attention            : 44.67 ms
+  ├─ Load base weight model.language_model.layers.18.mlp.shared_expert.gate_proj.weight : 9.95 ms
+  ├─ Load base weight model.language_model.layers.18.mlp.shared_expert.up_proj.weight : 7.41 ms
+  ├─ Load base weight model.language_model.layers.18.mlp.shared_expert.down_proj.weight : 7.14 ms
+  ├─ Load base weight model.language_model.layers.18.mlp.shared_expert_gate.weight : 1.10 ms
+  ├─ MoE / MLP            : 810.24 ms
+  ├─ Router               : 4.42 ms
+  ├─ Layer 18             : 858.87 ms
+  ├─ MoE Decode Loop      : 516.71 ms
+  └─ Cache: GPU=112 RAM=0 SSD=0
+Layer 19 (Total: 2268.45 ms)
+  ├─ Attention            : 26.90 ms
+  ├─ Load base weight model.language_model.layers.19.mlp.shared_expert.gate_proj.weight : 13.24 ms
+  ├─ Load base weight model.language_model.layers.19.mlp.shared_expert.up_proj.weight : 9.58 ms
+  ├─ Load base weight model.language_model.layers.19.mlp.shared_expert.down_proj.weight : 10.59 ms
+  ├─ Load base weight model.language_model.layers.19.mlp.shared_expert_gate.weight : 1.29 ms
+  ├─ MoE / MLP            : 814.05 ms
+  ├─ Router               : 4.53 ms
+  ├─ Layer 19             : 845.40 ms
+  ├─ MoE Decode Loop      : 542.87 ms
+  └─ Cache: GPU=112 RAM=0 SSD=0
+Layer 20 (Total: 2727.11 ms)
+  ├─ Attention            : 43.64 ms
+  ├─ Load base weight model.language_model.layers.20.mlp.shared_expert.gate_proj.weight : 9.76 ms
+  ├─ Load base weight model.language_model.layers.20.mlp.shared_expert.up_proj.weight : 7.77 ms
+  ├─ Load base weight model.language_model.layers.20.mlp.shared_expert.down_proj.weight : 8.04 ms
+  ├─ Load base weight model.language_model.layers.20.mlp.shared_expert_gate.weight : 1.17 ms
+  ├─ MoE / MLP            : 956.59 ms
+  ├─ Router               : 4.25 ms
+  ├─ Layer 20             : 1003.78 ms
+  ├─ MoE Decode Loop      : 692.12 ms
+  └─ Cache: GPU=112 RAM=0 SSD=0
+Layer 21 (Total: 2072.14 ms)
+  ├─ Attention            : 42.44 ms
+  ├─ Load base weight model.language_model.layers.21.mlp.shared_expert.gate_proj.weight : 10.01 ms
+  ├─ Load base weight model.language_model.layers.21.mlp.shared_expert.up_proj.weight : 7.70 ms
+  ├─ Load base weight model.language_model.layers.21.mlp.shared_expert.down_proj.weight : 7.80 ms
+  ├─ Load base weight model.language_model.layers.21.mlp.shared_expert_gate.weight : 1.04 ms
+  ├─ MoE / MLP            : 738.90 ms
+  ├─ Router               : 4.13 ms
+  ├─ Layer 21             : 785.41 ms
+  ├─ MoE Decode Loop      : 474.71 ms
+  └─ Cache: GPU=112 RAM=0 SSD=0
+Layer 22 (Total: 2799.73 ms)
+  ├─ Attention            : 43.44 ms
+  ├─ Load base weight model.language_model.layers.22.mlp.shared_expert.gate_proj.weight : 10.00 ms
+  ├─ Load base weight model.language_model.layers.22.mlp.shared_expert.up_proj.weight : 7.83 ms
+  ├─ Load base weight model.language_model.layers.22.mlp.shared_expert.down_proj.weight : 7.56 ms
+  ├─ Load base weight model.language_model.layers.22.mlp.shared_expert_gate.weight : 1.12 ms
+  ├─ MoE / MLP            : 1000.73 ms
+  ├─ Router               : 4.64 ms
+  ├─ Layer 22             : 1048.12 ms
+  ├─ MoE Decode Loop      : 676.29 ms
+  └─ Cache: GPU=112 RAM=0 SSD=0
+Layer 23 (Total: 3322.60 ms)
+  ├─ Attention            : 26.09 ms
+  ├─ Load base weight model.language_model.layers.23.mlp.shared_expert.gate_proj.weight : 11.42 ms
+  ├─ Load base weight model.language_model.layers.23.mlp.shared_expert.up_proj.weight : 10.56 ms
+  ├─ Load base weight model.language_model.layers.23.mlp.shared_expert.down_proj.weight : 9.24 ms
+  ├─ Load base weight model.language_model.layers.23.mlp.shared_expert_gate.weight : 1.15 ms
+  ├─ MoE / MLP            : 1406.69 ms
+  ├─ Router               : 4.40 ms
+  ├─ Layer 23             : 1436.46 ms
+  ├─ MoE Decode Loop      : 416.61 ms
+  └─ Cache: GPU=112 RAM=0 SSD=0
+Layer 24 (Total: 2926.97 ms)
+  ├─ Attention            : 60.14 ms
+  ├─ Load base weight model.language_model.layers.24.mlp.shared_expert.gate_proj.weight : 11.62 ms
+  ├─ Load base weight model.language_model.layers.24.mlp.shared_expert.up_proj.weight : 8.85 ms
+  ├─ Load base weight model.language_model.layers.24.mlp.shared_expert.down_proj.weight : 8.42 ms
+  ├─ Load base weight model.language_model.layers.24.mlp.shared_expert_gate.weight : 1.40 ms
+  ├─ MoE / MLP            : 1124.26 ms
+  ├─ Router               : 5.73 ms
+  ├─ Layer 24             : 1188.22 ms
+  ├─ MoE Decode Loop      : 518.33 ms
+  └─ Cache: GPU=112 RAM=0 SSD=0
+Layer 25 (Total: 2012.77 ms)
+  ├─ Attention            : 49.89 ms
+  ├─ Load base weight model.language_model.layers.25.mlp.shared_expert.gate_proj.weight : 11.04 ms
+  ├─ Load base weight model.language_model.layers.25.mlp.shared_expert.up_proj.weight : 8.83 ms
+  ├─ Load base weight model.language_model.layers.25.mlp.shared_expert.down_proj.weight : 7.93 ms
+  ├─ Load base weight model.language_model.layers.25.mlp.shared_expert_gate.weight : 1.27 ms
+  ├─ MoE / MLP            : 747.49 ms
+  ├─ Router               : 4.72 ms
+  ├─ Layer 25             : 800.91 ms
+  ├─ MoE Decode Loop      : 380.70 ms
+  └─ Cache: GPU=112 RAM=0 SSD=0
+Layer 26 (Total: 2076.24 ms)
+  ├─ Attention            : 63.48 ms
+  ├─ Load base weight model.language_model.layers.26.mlp.shared_expert.gate_proj.weight : 11.71 ms
+  ├─ Load base weight model.language_model.layers.26.mlp.shared_expert.up_proj.weight : 8.55 ms
+  ├─ Load base weight model.language_model.layers.26.mlp.shared_expert.down_proj.weight : 8.57 ms
+  ├─ Load base weight model.language_model.layers.26.mlp.shared_expert_gate.weight : 1.38 ms
+  ├─ MoE / MLP            : 793.12 ms
+  ├─ Router               : 14.56 ms
+  ├─ Layer 26             : 860.91 ms
+  ├─ MoE Decode Loop      : 313.96 ms
+  └─ Cache: GPU=112 RAM=0 SSD=0
+Layer 27 (Total: 3547.67 ms)
+  ├─ Attention            : 29.21 ms
+  ├─ Load base weight model.language_model.layers.27.mlp.shared_expert.gate_proj.weight : 11.85 ms
+  ├─ Load base weight model.language_model.layers.27.mlp.shared_expert.up_proj.weight : 8.46 ms
+  ├─ Load base weight model.language_model.layers.27.mlp.shared_expert.down_proj.weight : 8.17 ms
+  ├─ Load base weight model.language_model.layers.27.mlp.shared_expert_gate.weight : 1.15 ms
+  ├─ MoE / MLP            : 1533.14 ms
+  ├─ Router               : 4.71 ms
+  ├─ Layer 27             : 1566.43 ms
+  ├─ MoE Decode Loop      : 384.55 ms
+  └─ Cache: GPU=112 RAM=0 SSD=0
+Layer 28 (Total: 2880.67 ms)
+  ├─ Attention            : 48.72 ms
+  ├─ Load base weight model.language_model.layers.28.mlp.shared_expert.gate_proj.weight : 11.58 ms
+  ├─ Load base weight model.language_model.layers.28.mlp.shared_expert.up_proj.weight : 8.61 ms
+  ├─ Load base weight model.language_model.layers.28.mlp.shared_expert.down_proj.weight : 8.47 ms
+  ├─ Load base weight model.language_model.layers.28.mlp.shared_expert_gate.weight : 1.32 ms
+  ├─ MoE / MLP            : 1141.87 ms
+  ├─ Router               : 4.53 ms
+  ├─ Layer 28             : 1194.76 ms
+  ├─ MoE Decode Loop      : 460.80 ms
+  └─ Cache: GPU=112 RAM=0 SSD=0
+Layer 29 (Total: 3215.27 ms)
+  ├─ Attention            : 45.34 ms
+  ├─ Load base weight model.language_model.layers.29.mlp.shared_expert.gate_proj.weight : 12.43 ms
+  ├─ Load base weight model.language_model.layers.29.mlp.shared_expert.up_proj.weight : 8.92 ms
+  ├─ Load base weight model.language_model.layers.29.mlp.shared_expert.down_proj.weight : 8.03 ms
+  ├─ Load base weight model.language_model.layers.29.mlp.shared_expert_gate.weight : 1.15 ms
+  ├─ MoE / MLP            : 1307.40 ms
+  ├─ Router               : 4.48 ms
+  ├─ Layer 29             : 1357.23 ms
+  ├─ MoE Decode Loop      : 470.29 ms
+  └─ Cache: GPU=112 RAM=0 SSD=0
+Layer 30 (Total: 2588.92 ms)
+  ├─ Attention            : 41.89 ms
+  ├─ Load base weight model.language_model.layers.30.mlp.shared_expert.gate_proj.weight : 10.27 ms
+  ├─ Load base weight model.language_model.layers.30.mlp.shared_expert.up_proj.weight : 7.79 ms
+  ├─ Load base weight model.language_model.layers.30.mlp.shared_expert.down_proj.weight : 7.82 ms
+  ├─ Load base weight model.language_model.layers.30.mlp.shared_expert_gate.weight : 1.09 ms
+  ├─ MoE / MLP            : 1017.07 ms
+  ├─ Router               : 4.52 ms
+  ├─ Layer 30             : 1063.03 ms
+  ├─ MoE Decode Loop      : 435.43 ms
+  └─ Cache: GPU=112 RAM=0 SSD=0
+Layer 31 (Total: 2008.34 ms)
+  ├─ Attention            : 26.49 ms
+  ├─ Load base weight model.language_model.layers.31.mlp.shared_expert.gate_proj.weight : 11.71 ms
+  ├─ Load base weight model.language_model.layers.31.mlp.shared_expert.up_proj.weight : 13.83 ms
+  ├─ Load base weight model.language_model.layers.31.mlp.shared_expert.down_proj.weight : 8.34 ms
+  ├─ Load base weight model.language_model.layers.31.mlp.shared_expert_gate.weight : 1.15 ms
+  ├─ MoE / MLP            : 753.58 ms
+  ├─ Router               : 4.53 ms
+  ├─ Layer 31             : 785.06 ms
+  ├─ MoE Decode Loop      : 403.65 ms
+  └─ Cache: GPU=112 RAM=0 SSD=0
+Layer 32 (Total: 2714.58 ms)
+  ├─ Attention            : 43.84 ms
+  ├─ Load base weight model.language_model.layers.32.mlp.shared_expert.gate_proj.weight : 9.47 ms
+  ├─ Load base weight model.language_model.layers.32.mlp.shared_expert.up_proj.weight : 7.64 ms
+  ├─ Load base weight model.language_model.layers.32.mlp.shared_expert.down_proj.weight : 7.28 ms
+  ├─ Load base weight model.language_model.layers.32.mlp.shared_expert_gate.weight : 1.09 ms
+  ├─ MoE / MLP            : 1114.46 ms
+  ├─ Router               : 4.20 ms
+  ├─ Layer 32             : 1162.57 ms
+  ├─ MoE Decode Loop      : 364.01 ms
+  └─ Cache: GPU=112 RAM=0 SSD=0
+Layer 33 (Total: 2792.16 ms)
+  ├─ Attention            : 43.87 ms
+  ├─ Load base weight model.language_model.layers.33.mlp.shared_expert.gate_proj.weight : 10.28 ms
+  ├─ Load base weight model.language_model.layers.33.mlp.shared_expert.up_proj.weight : 7.81 ms
+  ├─ Load base weight model.language_model.layers.33.mlp.shared_expert.down_proj.weight : 7.38 ms
+  ├─ Load base weight model.language_model.layers.33.mlp.shared_expert_gate.weight : 1.08 ms
+  ├─ MoE / MLP            : 1067.17 ms
+  ├─ Router               : 4.41 ms
+  ├─ Layer 33             : 1115.38 ms
+  ├─ MoE Decode Loop      : 534.78 ms
+  └─ Cache: GPU=112 RAM=0 SSD=0
+Layer 34 (Total: 3834.85 ms)
+  ├─ Attention            : 43.91 ms
+  ├─ Load base weight model.language_model.layers.34.mlp.shared_expert.gate_proj.weight : 10.47 ms
+  ├─ Load base weight model.language_model.layers.34.mlp.shared_expert.up_proj.weight : 9.06 ms
+  ├─ Load base weight model.language_model.layers.34.mlp.shared_expert.down_proj.weight : 7.74 ms
+  ├─ Load base weight model.language_model.layers.34.mlp.shared_expert_gate.weight : 1.22 ms
+  ├─ MoE / MLP            : 1579.94 ms
+  ├─ Router               : 4.51 ms
+  ├─ Layer 34             : 1628.92 ms
+  ├─ MoE Decode Loop      : 549.09 ms
+  └─ Cache: GPU=112 RAM=0 SSD=0
+Layer 35 (Total: 3227.17 ms)
+  ├─ Attention            : 27.55 ms
+  ├─ Load base weight model.language_model.layers.35.mlp.shared_expert.gate_proj.weight : 12.94 ms
+  ├─ Load base weight model.language_model.layers.35.mlp.shared_expert.up_proj.weight : 10.14 ms
+  ├─ Load base weight model.language_model.layers.35.mlp.shared_expert.down_proj.weight : 10.51 ms
+  ├─ Load base weight model.language_model.layers.35.mlp.shared_expert_gate.weight : 1.28 ms
+  ├─ MoE / MLP            : 1401.52 ms
+  ├─ Router               : 4.51 ms
+  ├─ Layer 35             : 1433.91 ms
+  ├─ MoE Decode Loop      : 324.80 ms
+  └─ Cache: GPU=112 RAM=0 SSD=0
+Layer 36 (Total: 2833.48 ms)
+  ├─ Attention            : 45.13 ms
+  ├─ Load base weight model.language_model.layers.36.mlp.shared_expert.gate_proj.weight : 18.25 ms
+  ├─ Load base weight model.language_model.layers.36.mlp.shared_expert.up_proj.weight : 11.69 ms
+  ├─ Load base weight model.language_model.layers.36.mlp.shared_expert.down_proj.weight : 7.80 ms
+  ├─ Load base weight model.language_model.layers.36.mlp.shared_expert_gate.weight : 1.15 ms
+  ├─ MoE / MLP            : 1180.87 ms
+  ├─ Router               : 4.36 ms
+  ├─ Layer 36             : 1230.59 ms
+  ├─ MoE Decode Loop      : 333.63 ms
+  └─ Cache: GPU=112 RAM=0 SSD=0
+Layer 37 (Total: 1873.98 ms)
+  ├─ Attention            : 47.75 ms
+  ├─ Load base weight model.language_model.layers.37.mlp.shared_expert.gate_proj.weight : 11.15 ms
+  ├─ Load base weight model.language_model.layers.37.mlp.shared_expert.up_proj.weight : 8.10 ms
+  ├─ Load base weight model.language_model.layers.37.mlp.shared_expert.down_proj.weight : 7.97 ms
+  ├─ Load base weight model.language_model.layers.37.mlp.shared_expert_gate.weight : 1.09 ms
+  ├─ MoE / MLP            : 684.26 ms
+  ├─ Router               : 5.35 ms
+  ├─ Layer 37             : 735.88 ms
+  ├─ MoE Decode Loop      : 372.43 ms
+  └─ Cache: GPU=112 RAM=0 SSD=0
+Layer 38 (Total: 1733.33 ms)
+  ├─ Attention            : 42.26 ms
+  ├─ Load base weight model.language_model.layers.38.mlp.shared_expert.gate_proj.weight : 11.38 ms
+  ├─ Load base weight model.language_model.layers.38.mlp.shared_expert.up_proj.weight : 7.77 ms
+  ├─ Load base weight model.language_model.layers.38.mlp.shared_expert.down_proj.weight : 8.43 ms
+  ├─ Load base weight model.language_model.layers.38.mlp.shared_expert_gate.weight : 1.16 ms
+  ├─ MoE / MLP            : 647.05 ms
+  ├─ Router               : 4.26 ms
+  ├─ Layer 38             : 694.98 ms
+  ├─ MoE Decode Loop      : 316.04 ms
+  └─ Cache: GPU=112 RAM=0 SSD=0
+Layer 39 (Total: 1951.26 ms)
+  ├─ Attention            : 23.93 ms
+  ├─ Load base weight model.language_model.layers.39.mlp.shared_expert.gate_proj.weight : 11.31 ms
+  ├─ Load base weight model.language_model.layers.39.mlp.shared_expert.up_proj.weight : 8.24 ms
+  ├─ Load base weight model.language_model.layers.39.mlp.shared_expert.down_proj.weight : 8.68 ms
+  ├─ Load base weight model.language_model.layers.39.mlp.shared_expert_gate.weight : 1.06 ms
+  ├─ MoE / MLP            : 732.97 ms
+  ├─ Router               : 3.96 ms
+  ├─ Layer 39             : 760.87 ms
+  ├─ Norm                 : 5.48 ms
+  ├─ LM Head              : 96.40 ms
+  ├─ MoE Decode Loop      : 298.35 ms
+  └─ Cache: GPU=112 RAM=0 SSD=0
 
 Python vs C++ vs CUDA Overhead:
 ------------------------------------------------------------
 Python Host Overhead: 0.00 ms (0.0%)
-Python -> C++ Calls:  3960
+Python -> C++ Calls:  0
 C++ -> Python Calls:  0
-CUDA synchronizations:100
+CUDA synchronizations:15
 
 ================ Bottlenecks ================
-1. MoE / MLP                 141243.35 ms (21.9%)
-2. MoE Decode Loop           110538.53 ms (17.1%)
-3. Grouped GEMM              101432.44 ms (15.7%)
-4. C++ Execution (Dequant + GEMM) 99867.41 ms (15.5%)
-5. GPU Copy (SSD)            60700.81 ms (9.4%)
-6. Expert Load (SSD)         59449.86 ms (9.2%)
-7. GPU Copy (RAM)            22334.74 ms (3.5%)
-8. Expert Load (RAM)         21143.57 ms (3.3%)
-9. Attention                 13786.41 ms (2.1%)
-10. Router                    1482.28 ms (0.2%)
-11. Load base weight lm_head.weight 1011.00 ms (0.2%)
-12. Load base weight model.language_model.embed_tokens.weight 879.62 ms (0.1%)
-13. LM Head                   636.80 ms (0.1%)
-14. Load base weight model.language_model.layers.0.mlp.gate.weight 180.34 ms (0.0%)
-15. Load base weight model.language_model.layers.0.mlp.shared_expert.gate_proj.weight 145.19 ms (0.0%)
-16. Load base weight model.language_model.layers.15.mlp.shared_expert.gate_proj.weight 110.46 ms (0.0%)
-17. Load base weight model.language_model.layers.9.mlp.shared_expert.gate_proj.weight 98.59 ms (0.0%)
-18. Load base weight model.language_model.layers.4.mlp.shared_expert.gate_proj.weight 90.94 ms (0.0%)
-19. Load base weight model.language_model.layers.31.mlp.shared_expert.gate_proj.weight 88.25 ms (0.0%)
-20. Load base weight model.language_model.layers.1.mlp.shared_expert.gate_proj.weight 87.01 ms (0.0%)
-21. Load base weight model.language_model.layers.30.mlp.shared_expert.gate_proj.weight 85.79 ms (0.0%)
-22. Load base weight model.language_model.layers.6.mlp.shared_expert.gate_proj.weight 82.99 ms (0.0%)
-23. Load base weight model.language_model.layers.2.mlp.shared_expert.gate_proj.weight 82.81 ms (0.0%)
-24. Load base weight model.language_model.layers.3.mlp.shared_expert.gate_proj.weight 79.89 ms (0.0%)
-25. Load base weight model.language_model.layers.17.mlp.shared_expert.gate_proj.weight 79.58 ms (0.0%)
-26. Load base weight model.language_model.layers.11.mlp.shared_expert.gate_proj.weight 79.13 ms (0.0%)
-27. Load base weight model.language_model.layers.16.mlp.shared_expert.gate_proj.weight 78.85 ms (0.0%)
-28. Load base weight model.language_model.layers.7.mlp.shared_expert.gate_proj.weight 78.46 ms (0.0%)
-29. Load base weight model.language_model.layers.13.mlp.shared_expert.gate_proj.weight 77.63 ms (0.0%)
-30. Load base weight model.language_model.layers.14.mlp.shared_expert.gate_proj.weight 77.30 ms (0.0%)
-31. Load base weight model.language_model.layers.5.mlp.shared_expert.gate_proj.weight 77.28 ms (0.0%)
-32. Load base weight model.language_model.layers.12.mlp.shared_expert.gate_proj.weight 77.25 ms (0.0%)
-33. Load base weight model.language_model.layers.39.mlp.shared_expert.gate_proj.weight 77.09 ms (0.0%)
-34. Load base weight model.language_model.layers.19.mlp.shared_expert.gate_proj.weight 76.97 ms (0.0%)
-35. Load base weight model.language_model.layers.26.mlp.shared_expert.gate_proj.weight 76.62 ms (0.0%)
-36. Load base weight model.language_model.layers.8.mlp.shared_expert.gate_proj.weight 76.52 ms (0.0%)
-37. Load base weight model.language_model.layers.35.mlp.shared_expert.gate_proj.weight 76.51 ms (0.0%)
-38. Load base weight model.language_model.layers.18.mlp.shared_expert.gate_proj.weight 76.39 ms (0.0%)
-39. Load base weight model.language_model.layers.36.mlp.shared_expert.gate_proj.weight 76.31 ms (0.0%)
-40. Load base weight model.language_model.layers.23.mlp.shared_expert.gate_proj.weight 76.17 ms (0.0%)
-41. Load base weight model.language_model.layers.28.mlp.shared_expert.gate_proj.weight 76.07 ms (0.0%)
-42. Load base weight model.language_model.layers.32.mlp.shared_expert.gate_proj.weight 75.99 ms (0.0%)
-43. Load base weight model.language_model.layers.20.mlp.shared_expert.gate_proj.weight 75.71 ms (0.0%)
-44. Load base weight model.language_model.layers.29.mlp.shared_expert.gate_proj.weight 75.66 ms (0.0%)
-45. Load base weight model.language_model.layers.25.mlp.shared_expert.gate_proj.weight 75.64 ms (0.0%)
-46. Load base weight model.language_model.layers.33.mlp.shared_expert.gate_proj.weight 75.55 ms (0.0%)
-47. Load base weight model.language_model.layers.22.mlp.shared_expert.gate_proj.weight 75.47 ms (0.0%)
-48. Load base weight model.language_model.layers.38.mlp.shared_expert.gate_proj.weight 75.43 ms (0.0%)
-49. Load base weight model.language_model.layers.24.mlp.shared_expert.gate_proj.weight 74.21 ms (0.0%)
-50. Load base weight model.language_model.layers.34.mlp.shared_expert.gate_proj.weight 74.14 ms (0.0%)
-51. Load base weight model.language_model.layers.27.mlp.shared_expert.gate_proj.weight 74.12 ms (0.0%)
-52. Load base weight model.language_model.layers.37.mlp.shared_expert.gate_proj.weight 73.82 ms (0.0%)
-53. Load base weight model.language_model.layers.10.mlp.shared_expert.gate_proj.weight 73.26 ms (0.0%)
-54. Load base weight model.language_model.layers.21.mlp.shared_expert.gate_proj.weight 72.35 ms (0.0%)
-55. Load base weight model.language_model.layers.7.self_attn.o_proj.weight 70.84 ms (0.0%)
-56. Load base weight model.language_model.layers.19.mlp.shared_expert.down_proj.weight 67.97 ms (0.0%)
-57. Load base weight model.language_model.layers.6.mlp.shared_expert.down_proj.weight 66.47 ms (0.0%)
-58. Load base weight model.language_model.layers.8.linear_attn.in_proj_qkv.weight 65.93 ms (0.0%)
-59. Load base weight model.language_model.layers.0.mlp.shared_expert.up_proj.weight 65.84 ms (0.0%)
-60. Load base weight model.language_model.layers.4.mlp.shared_expert.up_proj.weight 65.61 ms (0.0%)
-61. Load base weight model.language_model.layers.6.linear_attn.in_proj_qkv.weight 65.51 ms (0.0%)
-62. Load base weight model.language_model.layers.3.mlp.shared_expert.down_proj.weight 65.30 ms (0.0%)
-63. Load base weight model.language_model.layers.6.mlp.shared_expert.up_proj.weight 63.30 ms (0.0%)
-64. Load base weight model.language_model.layers.30.mlp.shared_expert.up_proj.weight 63.16 ms (0.0%)
-65. Load base weight model.language_model.layers.2.mlp.shared_expert.up_proj.weight 61.61 ms (0.0%)
-66. Load base weight model.language_model.layers.30.mlp.shared_expert.down_proj.weight 61.15 ms (0.0%)
-67. Load base weight model.language_model.layers.1.mlp.shared_expert.up_proj.weight 60.94 ms (0.0%)
-68. Load base weight model.language_model.layers.14.mlp.shared_expert.up_proj.weight 60.08 ms (0.0%)
-69. Load base weight model.language_model.layers.13.mlp.shared_expert.up_proj.weight 60.07 ms (0.0%)
-70. Load base weight model.language_model.layers.9.mlp.shared_expert.up_proj.weight 59.99 ms (0.0%)
-71. Load base weight model.language_model.layers.3.mlp.shared_expert.up_proj.weight 59.89 ms (0.0%)
-72. Load base weight model.language_model.layers.15.mlp.shared_expert.up_proj.weight 59.85 ms (0.0%)
-73. Load base weight model.language_model.layers.17.mlp.shared_expert.up_proj.weight 59.49 ms (0.0%)
-74. Load base weight model.language_model.layers.0.mlp.shared_expert.down_proj.weight 59.45 ms (0.0%)
-75. Load base weight model.language_model.layers.16.mlp.shared_expert.up_proj.weight 59.20 ms (0.0%)
-76. Load base weight model.language_model.layers.4.mlp.shared_expert.down_proj.weight 59.12 ms (0.0%)
-77. Load base weight model.language_model.layers.23.mlp.shared_expert.up_proj.weight 59.10 ms (0.0%)
-78. Load base weight model.language_model.layers.12.mlp.shared_expert.down_proj.weight 59.03 ms (0.0%)
-79. Load base weight model.language_model.layers.15.mlp.shared_expert.down_proj.weight 58.91 ms (0.0%)
-80. Load base weight model.language_model.layers.7.mlp.shared_expert.up_proj.weight 58.82 ms (0.0%)
-81. Load base weight model.language_model.layers.36.mlp.shared_expert.up_proj.weight 58.81 ms (0.0%)
-82. Load base weight model.language_model.layers.11.mlp.shared_expert.up_proj.weight 58.63 ms (0.0%)
-83. Load base weight model.language_model.layers.22.mlp.shared_expert.up_proj.weight 58.62 ms (0.0%)
-84. Load base weight model.language_model.layers.14.mlp.shared_expert.down_proj.weight 58.38 ms (0.0%)
-85. Load base weight model.language_model.layers.35.mlp.shared_expert.up_proj.weight 58.37 ms (0.0%)
-86. Load base weight model.language_model.layers.20.mlp.shared_expert.up_proj.weight 58.28 ms (0.0%)
-87. Load base weight model.language_model.layers.13.mlp.shared_expert.down_proj.weight 58.28 ms (0.0%)
-88. Load base weight model.language_model.layers.26.mlp.shared_expert.up_proj.weight 58.26 ms (0.0%)
-89. Load base weight model.language_model.layers.16.mlp.shared_expert.down_proj.weight 58.16 ms (0.0%)
-90. Load base weight model.language_model.layers.9.mlp.shared_expert.down_proj.weight 58.12 ms (0.0%)
-91. Load base weight model.language_model.layers.8.mlp.shared_expert.up_proj.weight 58.09 ms (0.0%)
-92. Load base weight model.language_model.layers.28.mlp.shared_expert.up_proj.weight 57.72 ms (0.0%)
-93. Load base weight model.language_model.layers.39.mlp.shared_expert.up_proj.weight 57.70 ms (0.0%)
-94. Load base weight model.language_model.layers.18.mlp.shared_expert.up_proj.weight 57.56 ms (0.0%)
-95. Load base weight model.language_model.layers.12.mlp.shared_expert.up_proj.weight 57.49 ms (0.0%)
-96. Load base weight model.language_model.layers.5.mlp.shared_expert.up_proj.weight 57.45 ms (0.0%)
-97. Load base weight model.language_model.layers.36.mlp.shared_expert.down_proj.weight 57.43 ms (0.0%)
-98. Load base weight model.language_model.layers.24.mlp.shared_expert.up_proj.weight 57.26 ms (0.0%)
-99. Load base weight model.language_model.layers.1.mlp.shared_expert.down_proj.weight 57.18 ms (0.0%)
-100. Load base weight model.language_model.layers.28.mlp.shared_expert.down_proj.weight 57.11 ms (0.0%)
-101. Load base weight model.language_model.layers.21.mlp.shared_expert.up_proj.weight 56.93 ms (0.0%)
-102. Load base weight model.language_model.layers.38.mlp.shared_expert.up_proj.weight 56.80 ms (0.0%)
-103. Load base weight model.language_model.layers.7.mlp.shared_expert.down_proj.weight 56.76 ms (0.0%)
-104. Load base weight model.language_model.layers.2.mlp.shared_expert.down_proj.weight 56.65 ms (0.0%)
-105. Load base weight model.language_model.layers.29.mlp.shared_expert.up_proj.weight 56.61 ms (0.0%)
-106. Load base weight model.language_model.layers.17.mlp.shared_expert.down_proj.weight 56.57 ms (0.0%)
-107. Load base weight model.language_model.layers.33.mlp.shared_expert.up_proj.weight 56.44 ms (0.0%)
-108. Load base weight model.language_model.layers.32.mlp.shared_expert.up_proj.weight 56.35 ms (0.0%)
-109. Load base weight model.language_model.layers.25.mlp.shared_expert.up_proj.weight 56.28 ms (0.0%)
-110. Load base weight model.language_model.layers.8.mlp.shared_expert.down_proj.weight 56.06 ms (0.0%)
-111. Load base weight model.language_model.layers.37.mlp.shared_expert.up_proj.weight 56.04 ms (0.0%)
-112. Load base weight model.language_model.layers.19.mlp.shared_expert.up_proj.weight 56.04 ms (0.0%)
-113. Load base weight model.language_model.layers.29.mlp.shared_expert.down_proj.weight 55.88 ms (0.0%)
-114. Load base weight model.language_model.layers.22.mlp.shared_expert.down_proj.weight 55.80 ms (0.0%)
-115. Load base weight model.language_model.layers.27.mlp.shared_expert.up_proj.weight 55.59 ms (0.0%)
-116. Load base weight model.language_model.layers.35.mlp.shared_expert.down_proj.weight 55.58 ms (0.0%)
-117. Load base weight model.language_model.layers.31.mlp.shared_expert.up_proj.weight 55.45 ms (0.0%)
-118. Load base weight model.language_model.layers.38.mlp.shared_expert.down_proj.weight 55.45 ms (0.0%)
-119. Load base weight model.language_model.layers.24.mlp.shared_expert.down_proj.weight 55.39 ms (0.0%)
-120. Load base weight model.language_model.layers.20.mlp.shared_expert.down_proj.weight 55.19 ms (0.0%)
-121. Load base weight model.language_model.layers.18.mlp.shared_expert.down_proj.weight 55.18 ms (0.0%)
-122. Load base weight model.language_model.layers.5.mlp.shared_expert.down_proj.weight 55.14 ms (0.0%)
-123. Load base weight model.language_model.layers.11.mlp.shared_expert.down_proj.weight 54.91 ms (0.0%)
-124. Load base weight model.language_model.layers.26.mlp.shared_expert.down_proj.weight 54.89 ms (0.0%)
-125. Load base weight model.language_model.layers.25.mlp.shared_expert.down_proj.weight 54.89 ms (0.0%)
-126. Load base weight model.language_model.layers.10.mlp.shared_expert.up_proj.weight 54.72 ms (0.0%)
-127. Load base weight model.language_model.layers.31.mlp.shared_expert.down_proj.weight 54.59 ms (0.0%)
-128. Load base weight model.language_model.layers.39.mlp.shared_expert.down_proj.weight 54.59 ms (0.0%)
-129. Load base weight model.language_model.layers.21.mlp.shared_expert.down_proj.weight 54.48 ms (0.0%)
-130. Load base weight model.language_model.layers.27.mlp.shared_expert.down_proj.weight 54.38 ms (0.0%)
-131. Load base weight model.language_model.layers.32.mlp.shared_expert.down_proj.weight 54.35 ms (0.0%)
-132. Load base weight model.language_model.layers.23.mlp.shared_expert.down_proj.weight 54.34 ms (0.0%)
-133. Load base weight model.language_model.layers.34.mlp.shared_expert.up_proj.weight 54.29 ms (0.0%)
-134. Load base weight model.language_model.layers.34.mlp.shared_expert.down_proj.weight 54.12 ms (0.0%)
-135. Load base weight model.language_model.layers.33.mlp.shared_expert.down_proj.weight 53.91 ms (0.0%)
-136. Load base weight model.language_model.layers.10.mlp.shared_expert.down_proj.weight 53.47 ms (0.0%)
-137. Load base weight model.language_model.layers.37.mlp.shared_expert.down_proj.weight 52.95 ms (0.0%)
-138. Load base weight model.language_model.layers.9.linear_attn.in_proj_qkv.weight 52.22 ms (0.0%)
-139. Load base weight model.language_model.layers.10.linear_attn.in_proj_qkv.weight 49.49 ms (0.0%)
-140. Load base weight model.language_model.layers.7.self_attn.q_proj.weight 48.47 ms (0.0%)
-141. Load base weight model.language_model.layers.2.linear_attn.in_proj_qkv.weight 46.22 ms (0.0%)
-142. Norm                      44.33 ms (0.0%)
-143. Load base weight model.language_model.layers.14.linear_attn.out_proj.weight 31.58 ms (0.0%)
-144. Load base weight model.language_model.layers.7.mlp.gate.weight 30.65 ms (0.0%)
-145. Load base weight model.language_model.layers.0.linear_attn.in_proj_qkv.weight 28.76 ms (0.0%)
-146. Load base weight model.language_model.layers.1.linear_attn.out_proj.weight 27.75 ms (0.0%)
-147. Load base weight model.language_model.layers.17.linear_attn.in_proj_z.weight 26.84 ms (0.0%)
-148. Load base weight model.language_model.layers.2.linear_attn.in_proj_z.weight 26.13 ms (0.0%)
-149. Load base weight model.language_model.layers.9.linear_attn.in_proj_z.weight 23.68 ms (0.0%)
-150. Load base weight model.language_model.layers.5.mlp.gate.weight 22.65 ms (0.0%)
-151. Load base weight model.language_model.layers.13.linear_attn.in_proj_qkv.weight 22.11 ms (0.0%)
-152. Load base weight model.language_model.layers.5.linear_attn.out_proj.weight 20.87 ms (0.0%)
-153. Load base weight model.language_model.layers.27.self_attn.q_proj.weight 19.53 ms (0.0%)
-154. Load base weight model.language_model.layers.20.linear_attn.in_proj_z.weight 18.80 ms (0.0%)
-155. Load base weight model.language_model.layers.35.self_attn.o_proj.weight 18.43 ms (0.0%)
-156. Load base weight model.language_model.layers.21.linear_attn.in_proj_qkv.weight 18.15 ms (0.0%)
-157. Load base weight model.language_model.layers.15.self_attn.q_proj.weight 17.38 ms (0.0%)
-158. Load base weight model.language_model.layers.19.self_attn.q_proj.weight 16.43 ms (0.0%)
-159. Load base weight model.language_model.layers.17.linear_attn.in_proj_qkv.weight 15.64 ms (0.0%)
-160. Load base weight model.language_model.layers.29.linear_attn.out_proj.weight 14.30 ms (0.0%)
-161. Load base weight model.language_model.layers.6.linear_attn.out_proj.weight 14.06 ms (0.0%)
-162. Load base weight model.language_model.layers.5.linear_attn.in_proj_z.weight 14.02 ms (0.0%)
-163. Load base weight model.language_model.layers.32.linear_attn.in_proj_qkv.weight 13.90 ms (0.0%)
-164. Load base weight model.language_model.layers.15.self_attn.k_proj.weight 13.76 ms (0.0%)
-165. Load base weight model.language_model.layers.25.linear_attn.in_proj_qkv.weight 13.21 ms (0.0%)
-166. Load base weight model.language_model.layers.35.self_attn.q_proj.weight 13.13 ms (0.0%)
-167. Load base weight model.language_model.layers.21.linear_attn.in_proj_z.weight 12.10 ms (0.0%)
-168. Load base weight model.language_model.layers.37.linear_attn.in_proj_qkv.weight 12.07 ms (0.0%)
-169. Load base weight model.language_model.layers.11.self_attn.q_proj.weight 12.05 ms (0.0%)
-170. Load base weight model.language_model.layers.30.linear_attn.in_proj_qkv.weight 11.60 ms (0.0%)
-171. Load base weight model.language_model.layers.23.self_attn.q_proj.weight 11.54 ms (0.0%)
-172. Load base weight model.language_model.layers.39.self_attn.q_proj.weight 11.47 ms (0.0%)
-173. Load base weight model.language_model.layers.12.linear_attn.in_proj_qkv.weight 11.45 ms (0.0%)
-174. Load base weight model.language_model.layers.38.mlp.gate.weight 11.01 ms (0.0%)
-175. Load base weight model.language_model.layers.12.linear_attn.in_proj_z.weight 10.87 ms (0.0%)
-176. Load base weight model.language_model.layers.16.linear_attn.in_proj_qkv.weight 10.86 ms (0.0%)
-177. Load base weight model.language_model.layers.28.linear_attn.in_proj_qkv.weight 10.85 ms (0.0%)
-178. Load base weight model.language_model.layers.22.linear_attn.in_proj_qkv.weight 10.82 ms (0.0%)
-179. Load base weight model.language_model.layers.31.self_attn.q_proj.weight 10.78 ms (0.0%)
-180. Load base weight model.language_model.layers.3.self_attn.q_proj.weight 10.74 ms (0.0%)
-181. Load base weight model.language_model.layers.14.linear_attn.in_proj_qkv.weight 10.56 ms (0.0%)
-182. Load base weight model.language_model.layers.4.linear_attn.in_proj_qkv.weight 10.46 ms (0.0%)
-183. Load base weight model.language_model.layers.33.linear_attn.in_proj_qkv.weight 10.44 ms (0.0%)
-184. Load base weight model.language_model.layers.35.mlp.shared_expert_gate.weight 10.42 ms (0.0%)
-185. Load base weight model.language_model.layers.16.mlp.shared_expert_gate.weight 10.41 ms (0.0%)
-186. Load base weight model.language_model.layers.1.mlp.shared_expert_gate.weight 10.40 ms (0.0%)
-187. Load base weight model.language_model.layers.36.linear_attn.in_proj_qkv.weight 10.35 ms (0.0%)
-188. Load base weight model.language_model.layers.34.linear_attn.in_proj_qkv.weight 10.28 ms (0.0%)
-189. Load base weight model.language_model.layers.4.mlp.shared_expert_gate.weight 10.27 ms (0.0%)
-190. Load base weight model.language_model.layers.38.linear_attn.in_proj_qkv.weight 10.20 ms (0.0%)
-191. Load base weight model.language_model.layers.25.linear_attn.out_proj.weight 10.18 ms (0.0%)
-192. Load base weight model.language_model.layers.17.mlp.shared_expert_gate.weight 10.13 ms (0.0%)
-193. Load base weight model.language_model.layers.30.mlp.shared_expert_gate.weight 10.07 ms (0.0%)
-194. Load base weight model.language_model.layers.3.mlp.shared_expert_gate.weight 10.02 ms (0.0%)
-195. Load base weight model.language_model.layers.28.mlp.shared_expert_gate.weight 10.02 ms (0.0%)
-196. Load base weight model.language_model.layers.24.linear_attn.in_proj_qkv.weight 10.01 ms (0.0%)
-197. Load base weight model.language_model.layers.22.mlp.shared_expert_gate.weight 10.01 ms (0.0%)
-198. Load base weight model.language_model.layers.1.linear_attn.in_proj_qkv.weight 10.00 ms (0.0%)
-199. Load base weight model.language_model.layers.7.mlp.shared_expert_gate.weight 9.95 ms (0.0%)
-200. Load base weight model.language_model.layers.9.mlp.shared_expert_gate.weight 9.81 ms (0.0%)
-201. Load base weight model.language_model.layers.26.mlp.shared_expert_gate.weight 9.80 ms (0.0%)
-202. Load base weight model.language_model.layers.11.mlp.shared_expert_gate.weight 9.78 ms (0.0%)
-203. Load base weight model.language_model.layers.8.mlp.shared_expert_gate.weight 9.74 ms (0.0%)
-204. Load base weight model.language_model.layers.38.mlp.shared_expert_gate.weight 9.73 ms (0.0%)
-205. Load base weight model.language_model.layers.5.linear_attn.in_proj_qkv.weight 9.72 ms (0.0%)
-206. Load base weight model.language_model.layers.25.mlp.shared_expert_gate.weight 9.72 ms (0.0%)
-207. Load base weight model.language_model.layers.18.linear_attn.in_proj_qkv.weight 9.71 ms (0.0%)
-208. Load base weight model.language_model.layers.0.mlp.shared_expert_gate.weight 9.69 ms (0.0%)
-209. Load base weight model.language_model.layers.19.mlp.shared_expert_gate.weight 9.69 ms (0.0%)
-210. Load base weight model.language_model.layers.6.mlp.shared_expert_gate.weight 9.68 ms (0.0%)
-211. Load base weight model.language_model.layers.20.linear_attn.in_proj_qkv.weight 9.67 ms (0.0%)
-212. Load base weight model.language_model.layers.14.mlp.shared_expert_gate.weight 9.63 ms (0.0%)
-213. Load base weight model.language_model.layers.13.mlp.shared_expert_gate.weight 9.63 ms (0.0%)
-214. Load base weight model.language_model.layers.26.linear_attn.in_proj_qkv.weight 9.63 ms (0.0%)
-215. Load base weight model.language_model.layers.36.mlp.shared_expert_gate.weight 9.59 ms (0.0%)
-216. Load base weight model.language_model.layers.29.linear_attn.in_proj_qkv.weight 9.48 ms (0.0%)
-217. Load base weight model.language_model.layers.12.mlp.shared_expert_gate.weight 9.48 ms (0.0%)
-218. Load base weight model.language_model.layers.39.mlp.shared_expert_gate.weight 9.48 ms (0.0%)
-219. Load base weight model.language_model.layers.5.mlp.shared_expert_gate.weight 9.42 ms (0.0%)
-220. Load base weight model.language_model.layers.24.mlp.shared_expert_gate.weight 9.42 ms (0.0%)
-221. Load base weight model.language_model.layers.2.mlp.shared_expert_gate.weight 9.41 ms (0.0%)
-222. Load base weight model.language_model.layers.20.mlp.shared_expert_gate.weight 9.38 ms (0.0%)
-223. Load base weight model.language_model.layers.0.linear_attn.in_proj_z.weight 9.35 ms (0.0%)
-224. Load base weight model.language_model.layers.34.mlp.shared_expert_gate.weight 9.33 ms (0.0%)
-225. Load base weight model.language_model.layers.18.mlp.shared_expert_gate.weight 9.30 ms (0.0%)
-226. Load base weight model.language_model.layers.31.mlp.shared_expert_gate.weight 9.24 ms (0.0%)
-227. Load base weight model.language_model.layers.32.mlp.shared_expert_gate.weight 9.21 ms (0.0%)
-228. Load base weight model.language_model.layers.27.mlp.shared_expert_gate.weight 9.21 ms (0.0%)
-229. Load base weight model.language_model.layers.15.mlp.shared_expert_gate.weight 9.18 ms (0.0%)
-230. Load base weight model.language_model.layers.37.mlp.shared_expert_gate.weight 9.17 ms (0.0%)
-231. Load base weight model.language_model.layers.23.mlp.shared_expert_gate.weight 9.13 ms (0.0%)
-232. Load base weight model.language_model.layers.29.mlp.shared_expert_gate.weight 9.12 ms (0.0%)
-233. Load base weight model.language_model.layers.21.mlp.shared_expert_gate.weight 9.08 ms (0.0%)
-234. Load base weight model.language_model.layers.33.mlp.shared_expert_gate.weight 8.97 ms (0.0%)
-235. Load base weight model.language_model.layers.15.self_attn.o_proj.weight 8.96 ms (0.0%)
-236. Load base weight model.language_model.layers.10.mlp.shared_expert_gate.weight 8.89 ms (0.0%)
-237. Load base weight model.language_model.layers.38.linear_attn.out_proj.weight 8.46 ms (0.0%)
-238. Load base weight model.language_model.layers.1.linear_attn.in_proj_z.weight 8.37 ms (0.0%)
-239. Load base weight model.language_model.layers.8.linear_attn.in_proj_z.weight 7.73 ms (0.0%)
-240. Load base weight model.language_model.layers.1.mlp.gate.weight 7.60 ms (0.0%)
-241. Load base weight model.language_model.layers.34.mlp.gate.weight 7.42 ms (0.0%)
-242. Load base weight model.language_model.layers.17.mlp.gate.weight 7.38 ms (0.0%)
-243. Load base weight model.language_model.layers.36.linear_attn.in_proj_z.weight 7.12 ms (0.0%)
-244. Load base weight model.language_model.layers.24.linear_attn.in_proj_z.weight 7.08 ms (0.0%)
-245. Load base weight model.language_model.layers.32.linear_attn.in_proj_z.weight 6.96 ms (0.0%)
-246. Load base weight model.language_model.layers.6.linear_attn.in_proj_z.weight 6.77 ms (0.0%)
-247. Load base weight model.language_model.layers.25.linear_attn.in_proj_z.weight 6.69 ms (0.0%)
-248. Load base weight model.language_model.layers.31.self_attn.o_proj.weight 6.38 ms (0.0%)
-249. Load base weight model.language_model.layers.38.linear_attn.in_proj_z.weight 6.18 ms (0.0%)
-250. Load base weight model.language_model.layers.33.linear_attn.in_proj_z.weight 6.18 ms (0.0%)
-251. Load base weight model.language_model.layers.37.linear_attn.in_proj_z.weight 6.16 ms (0.0%)
-252. Load base weight model.language_model.layers.4.linear_attn.in_proj_z.weight 6.16 ms (0.0%)
-253. Load base weight model.language_model.layers.8.linear_attn.out_proj.weight 6.15 ms (0.0%)
-254. Load base weight model.language_model.layers.33.linear_attn.out_proj.weight 6.12 ms (0.0%)
-255. Load base weight model.language_model.layers.2.linear_attn.out_proj.weight 6.05 ms (0.0%)
-256. Load base weight model.language_model.layers.4.linear_attn.out_proj.weight 6.03 ms (0.0%)
-257. Load base weight model.language_model.layers.14.linear_attn.in_proj_z.weight 5.99 ms (0.0%)
-258. Load base weight model.language_model.layers.34.linear_attn.in_proj_z.weight 5.97 ms (0.0%)
-259. Load base weight model.language_model.layers.9.linear_attn.out_proj.weight 5.95 ms (0.0%)
-260. Load base weight model.language_model.layers.7.self_attn.k_proj.weight 5.90 ms (0.0%)
-261. Load base weight model.language_model.layers.30.linear_attn.in_proj_z.weight 5.89 ms (0.0%)
-262. Load base weight model.language_model.layers.36.mlp.gate.weight 5.87 ms (0.0%)
-263. Load base weight model.language_model.layers.28.linear_attn.in_proj_z.weight 5.84 ms (0.0%)
-264. Load base weight model.language_model.layers.13.linear_attn.out_proj.weight 5.83 ms (0.0%)
-265. Load base weight model.language_model.layers.7.self_attn.v_proj.weight 5.78 ms (0.0%)
-266. Load base weight model.language_model.layers.18.mlp.gate.weight 5.77 ms (0.0%)
-267. Load base weight model.language_model.layers.29.linear_attn.in_proj_z.weight 5.71 ms (0.0%)
-268. Load base weight model.language_model.layers.10.linear_attn.in_proj_z.weight 5.71 ms (0.0%)
-269. Load base weight model.language_model.layers.8.mlp.gate.weight 5.69 ms (0.0%)
-270. Load base weight model.language_model.layers.13.linear_attn.in_proj_z.weight 5.65 ms (0.0%)
-271. Load base weight model.language_model.layers.20.linear_attn.out_proj.weight 5.64 ms (0.0%)
-272. Load base weight model.language_model.layers.31.mlp.gate.weight 5.61 ms (0.0%)
-273. Load base weight model.language_model.layers.17.linear_attn.out_proj.weight 5.60 ms (0.0%)
-274. Load base weight model.language_model.layers.39.self_attn.o_proj.weight 5.59 ms (0.0%)
-275. Load base weight model.language_model.layers.37.linear_attn.out_proj.weight 5.58 ms (0.0%)
-276. Load base weight model.language_model.layers.16.linear_attn.in_proj_z.weight 5.56 ms (0.0%)
-277. Load base weight model.language_model.layers.22.linear_attn.in_proj_z.weight 5.56 ms (0.0%)
-278. Load base weight model.language_model.layers.34.linear_attn.out_proj.weight 5.52 ms (0.0%)
-279. Load base weight model.language_model.layers.26.linear_attn.in_proj_z.weight 5.51 ms (0.0%)
-280. Load base weight model.language_model.layers.27.self_attn.o_proj.weight 5.45 ms (0.0%)
-281. Load base weight model.language_model.layers.9.mlp.gate.weight 5.43 ms (0.0%)
-282. Load base weight model.language_model.layers.30.linear_attn.out_proj.weight 5.41 ms (0.0%)
-283. Load base weight model.language_model.layers.18.linear_attn.in_proj_z.weight 5.40 ms (0.0%)
-284. Load base weight model.language_model.layers.32.linear_attn.out_proj.weight 5.37 ms (0.0%)
-285. Load base weight model.language_model.layers.35.mlp.gate.weight 5.28 ms (0.0%)
-286. Load base weight model.language_model.layers.28.linear_attn.out_proj.weight 5.26 ms (0.0%)
-287. Load base weight model.language_model.layers.2.mlp.gate.weight 5.24 ms (0.0%)
-288. Load base weight model.language_model.layers.23.self_attn.o_proj.weight 5.22 ms (0.0%)
-289. Load base weight model.language_model.layers.36.linear_attn.out_proj.weight 5.21 ms (0.0%)
-290. Load base weight model.language_model.layers.19.self_attn.o_proj.weight 5.17 ms (0.0%)
-291. Load base weight model.language_model.layers.3.self_attn.o_proj.weight 5.15 ms (0.0%)
-292. Load base weight model.language_model.layers.39.mlp.gate.weight 5.14 ms (0.0%)
-293. Load base weight model.language_model.layers.25.mlp.gate.weight 5.13 ms (0.0%)
-294. Load base weight model.language_model.layers.10.linear_attn.out_proj.weight 5.11 ms (0.0%)
-295. Load base weight model.language_model.layers.11.self_attn.o_proj.weight 5.10 ms (0.0%)
-296. Load base weight model.language_model.layers.16.linear_attn.out_proj.weight 5.10 ms (0.0%)
-297. Load base weight model.language_model.layers.3.mlp.gate.weight 5.09 ms (0.0%)
-298. Load base weight model.language_model.layers.18.linear_attn.out_proj.weight 5.08 ms (0.0%)
-299. Load base weight model.language_model.layers.22.linear_attn.out_proj.weight 5.08 ms (0.0%)
-300. Load base weight model.language_model.layers.21.linear_attn.out_proj.weight 5.07 ms (0.0%)
-301. Load base weight model.language_model.layers.15.mlp.gate.weight 5.07 ms (0.0%)
-302. Load base weight model.language_model.layers.24.linear_attn.out_proj.weight 5.05 ms (0.0%)
-303. Load base weight model.language_model.layers.12.linear_attn.out_proj.weight 5.05 ms (0.0%)
-304. Load base weight model.language_model.layers.0.linear_attn.out_proj.weight 5.03 ms (0.0%)
-305. Load base weight model.language_model.layers.10.mlp.gate.weight 5.00 ms (0.0%)
-306. Load base weight model.language_model.layers.21.mlp.gate.weight 4.99 ms (0.0%)
-307. Load base weight model.language_model.layers.26.linear_attn.out_proj.weight 4.99 ms (0.0%)
-308. Load base weight model.language_model.layers.26.mlp.gate.weight 4.97 ms (0.0%)
-309. Load base weight model.language_model.layers.14.mlp.gate.weight 4.95 ms (0.0%)
-310. Load base weight model.language_model.layers.6.mlp.gate.weight 4.91 ms (0.0%)
-311. Load base weight model.language_model.layers.16.mlp.gate.weight 4.91 ms (0.0%)
-312. Load base weight model.language_model.layers.4.mlp.gate.weight 4.88 ms (0.0%)
-313. Load base weight model.language_model.layers.19.mlp.gate.weight 4.81 ms (0.0%)
-314. Load base weight model.language_model.layers.12.mlp.gate.weight 4.79 ms (0.0%)
-315. Load base weight model.language_model.layers.23.mlp.gate.weight 4.79 ms (0.0%)
-316. Load base weight model.language_model.layers.24.mlp.gate.weight 4.74 ms (0.0%)
-317. Load base weight model.language_model.layers.27.mlp.gate.weight 4.72 ms (0.0%)
-318. Load base weight model.language_model.layers.22.mlp.gate.weight 4.72 ms (0.0%)
-319. Load base weight model.language_model.layers.20.mlp.gate.weight 4.69 ms (0.0%)
-320. Load base weight model.language_model.layers.11.mlp.gate.weight 4.68 ms (0.0%)
-321. Load base weight model.language_model.layers.13.mlp.gate.weight 4.65 ms (0.0%)
-322. Load base weight model.language_model.layers.32.mlp.gate.weight 4.62 ms (0.0%)
-323. Load base weight model.language_model.layers.33.mlp.gate.weight 4.60 ms (0.0%)
-324. Load base weight model.language_model.layers.30.mlp.gate.weight 4.59 ms (0.0%)
-325. Load base weight model.language_model.layers.37.mlp.gate.weight 4.55 ms (0.0%)
-326. Load base weight model.language_model.layers.27.self_attn.k_proj.weight 4.50 ms (0.0%)
-327. Load base weight model.language_model.layers.28.mlp.gate.weight 4.36 ms (0.0%)
-328. Load base weight model.language_model.layers.29.mlp.gate.weight 4.35 ms (0.0%)
-329. Load base weight model.language_model.layers.29.linear_attn.in_proj_a.weight 3.51 ms (0.0%)
-330. Load base weight model.language_model.layers.31.self_attn.k_proj.weight 2.55 ms (0.0%)
-331. Load base weight model.language_model.layers.19.self_attn.k_proj.weight 2.47 ms (0.0%)
-332. Load base weight model.language_model.layers.3.self_attn.k_proj.weight 2.17 ms (0.0%)
-333. Load base weight model.language_model.layers.11.self_attn.k_proj.weight 2.11 ms (0.0%)
-334. Load base weight model.language_model.layers.39.self_attn.k_proj.weight 2.03 ms (0.0%)
-335. Load base weight model.language_model.layers.3.self_attn.v_proj.weight 1.99 ms (0.0%)
-336. Load base weight model.language_model.layers.15.self_attn.v_proj.weight 1.75 ms (0.0%)
-337. Load base weight model.language_model.layers.23.self_attn.k_proj.weight 1.51 ms (0.0%)
-338. Load base weight model.language_model.layers.39.self_attn.v_proj.weight 1.38 ms (0.0%)
-339. Load base weight model.language_model.layers.19.self_attn.v_proj.weight 1.35 ms (0.0%)
-340. Load base weight model.language_model.layers.35.self_attn.k_proj.weight 1.24 ms (0.0%)
-341. Load base weight model.language_model.layers.27.self_attn.v_proj.weight 1.22 ms (0.0%)
-342. Load base weight model.language_model.layers.31.self_attn.v_proj.weight 1.12 ms (0.0%)
-343. Load base weight model.language_model.layers.11.self_attn.v_proj.weight 1.06 ms (0.0%)
-344. Load base weight model.language_model.layers.23.self_attn.v_proj.weight 1.05 ms (0.0%)
-345. Load base weight model.language_model.layers.32.linear_attn.in_proj_a.weight 0.90 ms (0.0%)
-346. Load base weight model.language_model.layers.35.self_attn.v_proj.weight 0.82 ms (0.0%)
-347. Load base weight model.language_model.layers.17.linear_attn.in_proj_a.weight 0.59 ms (0.0%)
-348. Load base weight model.language_model.layers.0.linear_attn.in_proj_a.weight 0.56 ms (0.0%)
-349. Load base weight model.language_model.layers.5.linear_attn.in_proj_a.weight 0.54 ms (0.0%)
-350. Load base weight model.language_model.layers.4.linear_attn.in_proj_a.weight 0.54 ms (0.0%)
-351. Load base weight model.language_model.layers.8.linear_attn.in_proj_a.weight 0.54 ms (0.0%)
-352. Load base weight model.language_model.layers.25.linear_attn.in_proj_a.weight 0.53 ms (0.0%)
-353. Load base weight model.language_model.layers.2.linear_attn.in_proj_a.weight 0.52 ms (0.0%)
-354. Load base weight model.language_model.layers.22.linear_attn.in_proj_a.weight 0.52 ms (0.0%)
-355. Load base weight model.language_model.layers.18.linear_attn.in_proj_a.weight 0.52 ms (0.0%)
-356. Load base weight model.language_model.layers.14.linear_attn.in_proj_a.weight 0.52 ms (0.0%)
-357. Load base weight model.language_model.layers.9.linear_attn.in_proj_a.weight 0.52 ms (0.0%)
-358. Load base weight model.language_model.layers.26.linear_attn.in_proj_a.weight 0.52 ms (0.0%)
-359. Load base weight model.language_model.layers.10.linear_attn.in_proj_a.weight 0.52 ms (0.0%)
-360. Load base weight model.language_model.layers.37.linear_attn.in_proj_a.weight 0.52 ms (0.0%)
-361. Load base weight model.language_model.layers.13.linear_attn.in_proj_a.weight 0.51 ms (0.0%)
-362. Load base weight model.language_model.layers.16.linear_attn.in_proj_a.weight 0.51 ms (0.0%)
-363. Load base weight model.language_model.layers.28.linear_attn.in_proj_a.weight 0.51 ms (0.0%)
-364. Load base weight model.language_model.layers.12.linear_attn.in_proj_a.weight 0.51 ms (0.0%)
-365. Load base weight model.language_model.layers.30.linear_attn.in_proj_a.weight 0.51 ms (0.0%)
-366. Load base weight model.language_model.layers.34.linear_attn.in_proj_a.weight 0.51 ms (0.0%)
-367. Load base weight model.language_model.layers.6.linear_attn.in_proj_a.weight 0.51 ms (0.0%)
-368. Load base weight model.language_model.layers.24.linear_attn.in_proj_a.weight 0.51 ms (0.0%)
-369. Load base weight model.language_model.layers.21.linear_attn.in_proj_a.weight 0.51 ms (0.0%)
-370. Load base weight model.language_model.layers.1.linear_attn.in_proj_a.weight 0.51 ms (0.0%)
-371. Load base weight model.language_model.layers.33.linear_attn.in_proj_a.weight 0.51 ms (0.0%)
-372. Load base weight model.language_model.layers.38.linear_attn.in_proj_a.weight 0.51 ms (0.0%)
-373. Load base weight model.language_model.layers.20.linear_attn.in_proj_a.weight 0.49 ms (0.0%)
-374. Load base weight model.language_model.layers.36.linear_attn.in_proj_a.weight 0.49 ms (0.0%)
-375. Load base weight model.language_model.layers.22.linear_attn.in_proj_b.weight 0.48 ms (0.0%)
-376. Load base weight model.language_model.layers.32.post_attention_layernorm.weight 0.46 ms (0.0%)
-377. Load base weight model.language_model.norm.weight 0.46 ms (0.0%)
-378. Load base weight model.language_model.layers.6.linear_attn.in_proj_b.weight 0.45 ms (0.0%)
-379. Load base weight model.language_model.layers.30.post_attention_layernorm.weight 0.45 ms (0.0%)
-380. Load base weight model.language_model.layers.32.linear_attn.in_proj_b.weight 0.45 ms (0.0%)
-381. Load base weight model.language_model.layers.31.input_layernorm.weight 0.44 ms (0.0%)
-382. Load base weight model.language_model.layers.14.linear_attn.in_proj_b.weight 0.43 ms (0.0%)
-383. Load base weight model.language_model.layers.21.linear_attn.norm.weight 0.33 ms (0.0%)
-384. Load base weight model.language_model.layers.2.linear_attn.norm.weight 0.29 ms (0.0%)
-385. Load base weight model.language_model.layers.0.linear_attn.in_proj_b.weight 0.29 ms (0.0%)
-386. Load base weight model.language_model.layers.17.linear_attn.norm.weight 0.27 ms (0.0%)
-387. Load base weight model.language_model.layers.34.linear_attn.in_proj_b.weight 0.27 ms (0.0%)
-388. Load base weight model.language_model.layers.17.linear_attn.in_proj_b.weight 0.26 ms (0.0%)
-389. Load base weight model.language_model.layers.15.self_attn.q_norm.weight 0.26 ms (0.0%)
-390. Load base weight model.language_model.layers.5.linear_attn.in_proj_b.weight 0.25 ms (0.0%)
-391. Load base weight model.language_model.layers.37.linear_attn.in_proj_b.weight 0.25 ms (0.0%)
-392. Load base weight model.language_model.layers.7.self_attn.q_norm.weight 0.25 ms (0.0%)
-393. Load base weight model.language_model.layers.24.linear_attn.in_proj_b.weight 0.25 ms (0.0%)
-394. Load base weight model.language_model.layers.22.linear_attn.norm.weight 0.24 ms (0.0%)
-395. Load base weight model.language_model.layers.26.linear_attn.in_proj_b.weight 0.24 ms (0.0%)
-396. Load base weight model.language_model.layers.2.linear_attn.conv1d.weight 0.24 ms (0.0%)
-397. Load base weight model.language_model.layers.29.linear_attn.norm.weight 0.24 ms (0.0%)
-398. Load base weight model.language_model.layers.18.linear_attn.in_proj_b.weight 0.24 ms (0.0%)
-399. Load base weight model.language_model.layers.8.linear_attn.norm.weight 0.24 ms (0.0%)
-400. Load base weight model.language_model.layers.8.linear_attn.in_proj_b.weight 0.23 ms (0.0%)
-401. Load base weight model.language_model.layers.13.linear_attn.in_proj_b.weight 0.23 ms (0.0%)
-402. Load base weight model.language_model.layers.16.linear_attn.norm.weight 0.23 ms (0.0%)
-403. Load base weight model.language_model.layers.33.post_attention_layernorm.weight 0.23 ms (0.0%)
-404. Load base weight model.language_model.layers.2.linear_attn.in_proj_b.weight 0.23 ms (0.0%)
-405. Load base weight model.language_model.layers.9.linear_attn.in_proj_b.weight 0.23 ms (0.0%)
-406. Load base weight model.language_model.layers.0.linear_attn.norm.weight 0.23 ms (0.0%)
-407. Load base weight model.language_model.layers.12.linear_attn.in_proj_b.weight 0.23 ms (0.0%)
-408. Load base weight model.language_model.layers.21.linear_attn.in_proj_b.weight 0.23 ms (0.0%)
-409. Load base weight model.language_model.layers.37.linear_attn.norm.weight 0.23 ms (0.0%)
-410. Load base weight model.language_model.layers.28.linear_attn.in_proj_b.weight 0.23 ms (0.0%)
-411. Load base weight model.language_model.layers.10.linear_attn.in_proj_b.weight 0.23 ms (0.0%)
-412. Load base weight model.language_model.layers.4.linear_attn.in_proj_b.weight 0.23 ms (0.0%)
-413. Load base weight model.language_model.layers.24.linear_attn.norm.weight 0.23 ms (0.0%)
-414. Load base weight model.language_model.layers.29.linear_attn.in_proj_b.weight 0.23 ms (0.0%)
-415. Load base weight model.language_model.layers.33.linear_attn.in_proj_b.weight 0.22 ms (0.0%)
-416. Load base weight model.language_model.layers.23.self_attn.q_norm.weight 0.22 ms (0.0%)
-417. Load base weight model.language_model.layers.13.linear_attn.norm.weight 0.22 ms (0.0%)
-418. Load base weight model.language_model.layers.6.linear_attn.norm.weight 0.22 ms (0.0%)
-419. Load base weight model.language_model.layers.32.linear_attn.norm.weight 0.22 ms (0.0%)
-420. Load base weight model.language_model.layers.16.linear_attn.in_proj_b.weight 0.22 ms (0.0%)
-421. Load base weight model.language_model.layers.35.self_attn.q_norm.weight 0.22 ms (0.0%)
-422. Load base weight model.language_model.layers.14.linear_attn.norm.weight 0.22 ms (0.0%)
-423. Load base weight model.language_model.layers.1.linear_attn.norm.weight 0.21 ms (0.0%)
-424. Load base weight model.language_model.layers.25.linear_attn.norm.weight 0.21 ms (0.0%)
-425. Load base weight model.language_model.layers.33.linear_attn.norm.weight 0.21 ms (0.0%)
-426. Load base weight model.language_model.layers.30.linear_attn.in_proj_b.weight 0.21 ms (0.0%)
-427. Load base weight model.language_model.layers.36.linear_attn.in_proj_b.weight 0.21 ms (0.0%)
-428. Load base weight model.language_model.layers.5.linear_attn.norm.weight 0.21 ms (0.0%)
-429. Load base weight model.language_model.layers.34.linear_attn.norm.weight 0.21 ms (0.0%)
-430. Load base weight model.language_model.layers.38.linear_attn.in_proj_b.weight 0.21 ms (0.0%)
-431. Load base weight model.language_model.layers.26.linear_attn.norm.weight 0.21 ms (0.0%)
-432. Load base weight model.language_model.layers.27.self_attn.q_norm.weight 0.21 ms (0.0%)
-433. Load base weight model.language_model.layers.4.linear_attn.norm.weight 0.21 ms (0.0%)
-434. Load base weight model.language_model.layers.25.linear_attn.in_proj_b.weight 0.21 ms (0.0%)
-435. Load base weight model.language_model.layers.1.linear_attn.in_proj_b.weight 0.21 ms (0.0%)
-436. Load base weight model.language_model.layers.0.input_layernorm.weight 0.20 ms (0.0%)
-437. Load base weight model.language_model.layers.30.linear_attn.norm.weight 0.20 ms (0.0%)
-438. Load base weight model.language_model.layers.38.linear_attn.norm.weight 0.20 ms (0.0%)
-439. Load base weight model.language_model.layers.20.linear_attn.in_proj_b.weight 0.20 ms (0.0%)
-440. Load base weight model.language_model.layers.18.linear_attn.norm.weight 0.19 ms (0.0%)
-441. Load base weight model.language_model.layers.9.linear_attn.norm.weight 0.19 ms (0.0%)
-442. Load base weight model.language_model.layers.39.self_attn.q_norm.weight 0.18 ms (0.0%)
-443. Load base weight model.language_model.layers.3.self_attn.q_norm.weight 0.18 ms (0.0%)
-444. Load base weight model.language_model.layers.12.linear_attn.norm.weight 0.18 ms (0.0%)
-445. Load base weight model.language_model.layers.19.self_attn.q_norm.weight 0.18 ms (0.0%)
-446. Load base weight model.language_model.layers.0.post_attention_layernorm.weight 0.18 ms (0.0%)
-447. Load base weight model.language_model.layers.31.self_attn.q_norm.weight 0.18 ms (0.0%)
-448. Load base weight model.language_model.layers.10.linear_attn.norm.weight 0.18 ms (0.0%)
-449. Load base weight model.language_model.layers.20.linear_attn.norm.weight 0.17 ms (0.0%)
-450. Load base weight model.language_model.layers.36.linear_attn.norm.weight 0.17 ms (0.0%)
-451. Load base weight model.language_model.layers.1.input_layernorm.weight 0.17 ms (0.0%)
-452. Load base weight model.language_model.layers.8.input_layernorm.weight 0.17 ms (0.0%)
-453. Load base weight model.language_model.layers.11.self_attn.q_norm.weight 0.17 ms (0.0%)
-454. Load base weight model.language_model.layers.36.input_layernorm.weight 0.17 ms (0.0%)
-455. Load base weight model.language_model.layers.18.input_layernorm.weight 0.17 ms (0.0%)
-456. Load base weight model.language_model.layers.14.linear_attn.conv1d.weight 0.17 ms (0.0%)
-457. Load base weight model.language_model.layers.22.linear_attn.conv1d.weight 0.16 ms (0.0%)
-458. Load base weight model.language_model.layers.37.linear_attn.A_log 0.16 ms (0.0%)
-459. Load base weight model.language_model.layers.8.linear_attn.A_log 0.16 ms (0.0%)
-460. Load base weight model.language_model.layers.16.linear_attn.A_log 0.16 ms (0.0%)
-461. Load base weight model.language_model.layers.15.self_attn.k_norm.weight 0.16 ms (0.0%)
-462. Load base weight model.language_model.layers.23.self_attn.k_norm.weight 0.16 ms (0.0%)
-463. Load base weight model.language_model.layers.35.input_layernorm.weight 0.15 ms (0.0%)
-464. Load base weight model.language_model.layers.28.linear_attn.norm.weight 0.15 ms (0.0%)
-465. Load base weight model.language_model.layers.26.linear_attn.A_log 0.15 ms (0.0%)
-466. Load base weight model.language_model.layers.0.linear_attn.A_log 0.15 ms (0.0%)
-467. Load base weight model.language_model.layers.22.linear_attn.A_log 0.15 ms (0.0%)
-468. Load base weight model.language_model.layers.10.linear_attn.conv1d.weight 0.15 ms (0.0%)
-469. Load base weight model.language_model.layers.13.linear_attn.conv1d.weight 0.15 ms (0.0%)
-470. Load base weight model.language_model.layers.36.post_attention_layernorm.weight 0.15 ms (0.0%)
-471. Load base weight model.language_model.layers.31.post_attention_layernorm.weight 0.15 ms (0.0%)
-472. Load base weight model.language_model.layers.29.linear_attn.A_log 0.15 ms (0.0%)
-473. Load base weight model.language_model.layers.21.linear_attn.A_log 0.15 ms (0.0%)
-474. Load base weight model.language_model.layers.16.linear_attn.conv1d.weight 0.15 ms (0.0%)
-475. Load base weight model.language_model.layers.24.input_layernorm.weight 0.15 ms (0.0%)
-476. Load base weight model.language_model.layers.26.input_layernorm.weight 0.15 ms (0.0%)
-477. Load base weight model.language_model.layers.8.linear_attn.conv1d.weight 0.15 ms (0.0%)
-478. Load base weight model.language_model.layers.1.linear_attn.conv1d.weight 0.15 ms (0.0%)
-479. Load base weight model.language_model.layers.32.linear_attn.A_log 0.15 ms (0.0%)
-480. Load base weight model.language_model.layers.27.self_attn.k_norm.weight 0.15 ms (0.0%)
-481. Load base weight model.language_model.layers.26.post_attention_layernorm.weight 0.15 ms (0.0%)
-482. Load base weight model.language_model.layers.24.linear_attn.A_log 0.15 ms (0.0%)
-483. Load base weight model.language_model.layers.17.linear_attn.A_log 0.15 ms (0.0%)
-484. Load base weight model.language_model.layers.4.input_layernorm.weight 0.15 ms (0.0%)
-485. Load base weight model.language_model.layers.7.self_attn.k_norm.weight 0.15 ms (0.0%)
-486. Load base weight model.language_model.layers.17.linear_attn.conv1d.weight 0.15 ms (0.0%)
-487. Load base weight model.language_model.layers.28.input_layernorm.weight 0.15 ms (0.0%)
-488. Load base weight model.language_model.layers.14.linear_attn.A_log 0.15 ms (0.0%)
-489. Load base weight model.language_model.layers.17.input_layernorm.weight 0.15 ms (0.0%)
-490. Load base weight model.language_model.layers.32.linear_attn.conv1d.weight 0.15 ms (0.0%)
-491. Load base weight model.language_model.layers.35.self_attn.k_norm.weight 0.15 ms (0.0%)
-492. Load base weight model.language_model.layers.20.linear_attn.conv1d.weight 0.14 ms (0.0%)
-493. Load base weight model.language_model.layers.38.linear_attn.A_log 0.14 ms (0.0%)
-494. Load base weight model.language_model.layers.16.input_layernorm.weight 0.14 ms (0.0%)
-495. Load base weight model.language_model.layers.24.linear_attn.dt_bias 0.14 ms (0.0%)
-496. Load base weight model.language_model.layers.30.linear_attn.conv1d.weight 0.14 ms (0.0%)
-497. Load base weight model.language_model.layers.11.self_attn.k_norm.weight 0.14 ms (0.0%)
-498. Load base weight model.language_model.layers.22.input_layernorm.weight 0.14 ms (0.0%)
-499. Load base weight model.language_model.layers.4.linear_attn.conv1d.weight 0.14 ms (0.0%)
-500. Load base weight model.language_model.layers.2.linear_attn.dt_bias 0.14 ms (0.0%)
-501. Load base weight model.language_model.layers.14.linear_attn.dt_bias 0.14 ms (0.0%)
-502. Load base weight model.language_model.layers.19.self_attn.k_norm.weight 0.14 ms (0.0%)
-503. Load base weight model.language_model.layers.25.linear_attn.A_log 0.14 ms (0.0%)
-504. Load base weight model.language_model.layers.30.linear_attn.A_log 0.14 ms (0.0%)
-505. Load base weight model.language_model.layers.37.linear_attn.conv1d.weight 0.14 ms (0.0%)
-506. Load base weight model.language_model.layers.1.linear_attn.A_log 0.14 ms (0.0%)
-507. Load base weight model.language_model.layers.2.linear_attn.A_log 0.14 ms (0.0%)
-508. Load base weight model.language_model.layers.13.linear_attn.dt_bias 0.14 ms (0.0%)
-509. Load base weight model.language_model.layers.10.linear_attn.A_log 0.14 ms (0.0%)
-510. Load base weight model.language_model.layers.4.linear_attn.A_log 0.14 ms (0.0%)
-511. Load base weight model.language_model.layers.13.linear_attn.A_log 0.14 ms (0.0%)
-512. Load base weight model.language_model.layers.33.input_layernorm.weight 0.14 ms (0.0%)
-513. Load base weight model.language_model.layers.0.linear_attn.conv1d.weight 0.14 ms (0.0%)
-514. Load base weight model.language_model.layers.18.linear_attn.conv1d.weight 0.14 ms (0.0%)
-515. Load base weight model.language_model.layers.33.linear_attn.conv1d.weight 0.14 ms (0.0%)
-516. Load base weight model.language_model.layers.34.linear_attn.conv1d.weight 0.14 ms (0.0%)
-517. Load base weight model.language_model.layers.33.linear_attn.A_log 0.14 ms (0.0%)
-518. Load base weight model.language_model.layers.23.input_layernorm.weight 0.14 ms (0.0%)
-519. Load base weight model.language_model.layers.8.linear_attn.dt_bias 0.14 ms (0.0%)
-520. Load base weight model.language_model.layers.26.linear_attn.dt_bias 0.14 ms (0.0%)
-521. Load base weight model.language_model.layers.35.post_attention_layernorm.weight 0.14 ms (0.0%)
-522. Load base weight model.language_model.layers.29.linear_attn.conv1d.weight 0.14 ms (0.0%)
-523. Load base weight model.language_model.layers.6.linear_attn.conv1d.weight 0.14 ms (0.0%)
-524. Load base weight model.language_model.layers.27.input_layernorm.weight 0.14 ms (0.0%)
-525. Load base weight model.language_model.layers.21.linear_attn.conv1d.weight 0.14 ms (0.0%)
-526. Load base weight model.language_model.layers.18.linear_attn.A_log 0.14 ms (0.0%)
-527. Load base weight model.language_model.layers.19.input_layernorm.weight 0.14 ms (0.0%)
-528. Load base weight model.language_model.layers.37.linear_attn.dt_bias 0.14 ms (0.0%)
-529. Load base weight model.language_model.layers.14.input_layernorm.weight 0.14 ms (0.0%)
-530. Load base weight model.language_model.layers.9.linear_attn.A_log 0.14 ms (0.0%)
-531. Load base weight model.language_model.layers.12.linear_attn.A_log 0.14 ms (0.0%)
-532. Load base weight model.language_model.layers.20.input_layernorm.weight 0.14 ms (0.0%)
-533. Load base weight model.language_model.layers.39.self_attn.k_norm.weight 0.14 ms (0.0%)
-534. Load base weight model.language_model.layers.22.linear_attn.dt_bias 0.14 ms (0.0%)
-535. Load base weight model.language_model.layers.38.input_layernorm.weight 0.14 ms (0.0%)
-536. Load base weight model.language_model.layers.24.linear_attn.conv1d.weight 0.14 ms (0.0%)
-537. Load base weight model.language_model.layers.32.input_layernorm.weight 0.13 ms (0.0%)
-538. Load base weight model.language_model.layers.6.linear_attn.A_log 0.13 ms (0.0%)
-539. Load base weight model.language_model.layers.30.input_layernorm.weight 0.13 ms (0.0%)
-540. Load base weight model.language_model.layers.5.linear_attn.conv1d.weight 0.13 ms (0.0%)
-541. Load base weight model.language_model.layers.1.post_attention_layernorm.weight 0.13 ms (0.0%)
-542. Load base weight model.language_model.layers.12.input_layernorm.weight 0.13 ms (0.0%)
-543. Load base weight model.language_model.layers.15.input_layernorm.weight 0.13 ms (0.0%)
-544. Load base weight model.language_model.layers.6.input_layernorm.weight 0.13 ms (0.0%)
-545. Load base weight model.language_model.layers.34.linear_attn.A_log 0.13 ms (0.0%)
-546. Load base weight model.language_model.layers.26.linear_attn.conv1d.weight 0.13 ms (0.0%)
-547. Load base weight model.language_model.layers.17.post_attention_layernorm.weight 0.13 ms (0.0%)
-548. Load base weight model.language_model.layers.31.self_attn.k_norm.weight 0.13 ms (0.0%)
-549. Load base weight model.language_model.layers.28.post_attention_layernorm.weight 0.13 ms (0.0%)
-550. Load base weight model.language_model.layers.25.input_layernorm.weight 0.13 ms (0.0%)
-551. Load base weight model.language_model.layers.25.linear_attn.conv1d.weight 0.13 ms (0.0%)
-552. Load base weight model.language_model.layers.3.input_layernorm.weight 0.13 ms (0.0%)
-553. Load base weight model.language_model.layers.9.input_layernorm.weight 0.13 ms (0.0%)
-554. Load base weight model.language_model.layers.38.post_attention_layernorm.weight 0.13 ms (0.0%)
-555. Load base weight model.language_model.layers.28.linear_attn.A_log 0.13 ms (0.0%)
-556. Load base weight model.language_model.layers.24.post_attention_layernorm.weight 0.13 ms (0.0%)
-557. Load base weight model.language_model.layers.34.linear_attn.dt_bias 0.13 ms (0.0%)
-558. Load base weight model.language_model.layers.29.linear_attn.dt_bias 0.13 ms (0.0%)
-559. Load base weight model.language_model.layers.2.input_layernorm.weight 0.13 ms (0.0%)
-560. Load base weight model.language_model.layers.30.linear_attn.dt_bias 0.13 ms (0.0%)
-561. Load base weight model.language_model.layers.20.linear_attn.A_log 0.13 ms (0.0%)
-562. Load base weight model.language_model.layers.3.self_attn.k_norm.weight 0.13 ms (0.0%)
-563. Load base weight model.language_model.layers.12.linear_attn.conv1d.weight 0.13 ms (0.0%)
-564. Load base weight model.language_model.layers.34.post_attention_layernorm.weight 0.12 ms (0.0%)
-565. Load base weight model.language_model.layers.16.linear_attn.dt_bias 0.12 ms (0.0%)
-566. Load base weight model.language_model.layers.7.input_layernorm.weight 0.12 ms (0.0%)
-567. Load base weight model.language_model.layers.9.linear_attn.conv1d.weight 0.12 ms (0.0%)
-568. Load base weight model.language_model.layers.4.linear_attn.dt_bias 0.12 ms (0.0%)
-569. Load base weight model.language_model.layers.20.post_attention_layernorm.weight 0.12 ms (0.0%)
-570. Load base weight model.language_model.layers.34.input_layernorm.weight 0.12 ms (0.0%)
-571. Load base weight model.language_model.layers.10.input_layernorm.weight 0.12 ms (0.0%)
-572. Load base weight model.language_model.layers.36.linear_attn.A_log 0.12 ms (0.0%)
-573. Load base weight model.language_model.layers.16.post_attention_layernorm.weight 0.12 ms (0.0%)
-574. Load base weight model.language_model.layers.18.linear_attn.dt_bias 0.12 ms (0.0%)
-575. Load base weight model.language_model.layers.21.input_layernorm.weight 0.12 ms (0.0%)
-576. Load base weight model.language_model.layers.5.linear_attn.A_log 0.12 ms (0.0%)
-577. Load base weight model.language_model.layers.5.post_attention_layernorm.weight 0.12 ms (0.0%)
-578. Load base weight model.language_model.layers.38.linear_attn.conv1d.weight 0.12 ms (0.0%)
-579. Load base weight model.language_model.layers.10.linear_attn.dt_bias 0.12 ms (0.0%)
-580. Load base weight model.language_model.layers.25.linear_attn.dt_bias 0.12 ms (0.0%)
-581. Load base weight model.language_model.layers.22.post_attention_layernorm.weight 0.12 ms (0.0%)
-582. Load base weight model.language_model.layers.6.linear_attn.dt_bias 0.12 ms (0.0%)
-583. Load base weight model.language_model.layers.13.input_layernorm.weight 0.12 ms (0.0%)
-584. Load base weight model.language_model.layers.17.linear_attn.dt_bias 0.12 ms (0.0%)
-585. Load base weight model.language_model.layers.11.input_layernorm.weight 0.12 ms (0.0%)
-586. Load base weight model.language_model.layers.13.post_attention_layernorm.weight 0.12 ms (0.0%)
-587. Load base weight model.language_model.layers.21.linear_attn.dt_bias 0.12 ms (0.0%)
-588. Load base weight model.language_model.layers.36.linear_attn.conv1d.weight 0.12 ms (0.0%)
-589. Load base weight model.language_model.layers.39.input_layernorm.weight 0.12 ms (0.0%)
-590. Load base weight model.language_model.layers.18.post_attention_layernorm.weight 0.12 ms (0.0%)
-591. Load base weight model.language_model.layers.5.input_layernorm.weight 0.12 ms (0.0%)
-592. Load base weight model.language_model.layers.37.input_layernorm.weight 0.12 ms (0.0%)
-593. Load base weight model.language_model.layers.8.post_attention_layernorm.weight 0.12 ms (0.0%)
-594. Load base weight model.language_model.layers.19.post_attention_layernorm.weight 0.12 ms (0.0%)
-595. Load base weight model.language_model.layers.37.post_attention_layernorm.weight 0.11 ms (0.0%)
-596. Load base weight model.language_model.layers.0.linear_attn.dt_bias 0.11 ms (0.0%)
-597. Load base weight model.language_model.layers.10.post_attention_layernorm.weight 0.11 ms (0.0%)
-598. Load base weight model.language_model.layers.1.linear_attn.dt_bias 0.11 ms (0.0%)
-599. Load base weight model.language_model.layers.12.post_attention_layernorm.weight 0.11 ms (0.0%)
-600. Load base weight model.language_model.layers.27.post_attention_layernorm.weight 0.11 ms (0.0%)
-601. Load base weight model.language_model.layers.23.post_attention_layernorm.weight 0.11 ms (0.0%)
-602. Load base weight model.language_model.layers.9.post_attention_layernorm.weight 0.11 ms (0.0%)
-603. Load base weight model.language_model.layers.6.post_attention_layernorm.weight 0.11 ms (0.0%)
-604. Load base weight model.language_model.layers.33.linear_attn.dt_bias 0.11 ms (0.0%)
-605. Load base weight model.language_model.layers.28.linear_attn.conv1d.weight 0.11 ms (0.0%)
-606. Load base weight model.language_model.layers.14.post_attention_layernorm.weight 0.11 ms (0.0%)
-607. Load base weight model.language_model.layers.32.linear_attn.dt_bias 0.11 ms (0.0%)
-608. Load base weight model.language_model.layers.25.post_attention_layernorm.weight 0.11 ms (0.0%)
-609. Load base weight model.language_model.layers.38.linear_attn.dt_bias 0.11 ms (0.0%)
-610. Load base weight model.language_model.layers.12.linear_attn.dt_bias 0.11 ms (0.0%)
-611. Load base weight model.language_model.layers.3.post_attention_layernorm.weight 0.11 ms (0.0%)
-612. Load base weight model.language_model.layers.29.input_layernorm.weight 0.11 ms (0.0%)
-613. Load base weight model.language_model.layers.5.linear_attn.dt_bias 0.10 ms (0.0%)
-614. Load base weight model.language_model.layers.15.post_attention_layernorm.weight 0.10 ms (0.0%)
-615. Load base weight model.language_model.layers.28.linear_attn.dt_bias 0.10 ms (0.0%)
-616. Load base weight model.language_model.layers.4.post_attention_layernorm.weight 0.10 ms (0.0%)
-617. Load base weight model.language_model.layers.29.post_attention_layernorm.weight 0.10 ms (0.0%)
-618. Load base weight model.language_model.layers.9.linear_attn.dt_bias 0.10 ms (0.0%)
-619. Load base weight model.language_model.layers.2.post_attention_layernorm.weight 0.10 ms (0.0%)
-620. Load base weight model.language_model.layers.36.linear_attn.dt_bias 0.10 ms (0.0%)
-621. Load base weight model.language_model.layers.7.post_attention_layernorm.weight 0.10 ms (0.0%)
-622. Load base weight model.language_model.layers.39.post_attention_layernorm.weight 0.10 ms (0.0%)
-623. Load base weight model.language_model.layers.20.linear_attn.dt_bias 0.10 ms (0.0%)
-624. Load base weight model.language_model.layers.11.post_attention_layernorm.weight 0.10 ms (0.0%)
-625. Load base weight model.language_model.layers.21.post_attention_layernorm.weight 0.10 ms (0.0%)
+1. MoE / MLP                 37203.45 ms (55.7%)
+2. MoE Decode Loop           18029.39 ms (27.0%)
+3. Load base weight lm_head.weight 4407.65 ms (6.6%)
+4. Attention                 2879.05 ms (4.3%)
+5. Load base weight model.language_model.embed_tokens.weight 887.11 ms (1.3%)
+6. Router                    282.34 ms (0.4%)
+7. Load base weight model.language_model.layers.0.mlp.gate.weight 165.60 ms (0.2%)
+8. LM Head                   96.40 ms (0.1%)
+9. Load base weight model.language_model.layers.14.linear_attn.out_proj.weight 31.26 ms (0.0%)
+10. Load base weight model.language_model.layers.9.linear_attn.in_proj_z.weight 31.25 ms (0.0%)
+11. Load base weight model.language_model.layers.0.mlp.shared_expert.gate_proj.weight 31.24 ms (0.0%)
+12. Load base weight model.language_model.layers.11.self_attn.q_proj.weight 29.59 ms (0.0%)
+13. Load base weight model.language_model.layers.10.linear_attn.in_proj_qkv.weight 29.59 ms (0.0%)
+14. Load base weight model.language_model.layers.0.linear_attn.in_proj_z.weight 23.60 ms (0.0%)
+15. Load base weight model.language_model.layers.14.linear_attn.in_proj_qkv.weight 23.27 ms (0.0%)
+16. Load base weight model.language_model.layers.1.linear_attn.out_proj.weight 22.37 ms (0.0%)
+17. Load base weight model.language_model.layers.37.linear_attn.in_proj_qkv.weight 19.44 ms (0.0%)
+18. Load base weight model.language_model.layers.0.linear_attn.in_proj_qkv.weight 19.44 ms (0.0%)
+19. Load base weight model.language_model.layers.36.mlp.shared_expert.gate_proj.weight 18.93 ms (0.0%)
+20. Load base weight model.language_model.layers.25.linear_attn.out_proj.weight 18.07 ms (0.0%)
+21. Load base weight model.language_model.layers.2.linear_attn.in_proj_qkv.weight 16.39 ms (0.0%)
+22. Load base weight model.language_model.layers.8.linear_attn.in_proj_qkv.weight 16.37 ms (0.0%)
+23. Load base weight model.language_model.layers.24.linear_attn.out_proj.weight 16.02 ms (0.0%)
+24. Load base weight model.language_model.layers.17.mlp.gate.weight 15.94 ms (0.0%)
+25. Load base weight model.language_model.layers.2.linear_attn.in_proj_z.weight 15.60 ms (0.0%)
+26. Load base weight model.language_model.layers.4.linear_attn.out_proj.weight 15.30 ms (0.0%)
+27. Load base weight model.language_model.layers.6.linear_attn.in_proj_qkv.weight 14.65 ms (0.0%)
+28. Load base weight model.language_model.layers.9.mlp.gate.weight 14.17 ms (0.0%)
+29. Load base weight model.language_model.layers.31.mlp.shared_expert.up_proj.weight 13.83 ms (0.0%)
+30. Load base weight model.language_model.layers.4.linear_attn.in_proj_qkv.weight 13.80 ms (0.0%)
+31. Load base weight model.language_model.layers.19.mlp.gate.weight 13.77 ms (0.0%)
+32. Load base weight model.language_model.layers.5.linear_attn.in_proj_qkv.weight 13.75 ms (0.0%)
+33. Load base weight model.language_model.layers.2.linear_attn.out_proj.weight 13.75 ms (0.0%)
+34. Load base weight model.language_model.layers.29.mlp.shared_expert.gate_proj.weight 13.68 ms (0.0%)
+35. Load base weight model.language_model.layers.1.linear_attn.in_proj_qkv.weight 13.64 ms (0.0%)
+36. Load base weight model.language_model.layers.12.linear_attn.in_proj_qkv.weight 13.58 ms (0.0%)
+37. Load base weight model.language_model.layers.15.self_attn.q_proj.weight 13.54 ms (0.0%)
+38. Load base weight model.language_model.layers.24.mlp.shared_expert.gate_proj.weight 13.50 ms (0.0%)
+39. Load base weight model.language_model.layers.7.self_attn.q_proj.weight 13.49 ms (0.0%)
+40. Load base weight model.language_model.layers.25.mlp.shared_expert.gate_proj.weight 13.40 ms (0.0%)
+41. Load base weight model.language_model.layers.19.mlp.shared_expert.gate_proj.weight 13.24 ms (0.0%)
+42. Load base weight model.language_model.layers.19.self_attn.q_proj.weight 13.08 ms (0.0%)
+43. Load base weight model.language_model.layers.3.mlp.shared_expert.gate_proj.weight 13.07 ms (0.0%)
+44. Load base weight model.language_model.layers.35.mlp.shared_expert.gate_proj.weight 12.94 ms (0.0%)
+45. Load base weight model.language_model.layers.28.mlp.shared_expert.gate_proj.weight 12.86 ms (0.0%)
+46. Load base weight model.language_model.layers.13.mlp.shared_expert.gate_proj.weight 12.82 ms (0.0%)
+47. Load base weight model.language_model.layers.26.mlp.shared_expert.gate_proj.weight 12.75 ms (0.0%)
+48. Load base weight model.language_model.layers.20.mlp.gate.weight 12.68 ms (0.0%)
+49. Load base weight model.language_model.layers.6.linear_attn.in_proj_z.weight 12.64 ms (0.0%)
+50. Load base weight model.language_model.layers.3.self_attn.q_proj.weight 12.64 ms (0.0%)
+51. Load base weight model.language_model.layers.27.self_attn.q_proj.weight 12.61 ms (0.0%)
+52. Load base weight model.language_model.layers.10.mlp.gate.weight 12.55 ms (0.0%)
+53. Load base weight model.language_model.layers.12.mlp.shared_expert.gate_proj.weight 12.46 ms (0.0%)
+54. Load base weight model.language_model.layers.13.linear_attn.in_proj_qkv.weight 12.39 ms (0.0%)
+55. Load base weight model.language_model.layers.38.mlp.shared_expert.gate_proj.weight 12.35 ms (0.0%)
+56. Load base weight model.language_model.layers.36.mlp.shared_expert.up_proj.weight 12.33 ms (0.0%)
+57. Load base weight model.language_model.layers.6.mlp.shared_expert.gate_proj.weight 12.23 ms (0.0%)
+58. Load base weight model.language_model.layers.9.linear_attn.in_proj_qkv.weight 12.19 ms (0.0%)
+59. Load base weight model.language_model.layers.11.mlp.shared_expert.gate_proj.weight 12.17 ms (0.0%)
+60. Load base weight model.language_model.layers.16.mlp.shared_expert.gate_proj.weight 12.07 ms (0.0%)
+61. Load base weight model.language_model.layers.35.self_attn.q_proj.weight 12.07 ms (0.0%)
+62. Load base weight model.language_model.layers.39.self_attn.q_proj.weight 12.01 ms (0.0%)
+63. Load base weight model.language_model.layers.37.mlp.shared_expert.gate_proj.weight 11.94 ms (0.0%)
+64. Load base weight model.language_model.layers.20.mlp.shared_expert.gate_proj.weight 11.93 ms (0.0%)
+65. Load base weight model.language_model.layers.21.mlp.shared_expert.gate_proj.weight 11.89 ms (0.0%)
+66. Load base weight model.language_model.layers.27.mlp.shared_expert.gate_proj.weight 11.85 ms (0.0%)
+67. Load base weight model.language_model.layers.18.linear_attn.in_proj_qkv.weight 11.82 ms (0.0%)
+68. Load base weight model.language_model.layers.1.mlp.shared_expert.gate_proj.weight 11.79 ms (0.0%)
+69. Load base weight model.language_model.layers.31.mlp.shared_expert.gate_proj.weight 11.71 ms (0.0%)
+70. Load base weight model.language_model.layers.25.linear_attn.in_proj_qkv.weight 11.65 ms (0.0%)
+71. Load base weight model.language_model.layers.31.self_attn.q_proj.weight 11.57 ms (0.0%)
+72. Load base weight model.language_model.layers.33.mlp.shared_expert.gate_proj.weight 11.50 ms (0.0%)
+73. Load base weight model.language_model.layers.14.mlp.shared_expert.gate_proj.weight 11.43 ms (0.0%)
+74. Load base weight model.language_model.layers.23.mlp.shared_expert.gate_proj.weight 11.42 ms (0.0%)
+75. Load base weight model.language_model.layers.4.mlp.shared_expert.gate_proj.weight 11.41 ms (0.0%)
+76. Load base weight model.language_model.layers.18.mlp.shared_expert.gate_proj.weight 11.38 ms (0.0%)
+77. Load base weight model.language_model.layers.22.mlp.shared_expert.gate_proj.weight 11.36 ms (0.0%)
+78. Load base weight model.language_model.layers.39.mlp.shared_expert.gate_proj.weight 11.31 ms (0.0%)
+79. Load base weight model.language_model.layers.30.mlp.shared_expert.gate_proj.weight 11.28 ms (0.0%)
+80. Load base weight model.language_model.layers.17.mlp.shared_expert.gate_proj.weight 11.25 ms (0.0%)
+81. Load base weight model.language_model.layers.5.mlp.shared_expert.gate_proj.weight 11.22 ms (0.0%)
+82. Load base weight model.language_model.layers.24.mlp.shared_expert.up_proj.weight 11.18 ms (0.0%)
+83. Load base weight model.language_model.layers.34.mlp.shared_expert.gate_proj.weight 11.12 ms (0.0%)
+84. Load base weight model.language_model.layers.3.mlp.shared_expert.down_proj.weight 10.98 ms (0.0%)
+85. Load base weight model.language_model.layers.26.mlp.shared_expert.down_proj.weight 10.92 ms (0.0%)
+86. Load base weight model.language_model.layers.12.mlp.gate.weight 10.86 ms (0.0%)
+87. Load base weight model.language_model.layers.7.mlp.shared_expert.down_proj.weight 10.86 ms (0.0%)
+88. Load base weight model.language_model.layers.25.mlp.shared_expert.up_proj.weight 10.85 ms (0.0%)
+89. Load base weight model.language_model.layers.8.mlp.shared_expert.gate_proj.weight 10.84 ms (0.0%)
+90. Load base weight model.language_model.layers.20.mlp.shared_expert.down_proj.weight 10.83 ms (0.0%)
+91. Load base weight model.language_model.layers.9.mlp.shared_expert.gate_proj.weight 10.82 ms (0.0%)
+92. Load base weight model.language_model.layers.2.mlp.shared_expert.gate_proj.weight 10.81 ms (0.0%)
+93. Load base weight model.language_model.layers.32.mlp.shared_expert.gate_proj.weight 10.79 ms (0.0%)
+94. Load base weight model.language_model.layers.20.linear_attn.in_proj_qkv.weight 10.72 ms (0.0%)
+95. Load base weight model.language_model.layers.19.mlp.shared_expert.down_proj.weight 10.59 ms (0.0%)
+96. Load base weight model.language_model.layers.23.mlp.shared_expert.up_proj.weight 10.56 ms (0.0%)
+97. Load base weight model.language_model.layers.35.mlp.shared_expert.down_proj.weight 10.51 ms (0.0%)
+98. Load base weight model.language_model.layers.7.mlp.shared_expert.gate_proj.weight 10.49 ms (0.0%)
+99. Load base weight model.language_model.layers.23.self_attn.q_proj.weight 10.41 ms (0.0%)
+100. Load base weight model.language_model.layers.33.linear_attn.in_proj_qkv.weight 10.39 ms (0.0%)
+101. Load base weight model.language_model.layers.29.mlp.shared_expert.up_proj.weight 10.35 ms (0.0%)
+102. Load base weight model.language_model.layers.22.linear_attn.in_proj_qkv.weight 10.33 ms (0.0%)
+103. Load base weight model.language_model.layers.30.linear_attn.in_proj_qkv.weight 10.32 ms (0.0%)
+104. Load base weight model.language_model.layers.26.linear_attn.in_proj_qkv.weight 10.29 ms (0.0%)
+105. Load base weight model.language_model.layers.10.mlp.shared_expert.gate_proj.weight 10.26 ms (0.0%)
+106. Load base weight model.language_model.layers.13.linear_attn.out_proj.weight 10.23 ms (0.0%)
+107. Load base weight model.language_model.layers.11.mlp.shared_expert.up_proj.weight 10.22 ms (0.0%)
+108. Load base weight model.language_model.layers.14.mlp.shared_expert.down_proj.weight 10.20 ms (0.0%)
+109. Load base weight model.language_model.layers.24.linear_attn.in_proj_qkv.weight 10.20 ms (0.0%)
+110. Load base weight model.language_model.layers.32.linear_attn.in_proj_qkv.weight 10.20 ms (0.0%)
+111. Load base weight model.language_model.layers.35.mlp.shared_expert.up_proj.weight 10.14 ms (0.0%)
+112. Load base weight model.language_model.layers.26.mlp.shared_expert.up_proj.weight 10.06 ms (0.0%)
+113. Load base weight model.language_model.layers.16.linear_attn.in_proj_qkv.weight 10.06 ms (0.0%)
+114. Load base weight model.language_model.layers.34.linear_attn.in_proj_qkv.weight 9.98 ms (0.0%)
+115. Load base weight model.language_model.layers.38.linear_attn.in_proj_qkv.weight 9.93 ms (0.0%)
+116. Load base weight model.language_model.layers.28.linear_attn.in_proj_qkv.weight 9.91 ms (0.0%)
+117. Load base weight model.language_model.layers.24.mlp.shared_expert.down_proj.weight 9.90 ms (0.0%)
+118. Load base weight model.language_model.layers.33.mlp.shared_expert.up_proj.weight 9.86 ms (0.0%)
+119. Load base weight model.language_model.layers.21.linear_attn.in_proj_qkv.weight 9.84 ms (0.0%)
+120. Load base weight model.language_model.layers.36.linear_attn.in_proj_qkv.weight 9.83 ms (0.0%)
+121. Load base weight model.language_model.layers.28.mlp.shared_expert.up_proj.weight 9.82 ms (0.0%)
+122. Load base weight model.language_model.layers.15.mlp.shared_expert.gate_proj.weight 9.82 ms (0.0%)
+123. Load base weight model.language_model.layers.28.mlp.shared_expert.down_proj.weight 9.73 ms (0.0%)
+124. Load base weight model.language_model.layers.16.mlp.shared_expert.down_proj.weight 9.69 ms (0.0%)
+125. Load base weight model.language_model.layers.25.mlp.shared_expert.down_proj.weight 9.69 ms (0.0%)
+126. Load base weight model.language_model.layers.12.mlp.shared_expert.down_proj.weight 9.69 ms (0.0%)
+127. Load base weight model.language_model.layers.8.mlp.shared_expert.down_proj.weight 9.68 ms (0.0%)
+128. Load base weight model.language_model.layers.6.mlp.shared_expert.up_proj.weight 9.66 ms (0.0%)
+129. Load base weight model.language_model.layers.9.linear_attn.out_proj.weight 9.66 ms (0.0%)
+130. Load base weight model.language_model.layers.34.mlp.shared_expert.up_proj.weight 9.66 ms (0.0%)
+131. Load base weight model.language_model.layers.13.mlp.shared_expert.up_proj.weight 9.63 ms (0.0%)
+132. Load base weight model.language_model.layers.13.mlp.shared_expert.down_proj.weight 9.62 ms (0.0%)
+133. Load base weight model.language_model.layers.7.mlp.gate.weight 9.61 ms (0.0%)
+134. Load base weight model.language_model.layers.29.linear_attn.in_proj_qkv.weight 9.58 ms (0.0%)
+135. Load base weight model.language_model.layers.19.mlp.shared_expert.up_proj.weight 9.58 ms (0.0%)
+136. Load base weight model.language_model.layers.0.mlp.shared_expert.up_proj.weight 9.55 ms (0.0%)
+137. Load base weight model.language_model.layers.14.mlp.shared_expert.up_proj.weight 9.50 ms (0.0%)
+138. Load base weight model.language_model.layers.17.linear_attn.in_proj_qkv.weight 9.48 ms (0.0%)
+139. Load base weight model.language_model.layers.22.mlp.shared_expert.up_proj.weight 9.42 ms (0.0%)
+140. Load base weight model.language_model.layers.38.mlp.shared_expert.down_proj.weight 9.39 ms (0.0%)
+141. Load base weight model.language_model.layers.21.mlp.shared_expert.down_proj.weight 9.34 ms (0.0%)
+142. Load base weight model.language_model.layers.6.mlp.shared_expert.down_proj.weight 9.30 ms (0.0%)
+143. Load base weight model.language_model.layers.22.mlp.shared_expert.down_proj.weight 9.27 ms (0.0%)
+144. Load base weight model.language_model.layers.20.mlp.shared_expert.up_proj.weight 9.27 ms (0.0%)
+145. Load base weight model.language_model.layers.16.mlp.shared_expert.up_proj.weight 9.24 ms (0.0%)
+146. Load base weight model.language_model.layers.23.mlp.shared_expert.down_proj.weight 9.24 ms (0.0%)
+147. Load base weight model.language_model.layers.12.mlp.shared_expert.up_proj.weight 9.23 ms (0.0%)
+148. Load base weight model.language_model.layers.0.linear_attn.out_proj.weight 9.22 ms (0.0%)
+149. Load base weight model.language_model.layers.38.mlp.shared_expert.up_proj.weight 9.18 ms (0.0%)
+150. Load base weight model.language_model.layers.7.mlp.shared_expert.up_proj.weight 9.18 ms (0.0%)
+151. Load base weight model.language_model.layers.8.mlp.shared_expert.up_proj.weight 9.17 ms (0.0%)
+152. Load base weight model.language_model.layers.1.mlp.shared_expert.up_proj.weight 9.07 ms (0.0%)
+153. Load base weight model.language_model.layers.4.mlp.shared_expert.up_proj.weight 9.02 ms (0.0%)
+154. Load base weight model.language_model.layers.29.mlp.shared_expert.down_proj.weight 9.01 ms (0.0%)
+155. Load base weight model.language_model.layers.17.mlp.shared_expert.down_proj.weight 9.00 ms (0.0%)
+156. Load base weight model.language_model.layers.12.linear_attn.out_proj.weight 9.00 ms (0.0%)
+157. Load base weight model.language_model.layers.15.mlp.gate.weight 8.97 ms (0.0%)
+158. Load base weight model.language_model.layers.0.mlp.shared_expert.down_proj.weight 8.93 ms (0.0%)
+159. Load base weight model.language_model.layers.17.mlp.shared_expert.up_proj.weight 8.92 ms (0.0%)
+160. Load base weight model.language_model.layers.18.mlp.shared_expert.down_proj.weight 8.92 ms (0.0%)
+161. Load base weight model.language_model.layers.21.mlp.shared_expert.up_proj.weight 8.91 ms (0.0%)
+162. Load base weight model.language_model.layers.1.mlp.gate.weight 8.90 ms (0.0%)
+163. Load base weight model.language_model.layers.3.mlp.shared_expert.up_proj.weight 8.87 ms (0.0%)
+164. Load base weight model.language_model.layers.37.mlp.shared_expert.down_proj.weight 8.87 ms (0.0%)
+165. Load base weight model.language_model.layers.30.mlp.shared_expert.down_proj.weight 8.86 ms (0.0%)
+166. Load base weight model.language_model.layers.37.mlp.shared_expert.up_proj.weight 8.82 ms (0.0%)
+167. Load base weight model.language_model.layers.4.mlp.shared_expert.down_proj.weight 8.78 ms (0.0%)
+168. Load base weight model.language_model.layers.30.mlp.shared_expert.up_proj.weight 8.78 ms (0.0%)
+169. Load base weight model.language_model.layers.33.mlp.shared_expert.down_proj.weight 8.78 ms (0.0%)
+170. Load base weight model.language_model.layers.39.mlp.shared_expert.down_proj.weight 8.68 ms (0.0%)
+171. Load base weight model.language_model.layers.5.mlp.shared_expert.up_proj.weight 8.68 ms (0.0%)
+172. Load base weight model.language_model.layers.9.mlp.shared_expert.up_proj.weight 8.60 ms (0.0%)
+173. Load base weight model.language_model.layers.32.mlp.shared_expert.up_proj.weight 8.58 ms (0.0%)
+174. Load base weight model.language_model.layers.23.mlp.gate.weight 8.56 ms (0.0%)
+175. Load base weight model.language_model.layers.18.mlp.shared_expert.up_proj.weight 8.55 ms (0.0%)
+176. Load base weight model.language_model.layers.10.mlp.shared_expert.down_proj.weight 8.52 ms (0.0%)
+177. Load base weight model.language_model.layers.1.mlp.shared_expert.down_proj.weight 8.52 ms (0.0%)
+178. Load base weight model.language_model.layers.5.mlp.shared_expert.down_proj.weight 8.48 ms (0.0%)
+179. Load base weight model.language_model.layers.9.mlp.shared_expert.down_proj.weight 8.47 ms (0.0%)
+180. Load base weight model.language_model.layers.27.mlp.shared_expert.up_proj.weight 8.46 ms (0.0%)
+181. Load base weight model.language_model.layers.2.mlp.shared_expert.up_proj.weight 8.43 ms (0.0%)
+182. Load base weight model.language_model.layers.34.mlp.shared_expert.down_proj.weight 8.39 ms (0.0%)
+183. Load base weight model.language_model.layers.31.mlp.shared_expert.down_proj.weight 8.34 ms (0.0%)
+184. Load base weight model.language_model.layers.36.mlp.shared_expert.down_proj.weight 8.31 ms (0.0%)
+185. Load base weight model.language_model.layers.39.mlp.shared_expert.up_proj.weight 8.24 ms (0.0%)
+186. Load base weight model.language_model.layers.2.mlp.shared_expert.down_proj.weight 8.21 ms (0.0%)
+187. Load base weight model.language_model.layers.32.mlp.shared_expert.down_proj.weight 8.20 ms (0.0%)
+188. Load base weight model.language_model.layers.4.linear_attn.in_proj_z.weight 8.18 ms (0.0%)
+189. Load base weight model.language_model.layers.5.linear_attn.out_proj.weight 8.17 ms (0.0%)
+190. Load base weight model.language_model.layers.27.mlp.shared_expert.down_proj.weight 8.17 ms (0.0%)
+191. Load base weight model.language_model.layers.24.mlp.gate.weight 8.13 ms (0.0%)
+192. Load base weight model.language_model.layers.10.mlp.shared_expert.up_proj.weight 8.02 ms (0.0%)
+193. Load base weight model.language_model.layers.11.mlp.shared_expert.down_proj.weight 7.67 ms (0.0%)
+194. Load base weight model.language_model.layers.10.linear_attn.in_proj_z.weight 7.66 ms (0.0%)
+195. Load base weight model.language_model.layers.11.mlp.gate.weight 7.65 ms (0.0%)
+196. Load base weight model.language_model.layers.15.mlp.shared_expert.up_proj.weight 7.56 ms (0.0%)
+197. Load base weight model.language_model.layers.30.mlp.gate.weight 7.52 ms (0.0%)
+198. Load base weight model.language_model.layers.3.mlp.gate.weight 7.48 ms (0.0%)
+199. Load base weight model.language_model.layers.5.mlp.gate.weight 7.45 ms (0.0%)
+200. Load base weight model.language_model.layers.8.mlp.gate.weight 7.38 ms (0.0%)
+201. Load base weight model.language_model.layers.10.linear_attn.out_proj.weight 7.37 ms (0.0%)
+202. Load base weight model.language_model.layers.5.linear_attn.in_proj_z.weight 7.28 ms (0.0%)
+203. Load base weight model.language_model.layers.8.linear_attn.in_proj_z.weight 7.28 ms (0.0%)
+204. Load base weight model.language_model.layers.17.linear_attn.in_proj_z.weight 7.23 ms (0.0%)
+205. Load base weight model.language_model.layers.25.linear_attn.in_proj_z.weight 7.23 ms (0.0%)
+206. Load base weight model.language_model.layers.13.mlp.gate.weight 7.20 ms (0.0%)
+207. Load base weight model.language_model.layers.2.mlp.gate.weight 7.17 ms (0.0%)
+208. Load base weight model.language_model.layers.12.linear_attn.in_proj_z.weight 7.14 ms (0.0%)
+209. Load base weight model.language_model.layers.6.mlp.gate.weight 7.13 ms (0.0%)
+210. Load base weight model.language_model.layers.16.mlp.gate.weight 7.10 ms (0.0%)
+211. Load base weight model.language_model.layers.18.mlp.gate.weight 7.03 ms (0.0%)
+212. Load base weight model.language_model.layers.15.mlp.shared_expert.down_proj.weight 7.02 ms (0.0%)
+213. Load base weight model.language_model.layers.14.linear_attn.in_proj_z.weight 6.98 ms (0.0%)
+214. Load base weight model.language_model.layers.4.mlp.gate.weight 6.93 ms (0.0%)
+215. Load base weight model.language_model.layers.13.linear_attn.in_proj_z.weight 6.92 ms (0.0%)
+216. Load base weight model.language_model.layers.25.mlp.gate.weight 6.85 ms (0.0%)
+217. Load base weight model.language_model.layers.31.mlp.gate.weight 6.84 ms (0.0%)
+218. Load base weight model.language_model.layers.33.mlp.gate.weight 6.76 ms (0.0%)
+219. Load base weight model.language_model.layers.21.mlp.gate.weight 6.75 ms (0.0%)
+220. Load base weight model.language_model.layers.29.mlp.gate.weight 6.73 ms (0.0%)
+221. Load base weight model.language_model.layers.32.linear_attn.out_proj.weight 6.70 ms (0.0%)
+222. Load base weight model.language_model.layers.7.self_attn.o_proj.weight 6.69 ms (0.0%)
+223. Load base weight model.language_model.layers.27.mlp.gate.weight 6.61 ms (0.0%)
+224. Load base weight model.language_model.layers.11.self_attn.o_proj.weight 6.54 ms (0.0%)
+225. Load base weight model.language_model.layers.14.mlp.gate.weight 6.41 ms (0.0%)
+226. Load base weight model.language_model.layers.1.linear_attn.in_proj_z.weight 6.39 ms (0.0%)
+227. Load base weight model.language_model.layers.34.linear_attn.in_proj_z.weight 6.35 ms (0.0%)
+228. Load base weight model.language_model.layers.21.linear_attn.in_proj_z.weight 6.34 ms (0.0%)
+229. Load base weight model.language_model.layers.32.mlp.gate.weight 6.29 ms (0.0%)
+230. Load base weight model.language_model.layers.22.linear_attn.in_proj_z.weight 6.28 ms (0.0%)
+231. Load base weight model.language_model.layers.28.mlp.gate.weight 6.25 ms (0.0%)
+232. Load base weight model.language_model.layers.38.linear_attn.out_proj.weight 6.23 ms (0.0%)
+233. Load base weight model.language_model.layers.26.mlp.gate.weight 6.23 ms (0.0%)
+234. Load base weight model.language_model.layers.22.mlp.gate.weight 6.22 ms (0.0%)
+235. Load base weight model.language_model.layers.39.mlp.gate.weight 6.20 ms (0.0%)
+236. Load base weight model.language_model.layers.34.mlp.gate.weight 6.16 ms (0.0%)
+237. Load base weight model.language_model.layers.36.linear_attn.out_proj.weight 6.13 ms (0.0%)
+238. Load base weight model.language_model.layers.33.linear_attn.in_proj_z.weight 6.11 ms (0.0%)
+239. Load base weight model.language_model.layers.8.linear_attn.out_proj.weight 6.09 ms (0.0%)
+240. Load base weight model.language_model.layers.39.self_attn.o_proj.weight 6.08 ms (0.0%)
+241. Load base weight model.language_model.layers.18.linear_attn.in_proj_z.weight 6.04 ms (0.0%)
+242. Load base weight model.language_model.layers.31.self_attn.o_proj.weight 5.97 ms (0.0%)
+243. Load base weight model.language_model.layers.20.linear_attn.in_proj_z.weight 5.95 ms (0.0%)
+244. Load base weight model.language_model.layers.36.linear_attn.in_proj_z.weight 5.94 ms (0.0%)
+245. Load base weight model.language_model.layers.3.self_attn.o_proj.weight 5.93 ms (0.0%)
+246. Load base weight model.language_model.layers.17.linear_attn.out_proj.weight 5.92 ms (0.0%)
+247. Load base weight model.language_model.layers.6.linear_attn.out_proj.weight 5.89 ms (0.0%)
+248. Load base weight model.language_model.layers.19.self_attn.o_proj.weight 5.89 ms (0.0%)
+249. Load base weight model.language_model.layers.37.linear_attn.in_proj_z.weight 5.87 ms (0.0%)
+250. Load base weight model.language_model.layers.32.linear_attn.in_proj_z.weight 5.83 ms (0.0%)
+251. Load base weight model.language_model.layers.30.linear_attn.in_proj_z.weight 5.83 ms (0.0%)
+252. Load base weight model.language_model.layers.16.linear_attn.in_proj_z.weight 5.78 ms (0.0%)
+253. Load base weight model.language_model.layers.28.linear_attn.in_proj_z.weight 5.78 ms (0.0%)
+254. Load base weight model.language_model.layers.26.linear_attn.in_proj_z.weight 5.77 ms (0.0%)
+255. Load base weight model.language_model.layers.20.linear_attn.out_proj.weight 5.75 ms (0.0%)
+256. Load base weight model.language_model.layers.38.linear_attn.in_proj_z.weight 5.74 ms (0.0%)
+257. Load base weight model.language_model.layers.35.mlp.gate.weight 5.73 ms (0.0%)
+258. Load base weight model.language_model.layers.33.linear_attn.out_proj.weight 5.68 ms (0.0%)
+259. Load base weight model.language_model.layers.38.mlp.gate.weight 5.68 ms (0.0%)
+260. Load base weight model.language_model.layers.29.linear_attn.in_proj_z.weight 5.63 ms (0.0%)
+261. Load base weight model.language_model.layers.37.linear_attn.out_proj.weight 5.62 ms (0.0%)
+262. Norm                      5.48 ms (0.0%)
+263. Load base weight model.language_model.layers.18.linear_attn.out_proj.weight 5.47 ms (0.0%)
+264. Load base weight model.language_model.layers.37.mlp.gate.weight 5.47 ms (0.0%)
+265. Load base weight model.language_model.layers.29.linear_attn.out_proj.weight 5.46 ms (0.0%)
+266. Load base weight model.language_model.layers.24.linear_attn.in_proj_z.weight 5.42 ms (0.0%)
+267. Load base weight model.language_model.layers.36.mlp.gate.weight 5.40 ms (0.0%)
+268. Load base weight model.language_model.layers.30.linear_attn.out_proj.weight 5.38 ms (0.0%)
+269. Load base weight model.language_model.layers.22.linear_attn.out_proj.weight 5.32 ms (0.0%)
+270. Load base weight model.language_model.layers.34.linear_attn.out_proj.weight 5.27 ms (0.0%)
+271. Load base weight model.language_model.layers.28.linear_attn.out_proj.weight 5.21 ms (0.0%)
+272. Load base weight model.language_model.layers.35.self_attn.o_proj.weight 5.20 ms (0.0%)
+273. Load base weight model.language_model.layers.21.linear_attn.out_proj.weight 5.17 ms (0.0%)
+274. Load base weight model.language_model.layers.26.linear_attn.out_proj.weight 5.17 ms (0.0%)
+275. Load base weight model.language_model.layers.15.self_attn.o_proj.weight 5.15 ms (0.0%)
+276. Load base weight model.language_model.layers.23.self_attn.o_proj.weight 5.15 ms (0.0%)
+277. Load base weight model.language_model.layers.27.self_attn.o_proj.weight 5.08 ms (0.0%)
+278. Load base weight model.language_model.layers.16.linear_attn.out_proj.weight 4.90 ms (0.0%)
+279. Load base weight model.language_model.layers.39.self_attn.k_proj.weight 3.11 ms (0.0%)
+280. Load base weight model.language_model.layers.3.self_attn.k_proj.weight 2.58 ms (0.0%)
+281. Load base weight model.language_model.layers.7.self_attn.k_proj.weight 2.53 ms (0.0%)
+282. Load base weight model.language_model.layers.11.self_attn.k_proj.weight 2.52 ms (0.0%)
+283. Load base weight model.language_model.layers.19.self_attn.k_proj.weight 2.49 ms (0.0%)
+284. Load base weight model.language_model.layers.31.self_attn.k_proj.weight 2.46 ms (0.0%)
+285. Load base weight model.language_model.layers.27.self_attn.k_proj.weight 2.37 ms (0.0%)
+286. Load base weight model.language_model.layers.15.self_attn.k_proj.weight 1.85 ms (0.0%)
+287. Load base weight model.language_model.layers.6.mlp.shared_expert_gate.weight 1.79 ms (0.0%)
+288. Load base weight model.language_model.layers.12.mlp.shared_expert_gate.weight 1.77 ms (0.0%)
+289. Load base weight model.language_model.layers.12.linear_attn.norm.weight 1.62 ms (0.0%)
+290. Load base weight model.language_model.layers.7.mlp.shared_expert_gate.weight 1.61 ms (0.0%)
+291. Load base weight model.language_model.layers.24.mlp.shared_expert_gate.weight 1.57 ms (0.0%)
+292. Load base weight model.language_model.layers.14.mlp.shared_expert_gate.weight 1.57 ms (0.0%)
+293. Load base weight model.language_model.layers.26.mlp.shared_expert_gate.weight 1.56 ms (0.0%)
+294. Load base weight model.language_model.layers.39.self_attn.v_proj.weight 1.55 ms (0.0%)
+295. Load base weight model.language_model.layers.20.mlp.shared_expert_gate.weight 1.55 ms (0.0%)
+296. Load base weight model.language_model.layers.23.self_attn.k_proj.weight 1.55 ms (0.0%)
+297. Load base weight model.language_model.layers.13.mlp.shared_expert_gate.weight 1.54 ms (0.0%)
+298. Load base weight model.language_model.layers.28.mlp.shared_expert_gate.weight 1.51 ms (0.0%)
+299. Load base weight model.language_model.layers.1.mlp.shared_expert_gate.weight 1.51 ms (0.0%)
+300. Load base weight model.language_model.layers.35.self_attn.k_proj.weight 1.48 ms (0.0%)
+301. Load base weight model.language_model.layers.3.self_attn.v_proj.weight 1.46 ms (0.0%)
+302. Load base weight model.language_model.layers.25.mlp.shared_expert_gate.weight 1.43 ms (0.0%)
+303. Load base weight model.language_model.layers.8.mlp.shared_expert_gate.weight 1.40 ms (0.0%)
+304. Load base weight model.language_model.layers.2.mlp.shared_expert_gate.weight 1.38 ms (0.0%)
+305. Load base weight model.language_model.layers.34.mlp.shared_expert_gate.weight 1.36 ms (0.0%)
+306. Load base weight model.language_model.layers.0.mlp.shared_expert_gate.weight 1.35 ms (0.0%)
+307. Load base weight model.language_model.layers.4.mlp.shared_expert_gate.weight 1.34 ms (0.0%)
+308. Load base weight model.language_model.layers.10.mlp.shared_expert_gate.weight 1.33 ms (0.0%)
+309. Load base weight model.language_model.layers.5.mlp.shared_expert_gate.weight 1.33 ms (0.0%)
+310. Load base weight model.language_model.layers.16.mlp.shared_expert_gate.weight 1.33 ms (0.0%)
+311. Load base weight model.language_model.layers.22.mlp.shared_expert_gate.weight 1.33 ms (0.0%)
+312. Load base weight model.language_model.layers.38.mlp.shared_expert_gate.weight 1.32 ms (0.0%)
+313. Load base weight model.language_model.layers.17.mlp.shared_expert_gate.weight 1.32 ms (0.0%)
+314. Load base weight model.language_model.layers.19.self_attn.v_proj.weight 1.31 ms (0.0%)
+315. Load base weight model.language_model.layers.29.mlp.shared_expert_gate.weight 1.31 ms (0.0%)
+316. Load base weight model.language_model.layers.19.mlp.shared_expert_gate.weight 1.29 ms (0.0%)
+317. Load base weight model.language_model.layers.18.mlp.shared_expert_gate.weight 1.28 ms (0.0%)
+318. Load base weight model.language_model.layers.35.mlp.shared_expert_gate.weight 1.28 ms (0.0%)
+319. Load base weight model.language_model.layers.32.mlp.shared_expert_gate.weight 1.26 ms (0.0%)
+320. Load base weight model.language_model.layers.37.mlp.shared_expert_gate.weight 1.26 ms (0.0%)
+321. Load base weight model.language_model.layers.36.mlp.shared_expert_gate.weight 1.26 ms (0.0%)
+322. Load base weight model.language_model.layers.30.mlp.shared_expert_gate.weight 1.25 ms (0.0%)
+323. Load base weight model.language_model.layers.9.mlp.shared_expert_gate.weight 1.24 ms (0.0%)
+324. Load base weight model.language_model.layers.31.self_attn.v_proj.weight 1.24 ms (0.0%)
+325. Load base weight model.language_model.layers.21.mlp.shared_expert_gate.weight 1.23 ms (0.0%)
+326. Load base weight model.language_model.layers.33.mlp.shared_expert_gate.weight 1.23 ms (0.0%)
+327. Load base weight model.language_model.layers.7.self_attn.v_proj.weight 1.22 ms (0.0%)
+328. Load base weight model.language_model.layers.3.mlp.shared_expert_gate.weight 1.21 ms (0.0%)
+329. Load base weight model.language_model.layers.35.self_attn.v_proj.weight 1.20 ms (0.0%)
+330. Load base weight model.language_model.layers.27.self_attn.v_proj.weight 1.19 ms (0.0%)
+331. Load base weight model.language_model.layers.11.mlp.shared_expert_gate.weight 1.16 ms (0.0%)
+332. Load base weight model.language_model.layers.31.mlp.shared_expert_gate.weight 1.15 ms (0.0%)
+333. Load base weight model.language_model.layers.27.mlp.shared_expert_gate.weight 1.15 ms (0.0%)
+334. Load base weight model.language_model.layers.23.mlp.shared_expert_gate.weight 1.15 ms (0.0%)
+335. Load base weight model.language_model.layers.11.self_attn.v_proj.weight 1.13 ms (0.0%)
+336. Load base weight model.language_model.layers.15.mlp.shared_expert_gate.weight 1.06 ms (0.0%)
+337. Load base weight model.language_model.layers.39.mlp.shared_expert_gate.weight 1.06 ms (0.0%)
+338. Load base weight model.language_model.layers.15.self_attn.v_proj.weight 1.03 ms (0.0%)
+339. Load base weight model.language_model.layers.12.linear_attn.in_proj_a.weight 1.00 ms (0.0%)
+340. Load base weight model.language_model.layers.23.self_attn.v_proj.weight 0.96 ms (0.0%)
+341. Load base weight model.language_model.layers.4.linear_attn.in_proj_a.weight 0.84 ms (0.0%)
+342. Load base weight model.language_model.layers.9.linear_attn.in_proj_a.weight 0.83 ms (0.0%)
+343. Load base weight model.language_model.layers.0.linear_attn.in_proj_a.weight 0.82 ms (0.0%)
+344. Load base weight model.language_model.layers.32.linear_attn.in_proj_a.weight 0.81 ms (0.0%)
+345. Load base weight model.language_model.layers.5.linear_attn.in_proj_a.weight 0.76 ms (0.0%)
+346. Load base weight model.language_model.layers.2.linear_attn.A_log 0.75 ms (0.0%)
+347. Load base weight model.language_model.layers.2.linear_attn.in_proj_a.weight 0.69 ms (0.0%)
+348. Load base weight model.language_model.layers.7.input_layernorm.weight 0.65 ms (0.0%)
+349. Load base weight model.language_model.layers.17.linear_attn.in_proj_a.weight 0.63 ms (0.0%)
+350. Load base weight model.language_model.layers.13.linear_attn.in_proj_a.weight 0.62 ms (0.0%)
+351. Load base weight model.language_model.layers.14.linear_attn.in_proj_b.weight 0.61 ms (0.0%)
+352. Load base weight model.language_model.layers.6.linear_attn.in_proj_a.weight 0.58 ms (0.0%)
+353. Load base weight model.language_model.layers.8.linear_attn.in_proj_a.weight 0.57 ms (0.0%)
+354. Load base weight model.language_model.layers.30.linear_attn.in_proj_a.weight 0.57 ms (0.0%)
+355. Load base weight model.language_model.layers.20.linear_attn.in_proj_a.weight 0.57 ms (0.0%)
+356. Load base weight model.language_model.layers.14.linear_attn.in_proj_a.weight 0.56 ms (0.0%)
+357. Load base weight model.language_model.layers.12.linear_attn.in_proj_b.weight 0.56 ms (0.0%)
+358. Load base weight model.language_model.layers.6.linear_attn.in_proj_b.weight 0.56 ms (0.0%)
+359. Load base weight model.language_model.layers.4.linear_attn.in_proj_b.weight 0.55 ms (0.0%)
+360. Load base weight model.language_model.layers.22.linear_attn.in_proj_a.weight 0.55 ms (0.0%)
+361. Load base weight model.language_model.layers.6.linear_attn.norm.weight 0.55 ms (0.0%)
+362. Load base weight model.language_model.layers.21.linear_attn.in_proj_a.weight 0.54 ms (0.0%)
+363. Load base weight model.language_model.layers.38.linear_attn.in_proj_a.weight 0.54 ms (0.0%)
+364. Load base weight model.language_model.layers.22.linear_attn.in_proj_b.weight 0.54 ms (0.0%)
+365. Load base weight model.language_model.layers.18.linear_attn.in_proj_a.weight 0.54 ms (0.0%)
+366. Load base weight model.language_model.layers.37.linear_attn.in_proj_a.weight 0.53 ms (0.0%)
+367. Load base weight model.language_model.layers.1.linear_attn.in_proj_a.weight 0.53 ms (0.0%)
+368. Load base weight model.language_model.layers.26.linear_attn.in_proj_a.weight 0.52 ms (0.0%)
+369. Load base weight model.language_model.layers.25.linear_attn.in_proj_a.weight 0.52 ms (0.0%)
+370. Load base weight model.language_model.layers.28.linear_attn.in_proj_a.weight 0.52 ms (0.0%)
+371. Load base weight model.language_model.layers.33.linear_attn.in_proj_a.weight 0.52 ms (0.0%)
+372. Load base weight model.language_model.layers.36.linear_attn.in_proj_a.weight 0.51 ms (0.0%)
+373. Load base weight model.language_model.layers.10.linear_attn.in_proj_a.weight 0.51 ms (0.0%)
+374. Load base weight model.language_model.layers.29.linear_attn.in_proj_a.weight 0.51 ms (0.0%)
+375. Load base weight model.language_model.layers.16.linear_attn.in_proj_a.weight 0.51 ms (0.0%)
+376. Load base weight model.language_model.layers.24.linear_attn.in_proj_a.weight 0.51 ms (0.0%)
+377. Load base weight model.language_model.layers.34.linear_attn.in_proj_a.weight 0.51 ms (0.0%)
+378. Load base weight model.language_model.layers.6.linear_attn.dt_bias 0.45 ms (0.0%)
+379. Load base weight model.language_model.layers.20.post_attention_layernorm.weight 0.44 ms (0.0%)
+380. Load base weight model.language_model.layers.19.input_layernorm.weight 0.44 ms (0.0%)
+381. Load base weight model.language_model.layers.14.post_attention_layernorm.weight 0.42 ms (0.0%)
+382. Load base weight model.language_model.layers.2.linear_attn.norm.weight 0.41 ms (0.0%)
+383. Load base weight model.language_model.layers.6.linear_attn.A_log 0.41 ms (0.0%)
+384. Load base weight model.language_model.layers.2.linear_attn.conv1d.weight 0.40 ms (0.0%)
+385. Load base weight model.language_model.layers.6.linear_attn.conv1d.weight 0.40 ms (0.0%)
+386. Load base weight model.language_model.layers.3.input_layernorm.weight 0.39 ms (0.0%)
+387. Load base weight model.language_model.layers.13.linear_attn.norm.weight 0.39 ms (0.0%)
+388. Load base weight model.language_model.layers.9.linear_attn.in_proj_b.weight 0.39 ms (0.0%)
+389. Load base weight model.language_model.layers.12.linear_attn.A_log 0.38 ms (0.0%)
+390. Load base weight model.language_model.layers.2.linear_attn.dt_bias 0.37 ms (0.0%)
+391. Load base weight model.language_model.layers.2.linear_attn.in_proj_b.weight 0.36 ms (0.0%)
+392. Load base weight model.language_model.layers.0.linear_attn.in_proj_b.weight 0.36 ms (0.0%)
+393. Load base weight model.language_model.layers.24.post_attention_layernorm.weight 0.35 ms (0.0%)
+394. Load base weight model.language_model.layers.3.post_attention_layernorm.weight 0.34 ms (0.0%)
+395. Load base weight model.language_model.layers.23.input_layernorm.weight 0.34 ms (0.0%)
+396. Load base weight model.language_model.layers.25.linear_attn.in_proj_b.weight 0.34 ms (0.0%)
+397. Load base weight model.language_model.layers.26.post_attention_layernorm.weight 0.34 ms (0.0%)
+398. Load base weight model.language_model.layers.13.input_layernorm.weight 0.34 ms (0.0%)
+399. Load base weight model.language_model.layers.17.linear_attn.in_proj_b.weight 0.34 ms (0.0%)
+400. Load base weight model.language_model.layers.18.post_attention_layernorm.weight 0.33 ms (0.0%)
+401. Load base weight model.language_model.layers.5.linear_attn.in_proj_b.weight 0.33 ms (0.0%)
+402. Load base weight model.language_model.layers.9.linear_attn.norm.weight 0.33 ms (0.0%)
+403. Load base weight model.language_model.layers.18.linear_attn.in_proj_b.weight 0.33 ms (0.0%)
+404. Load base weight model.language_model.layers.13.post_attention_layernorm.weight 0.32 ms (0.0%)
+405. Load base weight model.language_model.layers.16.post_attention_layernorm.weight 0.32 ms (0.0%)
+406. Load base weight model.language_model.norm.weight 0.32 ms (0.0%)
+407. Load base weight model.language_model.layers.12.linear_attn.conv1d.weight 0.32 ms (0.0%)
+408. Load base weight model.language_model.layers.14.linear_attn.norm.weight 0.32 ms (0.0%)
+409. Load base weight model.language_model.layers.22.post_attention_layernorm.weight 0.31 ms (0.0%)
+410. Load base weight model.language_model.layers.17.post_attention_layernorm.weight 0.31 ms (0.0%)
+411. Load base weight model.language_model.layers.12.linear_attn.dt_bias 0.31 ms (0.0%)
+412. Load base weight model.language_model.layers.7.post_attention_layernorm.weight 0.31 ms (0.0%)
+413. Load base weight model.language_model.layers.0.linear_attn.norm.weight 0.31 ms (0.0%)
+414. Load base weight model.language_model.layers.20.linear_attn.in_proj_b.weight 0.30 ms (0.0%)
+415. Load base weight model.language_model.layers.1.linear_attn.in_proj_b.weight 0.30 ms (0.0%)
+416. Load base weight model.language_model.layers.37.linear_attn.norm.weight 0.29 ms (0.0%)
+417. Load base weight model.language_model.layers.16.linear_attn.in_proj_b.weight 0.29 ms (0.0%)
+418. Load base weight model.language_model.layers.0.input_layernorm.weight 0.29 ms (0.0%)
+419. Load base weight model.language_model.layers.24.linear_attn.in_proj_b.weight 0.29 ms (0.0%)
+420. Load base weight model.language_model.layers.21.linear_attn.in_proj_b.weight 0.29 ms (0.0%)
+421. Load base weight model.language_model.layers.8.linear_attn.in_proj_b.weight 0.28 ms (0.0%)
+422. Load base weight model.language_model.layers.26.linear_attn.in_proj_b.weight 0.28 ms (0.0%)
+423. Load base weight model.language_model.layers.7.self_attn.q_norm.weight 0.28 ms (0.0%)
+424. Load base weight model.language_model.layers.1.linear_attn.norm.weight 0.28 ms (0.0%)
+425. Load base weight model.language_model.layers.32.linear_attn.in_proj_b.weight 0.27 ms (0.0%)
+426. Load base weight model.language_model.layers.4.linear_attn.norm.weight 0.27 ms (0.0%)
+427. Load base weight model.language_model.layers.28.linear_attn.in_proj_b.weight 0.26 ms (0.0%)
+428. Load base weight model.language_model.layers.13.linear_attn.in_proj_b.weight 0.26 ms (0.0%)
+429. Load base weight model.language_model.layers.24.linear_attn.norm.weight 0.26 ms (0.0%)
+430. Load base weight model.language_model.layers.16.linear_attn.norm.weight 0.25 ms (0.0%)
+431. Load base weight model.language_model.layers.39.self_attn.q_norm.weight 0.25 ms (0.0%)
+432. Load base weight model.language_model.layers.33.linear_attn.in_proj_b.weight 0.25 ms (0.0%)
+433. Load base weight model.language_model.layers.31.self_attn.q_norm.weight 0.25 ms (0.0%)
+434. Load base weight model.language_model.layers.25.linear_attn.norm.weight 0.25 ms (0.0%)
+435. Load base weight model.language_model.layers.13.linear_attn.A_log 0.24 ms (0.0%)
+436. Load base weight model.language_model.layers.36.linear_attn.in_proj_b.weight 0.24 ms (0.0%)
+437. Load base weight model.language_model.layers.22.linear_attn.norm.weight 0.24 ms (0.0%)
+438. Load base weight model.language_model.layers.1.linear_attn.conv1d.weight 0.24 ms (0.0%)
+439. Load base weight model.language_model.layers.3.self_attn.q_norm.weight 0.24 ms (0.0%)
+440. Load base weight model.language_model.layers.17.linear_attn.norm.weight 0.24 ms (0.0%)
+441. Load base weight model.language_model.layers.8.input_layernorm.weight 0.23 ms (0.0%)
+442. Load base weight model.language_model.layers.0.post_attention_layernorm.weight 0.23 ms (0.0%)
+443. Load base weight model.language_model.layers.37.linear_attn.in_proj_b.weight 0.23 ms (0.0%)
+444. Load base weight model.language_model.layers.38.linear_attn.in_proj_b.weight 0.23 ms (0.0%)
+445. Load base weight model.language_model.layers.29.linear_attn.in_proj_b.weight 0.23 ms (0.0%)
+446. Load base weight model.language_model.layers.20.linear_attn.norm.weight 0.23 ms (0.0%)
+447. Load base weight model.language_model.layers.30.linear_attn.norm.weight 0.23 ms (0.0%)
+448. Load base weight model.language_model.layers.10.linear_attn.in_proj_b.weight 0.23 ms (0.0%)
+449. Load base weight model.language_model.layers.8.linear_attn.norm.weight 0.22 ms (0.0%)
+450. Load base weight model.language_model.layers.35.self_attn.q_norm.weight 0.22 ms (0.0%)
+451. Load base weight model.language_model.layers.32.linear_attn.norm.weight 0.22 ms (0.0%)
+452. Load base weight model.language_model.layers.21.linear_attn.norm.weight 0.22 ms (0.0%)
+453. Load base weight model.language_model.layers.1.linear_attn.A_log 0.22 ms (0.0%)
+454. Load base weight model.language_model.layers.14.linear_attn.A_log 0.22 ms (0.0%)
+455. Load base weight model.language_model.layers.11.self_attn.q_norm.weight 0.22 ms (0.0%)
+456. Load base weight model.language_model.layers.27.self_attn.q_norm.weight 0.22 ms (0.0%)
+457. Load base weight model.language_model.layers.18.linear_attn.norm.weight 0.22 ms (0.0%)
+458. Load base weight model.language_model.layers.19.self_attn.q_norm.weight 0.22 ms (0.0%)
+459. Load base weight model.language_model.layers.30.linear_attn.in_proj_b.weight 0.21 ms (0.0%)
+460. Load base weight model.language_model.layers.28.linear_attn.norm.weight 0.21 ms (0.0%)
+461. Load base weight model.language_model.layers.5.linear_attn.norm.weight 0.21 ms (0.0%)
+462. Load base weight model.language_model.layers.9.input_layernorm.weight 0.21 ms (0.0%)
+463. Load base weight model.language_model.layers.10.linear_attn.norm.weight 0.21 ms (0.0%)
+464. Load base weight model.language_model.layers.34.linear_attn.norm.weight 0.21 ms (0.0%)
+465. Load base weight model.language_model.layers.9.linear_attn.A_log 0.21 ms (0.0%)
+466. Load base weight model.language_model.layers.26.linear_attn.conv1d.weight 0.20 ms (0.0%)
+467. Load base weight model.language_model.layers.9.linear_attn.conv1d.weight 0.20 ms (0.0%)
+468. Load base weight model.language_model.layers.33.linear_attn.norm.weight 0.20 ms (0.0%)
+469. Load base weight model.language_model.layers.34.linear_attn.in_proj_b.weight 0.20 ms (0.0%)
+470. Load base weight model.language_model.layers.15.self_attn.q_norm.weight 0.19 ms (0.0%)
+471. Load base weight model.language_model.layers.23.self_attn.q_norm.weight 0.19 ms (0.0%)
+472. Load base weight model.language_model.layers.8.post_attention_layernorm.weight 0.19 ms (0.0%)
+473. Load base weight model.language_model.layers.28.linear_attn.conv1d.weight 0.19 ms (0.0%)
+474. Load base weight model.language_model.layers.29.linear_attn.norm.weight 0.19 ms (0.0%)
+475. Load base weight model.language_model.layers.36.linear_attn.norm.weight 0.19 ms (0.0%)
+476. Load base weight model.language_model.layers.7.self_attn.k_norm.weight 0.19 ms (0.0%)
+477. Load base weight model.language_model.layers.5.linear_attn.conv1d.weight 0.19 ms (0.0%)
+478. Load base weight model.language_model.layers.24.input_layernorm.weight 0.19 ms (0.0%)
+479. Load base weight model.language_model.layers.26.linear_attn.norm.weight 0.19 ms (0.0%)
+480. Load base weight model.language_model.layers.15.self_attn.k_norm.weight 0.19 ms (0.0%)
+481. Load base weight model.language_model.layers.0.linear_attn.conv1d.weight 0.19 ms (0.0%)
+482. Load base weight model.language_model.layers.2.input_layernorm.weight 0.18 ms (0.0%)
+483. Load base weight model.language_model.layers.8.linear_attn.A_log 0.18 ms (0.0%)
+484. Load base weight model.language_model.layers.38.linear_attn.norm.weight 0.18 ms (0.0%)
+485. Load base weight model.language_model.layers.13.linear_attn.conv1d.weight 0.18 ms (0.0%)
+486. Load base weight model.language_model.layers.4.linear_attn.A_log 0.18 ms (0.0%)
+487. Load base weight model.language_model.layers.4.linear_attn.conv1d.weight 0.18 ms (0.0%)
+488. Load base weight model.language_model.layers.14.linear_attn.conv1d.weight 0.18 ms (0.0%)
+489. Load base weight model.language_model.layers.24.linear_attn.conv1d.weight 0.18 ms (0.0%)
+490. Load base weight model.language_model.layers.1.linear_attn.dt_bias 0.18 ms (0.0%)
+491. Load base weight model.language_model.layers.37.linear_attn.A_log 0.18 ms (0.0%)
+492. Load base weight model.language_model.layers.22.input_layernorm.weight 0.18 ms (0.0%)
+493. Load base weight model.language_model.layers.28.input_layernorm.weight 0.18 ms (0.0%)
+494. Load base weight model.language_model.layers.3.self_attn.k_norm.weight 0.17 ms (0.0%)
+495. Load base weight model.language_model.layers.34.input_layernorm.weight 0.17 ms (0.0%)
+496. Load base weight model.language_model.layers.8.linear_attn.conv1d.weight 0.17 ms (0.0%)
+497. Load base weight model.language_model.layers.10.input_layernorm.weight 0.17 ms (0.0%)
+498. Load base weight model.language_model.layers.19.post_attention_layernorm.weight 0.17 ms (0.0%)
+499. Load base weight model.language_model.layers.15.input_layernorm.weight 0.17 ms (0.0%)
+500. Load base weight model.language_model.layers.30.linear_attn.conv1d.weight 0.17 ms (0.0%)
+501. Load base weight model.language_model.layers.20.input_layernorm.weight 0.17 ms (0.0%)
+502. Load base weight model.language_model.layers.24.linear_attn.A_log 0.17 ms (0.0%)
+503. Load base weight model.language_model.layers.28.linear_attn.A_log 0.17 ms (0.0%)
+504. Load base weight model.language_model.layers.0.linear_attn.A_log 0.17 ms (0.0%)
+505. Load base weight model.language_model.layers.9.post_attention_layernorm.weight 0.17 ms (0.0%)
+506. Load base weight model.language_model.layers.39.self_attn.k_norm.weight 0.17 ms (0.0%)
+507. Load base weight model.language_model.layers.14.input_layernorm.weight 0.17 ms (0.0%)
+508. Load base weight model.language_model.layers.16.input_layernorm.weight 0.16 ms (0.0%)
+509. Load base weight model.language_model.layers.16.linear_attn.conv1d.weight 0.16 ms (0.0%)
+510. Load base weight model.language_model.layers.20.linear_attn.A_log 0.16 ms (0.0%)
+511. Load base weight model.language_model.layers.18.linear_attn.conv1d.weight 0.16 ms (0.0%)
+512. Load base weight model.language_model.layers.18.linear_attn.A_log 0.16 ms (0.0%)
+513. Load base weight model.language_model.layers.32.linear_attn.conv1d.weight 0.16 ms (0.0%)
+514. Load base weight model.language_model.layers.2.post_attention_layernorm.weight 0.16 ms (0.0%)
+515. Load base weight model.language_model.layers.1.input_layernorm.weight 0.16 ms (0.0%)
+516. Load base weight model.language_model.layers.34.linear_attn.dt_bias 0.16 ms (0.0%)
+517. Load base weight model.language_model.layers.13.linear_attn.dt_bias 0.16 ms (0.0%)
+518. Load base weight model.language_model.layers.34.linear_attn.A_log 0.16 ms (0.0%)
+519. Load base weight model.language_model.layers.4.input_layernorm.weight 0.16 ms (0.0%)
+520. Load base weight model.language_model.layers.10.post_attention_layernorm.weight 0.16 ms (0.0%)
+521. Load base weight model.language_model.layers.21.input_layernorm.weight 0.16 ms (0.0%)
+522. Load base weight model.language_model.layers.17.linear_attn.A_log 0.16 ms (0.0%)
+523. Load base weight model.language_model.layers.38.linear_attn.A_log 0.16 ms (0.0%)
+524. Load base weight model.language_model.layers.38.input_layernorm.weight 0.15 ms (0.0%)
+525. Load base weight model.language_model.layers.35.self_attn.k_norm.weight 0.15 ms (0.0%)
+526. Load base weight model.language_model.layers.8.linear_attn.dt_bias 0.15 ms (0.0%)
+527. Load base weight model.language_model.layers.24.linear_attn.dt_bias 0.15 ms (0.0%)
+528. Load base weight model.language_model.layers.10.linear_attn.conv1d.weight 0.15 ms (0.0%)
+529. Load base weight model.language_model.layers.16.linear_attn.A_log 0.15 ms (0.0%)
+530. Load base weight model.language_model.layers.11.self_attn.k_norm.weight 0.15 ms (0.0%)
+531. Load base weight model.language_model.layers.25.linear_attn.A_log 0.15 ms (0.0%)
+532. Load base weight model.language_model.layers.9.linear_attn.dt_bias 0.15 ms (0.0%)
+533. Load base weight model.language_model.layers.36.input_layernorm.weight 0.15 ms (0.0%)
+534. Load base weight model.language_model.layers.19.self_attn.k_norm.weight 0.15 ms (0.0%)
+535. Load base weight model.language_model.layers.27.input_layernorm.weight 0.15 ms (0.0%)
+536. Load base weight model.language_model.layers.6.input_layernorm.weight 0.15 ms (0.0%)
+537. Load base weight model.language_model.layers.0.linear_attn.dt_bias 0.15 ms (0.0%)
+538. Load base weight model.language_model.layers.5.linear_attn.A_log 0.15 ms (0.0%)
+539. Load base weight model.language_model.layers.21.linear_attn.A_log 0.15 ms (0.0%)
+540. Load base weight model.language_model.layers.22.linear_attn.A_log 0.15 ms (0.0%)
+541. Load base weight model.language_model.layers.21.linear_attn.conv1d.weight 0.15 ms (0.0%)
+542. Load base weight model.language_model.layers.10.linear_attn.A_log 0.15 ms (0.0%)
+543. Load base weight model.language_model.layers.26.input_layernorm.weight 0.15 ms (0.0%)
+544. Load base weight model.language_model.layers.14.linear_attn.dt_bias 0.15 ms (0.0%)
+545. Load base weight model.language_model.layers.12.input_layernorm.weight 0.15 ms (0.0%)
+546. Load base weight model.language_model.layers.31.self_attn.k_norm.weight 0.15 ms (0.0%)
+547. Load base weight model.language_model.layers.1.post_attention_layernorm.weight 0.15 ms (0.0%)
+548. Load base weight model.language_model.layers.23.self_attn.k_norm.weight 0.15 ms (0.0%)
+549. Load base weight model.language_model.layers.33.linear_attn.A_log 0.15 ms (0.0%)
+550. Load base weight model.language_model.layers.31.input_layernorm.weight 0.15 ms (0.0%)
+551. Load base weight model.language_model.layers.30.linear_attn.A_log 0.15 ms (0.0%)
+552. Load base weight model.language_model.layers.29.input_layernorm.weight 0.15 ms (0.0%)
+553. Load base weight model.language_model.layers.32.linear_attn.A_log 0.15 ms (0.0%)
+554. Load base weight model.language_model.layers.33.linear_attn.dt_bias 0.15 ms (0.0%)
+555. Load base weight model.language_model.layers.25.linear_attn.conv1d.weight 0.15 ms (0.0%)
+556. Load base weight model.language_model.layers.27.self_attn.k_norm.weight 0.15 ms (0.0%)
+557. Load base weight model.language_model.layers.5.input_layernorm.weight 0.15 ms (0.0%)
+558. Load base weight model.language_model.layers.33.input_layernorm.weight 0.14 ms (0.0%)
+559. Load base weight model.language_model.layers.22.linear_attn.conv1d.weight 0.14 ms (0.0%)
+560. Load base weight model.language_model.layers.33.linear_attn.conv1d.weight 0.14 ms (0.0%)
+561. Load base weight model.language_model.layers.38.post_attention_layernorm.weight 0.14 ms (0.0%)
+562. Load base weight model.language_model.layers.36.linear_attn.conv1d.weight 0.14 ms (0.0%)
+563. Load base weight model.language_model.layers.11.input_layernorm.weight 0.14 ms (0.0%)
+564. Load base weight model.language_model.layers.25.input_layernorm.weight 0.14 ms (0.0%)
+565. Load base weight model.language_model.layers.26.linear_attn.dt_bias 0.14 ms (0.0%)
+566. Load base weight model.language_model.layers.37.linear_attn.conv1d.weight 0.14 ms (0.0%)
+567. Load base weight model.language_model.layers.25.linear_attn.dt_bias 0.14 ms (0.0%)
+568. Load base weight model.language_model.layers.18.input_layernorm.weight 0.14 ms (0.0%)
+569. Load base weight model.language_model.layers.33.post_attention_layernorm.weight 0.14 ms (0.0%)
+570. Load base weight model.language_model.layers.32.linear_attn.dt_bias 0.14 ms (0.0%)
+571. Load base weight model.language_model.layers.37.post_attention_layernorm.weight 0.14 ms (0.0%)
+572. Load base weight model.language_model.layers.35.input_layernorm.weight 0.14 ms (0.0%)
+573. Load base weight model.language_model.layers.28.linear_attn.dt_bias 0.14 ms (0.0%)
+574. Load base weight model.language_model.layers.29.linear_attn.A_log 0.14 ms (0.0%)
+575. Load base weight model.language_model.layers.12.post_attention_layernorm.weight 0.14 ms (0.0%)
+576. Load base weight model.language_model.layers.32.post_attention_layernorm.weight 0.14 ms (0.0%)
+577. Load base weight model.language_model.layers.27.post_attention_layernorm.weight 0.14 ms (0.0%)
+578. Load base weight model.language_model.layers.18.linear_attn.dt_bias 0.14 ms (0.0%)
+579. Load base weight model.language_model.layers.28.post_attention_layernorm.weight 0.13 ms (0.0%)
+580. Load base weight model.language_model.layers.36.post_attention_layernorm.weight 0.13 ms (0.0%)
+581. Load base weight model.language_model.layers.4.linear_attn.dt_bias 0.13 ms (0.0%)
+582. Load base weight model.language_model.layers.17.linear_attn.conv1d.weight 0.13 ms (0.0%)
+583. Load base weight model.language_model.layers.20.linear_attn.conv1d.weight 0.13 ms (0.0%)
+584. Load base weight model.language_model.layers.4.post_attention_layernorm.weight 0.13 ms (0.0%)
+585. Load base weight model.language_model.layers.34.linear_attn.conv1d.weight 0.13 ms (0.0%)
+586. Load base weight model.language_model.layers.21.linear_attn.dt_bias 0.13 ms (0.0%)
+587. Load base weight model.language_model.layers.32.input_layernorm.weight 0.13 ms (0.0%)
+588. Load base weight model.language_model.layers.37.linear_attn.dt_bias 0.13 ms (0.0%)
+589. Load base weight model.language_model.layers.37.input_layernorm.weight 0.13 ms (0.0%)
+590. Load base weight model.language_model.layers.30.post_attention_layernorm.weight 0.13 ms (0.0%)
+591. Load base weight model.language_model.layers.6.post_attention_layernorm.weight 0.13 ms (0.0%)
+592. Load base weight model.language_model.layers.26.linear_attn.A_log 0.13 ms (0.0%)
+593. Load base weight model.language_model.layers.15.post_attention_layernorm.weight 0.13 ms (0.0%)
+594. Load base weight model.language_model.layers.36.linear_attn.A_log 0.13 ms (0.0%)
+595. Load base weight model.language_model.layers.16.linear_attn.dt_bias 0.13 ms (0.0%)
+596. Load base weight model.language_model.layers.17.input_layernorm.weight 0.13 ms (0.0%)
+597. Load base weight model.language_model.layers.23.post_attention_layernorm.weight 0.13 ms (0.0%)
+598. Load base weight model.language_model.layers.29.post_attention_layernorm.weight 0.13 ms (0.0%)
+599. Load base weight model.language_model.layers.20.linear_attn.dt_bias 0.13 ms (0.0%)
+600. Load base weight model.language_model.layers.11.post_attention_layernorm.weight 0.13 ms (0.0%)
+601. Load base weight model.language_model.layers.35.post_attention_layernorm.weight 0.13 ms (0.0%)
+602. Load base weight model.language_model.layers.30.input_layernorm.weight 0.13 ms (0.0%)
+603. Load base weight model.language_model.layers.25.post_attention_layernorm.weight 0.12 ms (0.0%)
+604. Load base weight model.language_model.layers.39.input_layernorm.weight 0.12 ms (0.0%)
+605. Load base weight model.language_model.layers.10.linear_attn.dt_bias 0.12 ms (0.0%)
+606. Load base weight model.language_model.layers.22.linear_attn.dt_bias 0.12 ms (0.0%)
+607. Load base weight model.language_model.layers.17.linear_attn.dt_bias 0.12 ms (0.0%)
+608. Load base weight model.language_model.layers.30.linear_attn.dt_bias 0.12 ms (0.0%)
+609. Load base weight model.language_model.layers.29.linear_attn.conv1d.weight 0.12 ms (0.0%)
+610. Load base weight model.language_model.layers.5.linear_attn.dt_bias 0.12 ms (0.0%)
+611. Load base weight model.language_model.layers.5.post_attention_layernorm.weight 0.12 ms (0.0%)
+612. Load base weight model.language_model.layers.34.post_attention_layernorm.weight 0.12 ms (0.0%)
+613. Load base weight model.language_model.layers.31.post_attention_layernorm.weight 0.12 ms (0.0%)
+614. Load base weight model.language_model.layers.39.post_attention_layernorm.weight 0.11 ms (0.0%)
+615. Load base weight model.language_model.layers.38.linear_attn.conv1d.weight 0.11 ms (0.0%)
+616. Load base weight model.language_model.layers.21.post_attention_layernorm.weight 0.11 ms (0.0%)
+617. Load base weight model.language_model.layers.36.linear_attn.dt_bias 0.11 ms (0.0%)
+618. Load base weight model.language_model.layers.29.linear_attn.dt_bias 0.11 ms (0.0%)
+619. Load base weight model.language_model.layers.38.linear_attn.dt_bias 0.10 ms (0.0%)
 
 Recommendation:
-Highest impact optimization: Focus on MoE / MLP (occupying 21.9% of total MoE/MLP runtime).
+Highest impact optimization: Focus on MoE / MLP (occupying 55.7% of total MoE/MLP runtime).
 =============================================

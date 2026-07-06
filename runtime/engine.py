@@ -137,6 +137,7 @@ class TurboEngine:
                 )
             # 7. Layer-by-Layer Execution
             if self.adapter.capabilities["is_moe"]:
+                self.loader.clear_pinned_slots()
                 for layer_id in range(self.adapter.num_layers):
                     hidden_states, _ = self.layer.execute_layer(
                         layer_id=layer_id,
@@ -330,18 +331,53 @@ class TurboEngine:
         print(f"Current System RAM: {ram_mb:.2f} MB")
         
         if self.adapter.capabilities["is_moe"] and hasattr(self.layer, "attn_times") and len(self.layer.attn_times) > 0:
-            avg_attn = sum(self.layer.attn_times) / len(self.layer.attn_times)
-            avg_moe = sum(self.layer.moe_times) / len(self.layer.moe_times)
-            avg_load = sum(self.layer.load_times) / len(self.layer.load_times)
-            avg_dequant = sum(self.layer.dequant_times) / len(self.layer.dequant_times)
-            avg_evict = sum(self.layer.evict_times) / len(self.layer.evict_times)
-            avg_gemm = sum(self.layer.gemm_times) / len(self.layer.gemm_times)
-            print(f"Avg Attention time per layer: {avg_attn*1000:.2f} ms")
-            print(f"Avg MoE/MLP time per layer  : {avg_moe*1000:.2f} ms")
-            print(f"  └─ Load time              : {avg_load:.2f} ms")
-            print(f"  └─ Dequant time           : {avg_dequant:.2f} ms")
-            print(f"  └─ Evict time             : {avg_evict:.2f} ms")
-            print(f"  └─ GEMM time              : {avg_gemm:.2f} ms")
+            avg_attn_ms = sum(self.layer.attn_times) / len(self.layer.attn_times)
+            avg_moe_ms = sum(self.layer.moe_times) / len(self.layer.moe_times)
+            avg_load_ms = sum(self.layer.load_times) / len(self.layer.load_times)
+            avg_dequant_ms = sum(self.layer.dequant_times) / len(self.layer.dequant_times)
+            avg_evict_ms = sum(self.layer.evict_times) / len(self.layer.evict_times)
+            avg_gemm_ms = sum(self.layer.gemm_times) / len(self.layer.gemm_times)
+            
+            avg_sgate_ms = sum(getattr(self.layer, "shared_gate_times", [0.0])) / max(1, len(getattr(self.layer, "shared_gate_times", [1])))
+            avg_sup_ms = sum(getattr(self.layer, "shared_up_times", [0.0])) / max(1, len(getattr(self.layer, "shared_up_times", [1])))
+            avg_sdown_ms = sum(getattr(self.layer, "shared_down_times", [0.0])) / max(1, len(getattr(self.layer, "shared_down_times", [1])))
+            avg_sscore_ms = sum(getattr(self.layer, "shared_score_times", [0.0])) / max(1, len(getattr(self.layer, "shared_score_times", [1])))
+            avg_accum_ms = sum(getattr(self.layer, "accum_times", [0.0])) / max(1, len(getattr(self.layer, "accum_times", [1])))
+            
+            avg_list_ms = sum(getattr(self.layer, "list_build_times", [0.0])) / max(1, len(getattr(self.layer, "list_build_times", [1])))
+            avg_concat_ms = sum(getattr(self.layer, "concat_times", [0.0])) / max(1, len(getattr(self.layer, "concat_times", [1])))
+            avg_boundary_ms = sum(getattr(self.layer, "boundary_times", [0.0])) / max(1, len(getattr(self.layer, "boundary_times", [1])))
+            
+            avg_router_ms = sum(getattr(self.layer, "router_times", [0.0])) / max(1, len(getattr(self.layer, "router_times", [1])))
+            avg_shared_load_ms = sum(getattr(self.layer, "shared_load_times", [0.0])) / max(1, len(getattr(self.layer, "shared_load_times", [1])))
+            
+            sum_components = (
+                avg_router_ms + avg_shared_load_ms + avg_load_ms + avg_dequant_ms + avg_evict_ms +
+                avg_boundary_ms + avg_sgate_ms + avg_sup_ms + avg_sdown_ms + avg_sscore_ms +
+                avg_accum_ms + avg_list_ms + avg_concat_ms
+            )
+            
+            print(f"Avg Attention time per layer: {avg_attn_ms:.2f} ms")
+            print(f"Avg MoE/MLP time per layer  : {avg_moe_ms:.2f} ms")
+            if avg_moe_ms > 0:
+                print(f"  ├─ Router Computation       : {avg_router_ms:.2f} ms ({(avg_router_ms/avg_moe_ms)*100:.1f}%)")
+                print(f"  ├─ Shared Weight Load       : {avg_shared_load_ms:.2f} ms ({(avg_shared_load_ms/avg_moe_ms)*100:.1f}%)")
+                print(f"  ├─ Expert SSD/RAM Load      : {avg_load_ms:.2f} ms ({(avg_load_ms/avg_moe_ms)*100:.1f}%)")
+                print(f"  ├─ FP8 Dequantization       : {avg_dequant_ms:.2f} ms ({(avg_dequant_ms/avg_moe_ms)*100:.1f}%)")
+                print(f"  ├─ Cache Eviction           : {avg_evict_ms:.2f} ms ({(avg_evict_ms/avg_moe_ms)*100:.1f}%)")
+                print(f"  ├─ C++ GEMM Execution       : {avg_boundary_ms:.2f} ms ({(avg_boundary_ms/avg_moe_ms)*100:.1f}%)")
+                print(f"  ├─ Shared Gate GEMM         : {avg_sgate_ms:.2f} ms ({(avg_sgate_ms/avg_moe_ms)*100:.1f}%)")
+                print(f"  ├─ Shared Up GEMM           : {avg_sup_ms:.2f} ms ({(avg_sup_ms/avg_moe_ms)*100:.1f}%)")
+                print(f"  ├─ Shared Down GEMM         : {avg_sdown_ms:.2f} ms ({(avg_sdown_ms/avg_moe_ms)*100:.1f}%)")
+                print(f"  ├─ Shared Gate Scoring      : {avg_sscore_ms:.2f} ms ({(avg_sscore_ms/avg_moe_ms)*100:.1f}%)")
+                print(f"  ├─ Output Accumulation      : {avg_accum_ms:.2f} ms ({(avg_accum_ms/avg_moe_ms)*100:.1f}%)")
+                print(f"  ├─ Python List/Dict Lookup  : {avg_list_ms:.2f} ms ({(avg_list_ms/avg_moe_ms)*100:.1f}%)")
+                print(f"  └─ Dynamic Tensor Concat    : {avg_concat_ms:.2f} ms ({(avg_concat_ms/avg_moe_ms)*100:.1f}%)")
+
+            # Profiler Sanity Check (Direct Measurements vs Layer Total)
+            diff_ms = abs(avg_moe_ms - sum_components)
+            if diff_ms > 1.0:
+                print(f"[PROFILER SANITY CHECK] Note: Uncaptured gap between MoE Total ({avg_moe_ms:.2f} ms) and Sum of Direct Timers ({sum_components:.2f} ms) = {diff_ms:.2f} ms")
             
         if self.adapter.capabilities["is_moe"]:
             total_hits = self.loader.gpu_hits + self.loader.ram_hits + self.loader.ssd_hits
@@ -354,8 +390,30 @@ class TurboEngine:
 
             print(f"GPU hits:\n{gpu_pct:.0f}%\n")
             print(f"RAM hits:\n{ram_pct:.0f}%\n")
-            print(f"SSD hits:\n{ssd_pct:.0f}%")
+            print(f"SSD hits:\n{ssd_pct:.0f}%\n")
+            
+            if hasattr(self.loader, "residency_ctrl"):
+                stats = self.loader.residency_ctrl.get_stats_summary()
+                print("TurboCache Adaptive Controller:")
+                print(f"  ├─ Recency Weight (α)     : {stats['alpha_recency']:.2f}")
+                print(f"  ├─ Frequency Weight (β)   : {stats['beta_frequency']:.2f}")
+                print(f"  ├─ Total Evictions        : {stats['total_evictions']}")
+                print(f"  ├─ Premature Eviction Rate: {stats['bad_eviction_rate']}")
+                if "rl_agent" in stats:
+                    print(f"  └─ Hybrid RL Agent        : {stats['rl_agent']['rl_updates']} online policy updates (Cumulative Reward: {stats['rl_agent']['cumulative_reward']})")
+                    
+            if hasattr(self.loader, "prefetch_pipeline"):
+                p_stats = self.loader.prefetch_pipeline.get_summary()
+                print("TurboPipeline Async Prefetch Engine:")
+                print(f"  ├─ Background Prefetched  : {p_stats['prefetched_experts']} experts")
+                print(f"  ├─ Hidden Load Latency    : {p_stats['hidden_load_latency']}")
+                print(f"  ├─ Transferred Volume     : {p_stats['bytes_transferred_pcie']}")
+                print(f"  └─ Saved PCIe Bandwidth   : {p_stats['bytes_saved_cache']}")
             print("=" * 60)
+
+        if self.adapter.capabilities["is_moe"]:
+            from runtime.expert_knowledge_base import extern_ekb
+            extern_ekb.save()
 
         if not (config and config.get("server_mode", False)):
             self.loader.close()

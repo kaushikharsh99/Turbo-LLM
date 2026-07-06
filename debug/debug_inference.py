@@ -262,6 +262,7 @@ def main():
         thinking=args.thinking,
         system_prompt=args.system
     )
+    profiler.loader = engine.loader
     print("\nGeneration finished! Exporting profile reports...")
 
     # Write files under debug/ and debug/output/
@@ -273,16 +274,23 @@ def main():
     summary_text = export_summary(profiler, os.path.join(debug_dir, "summary.txt"))
     export_summary(profiler, os.path.join(output_dir, "summary.txt"))
     
-    # 2. Export profile.json & trace.json
+    # 2. Export Heat Map Report (Milestone 2.5)
+    from debug.exporters.heat_map import export_expert_heat_map
+    heat_map_text = export_expert_heat_map(profiler, os.path.join(debug_dir, "heat_map.txt"))
+    export_expert_heat_map(profiler, os.path.join(output_dir, "heat_map.txt"))
+
+    # 3. Export profile.json & trace.json
     export_json(profiler, os.path.join(debug_dir, "profile.json"))
     export_json(profiler, os.path.join(output_dir, "profile.json"))
     
     export_chrome_trace(profiler, os.path.join(debug_dir, "trace.json"))
     export_chrome_trace(profiler, os.path.join(output_dir, "trace.json"))
     
-    # 3. Export CSV files
+    # 4. Export CSV files
     export_csvs(profiler, debug_dir)
     export_csvs(profiler, output_dir)
+
+    print("\n" + heat_map_text)
     
     # Display the final summary profile in the console
     print("\n" + summary_text)

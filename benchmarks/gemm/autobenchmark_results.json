@@ -1,0 +1,11 @@
+{
+  "torch_flinear_ms_per_layer": 0.5672,
+  "fused_gate_up_flinear_ms_per_layer": 0.5046,
+  "torch_bmm_ms_per_layer": 0.3499,
+  "cpp_cached_gemv_ms_per_layer": 0.5791,
+  "cpp_grouped_gemm_ms_per_layer": 0.3998,
+  "cpp_fused_gate_up_grouped_ms_per_layer": 0.3979,
+  "cpp_cublaslt_ms_per_layer": 0.9824,
+  "est_40layer_torch_bmm_ms": 14.0,
+  "est_40layer_cpp_fused_gate_up_grouped_ms": 15.92
+}

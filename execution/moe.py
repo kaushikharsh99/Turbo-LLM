@@ -9,17 +9,33 @@ try:
 except ImportError:
     turbollm_cpp = None
 
+try:
+    import cutlass_gemm_benchmark as cpp_gemm
+except ImportError:
+    cpp_gemm = None
+
 def moe_seq(hidden_states, gate_weights, up_weights, down_weights, top_k_weights):
-    if turbollm_cpp is not None:
-        return turbollm_cpp.execute_moe(hidden_states, gate_weights, up_weights, down_weights, top_k_weights)
+    if cpp_gemm is not None and hidden_states.is_cuda and hidden_states.shape[0] == 1:
+        top_k = top_k_weights.shape[1]
+        inter_dim = gate_weights[0].shape[0]
+        fused_gate_up_weights = [torch.cat([gate_weights[i], up_weights[i]], 0) for i in range(top_k)]
+        gate_up_fused = cpp_gemm.cublas_fused_gate_up_grouped_gemm_fp16(hidden_states, fused_gate_up_weights)
+        g_fused = gate_up_fused[:, :, :inter_dim]
+        u_fused = gate_up_fused[:, :, inter_dim:]
+        inter_fused = cpp_gemm.fused_silu_mul_cpp(g_fused, u_fused)
         
+        inter_fused_list = [inter_fused[i] for i in range(top_k)]
+        o_grouped = cpp_gemm.cublas_grouped_gemm_fp16(inter_fused_list[0], down_weights)
+        final_output = (o_grouped * top_k_weights.view(top_k, 1, 1)).sum(0)
+        return final_output
+
     final_output = torch.zeros_like(hidden_states)
     top_k = top_k_weights.shape[1]
     for i in range(top_k):
         gate_proj = gate_weights[i]
         up_proj = up_weights[i]
         down_proj = down_weights[i]
-        
+
         g = F.linear(hidden_states, gate_proj)
         u = F.linear(hidden_states, up_proj)
         inter = F.silu(g) * u
@@ -43,65 +59,101 @@ class MoEExecutor:
         self.loader.dequant_ms_accum = 0.0
         self.loader.evict_ms_accum = 0.0
         
-        self.loader.clear_pinned_slots()
         expert_ids = top_k_indices[0].tolist()
 
         prefix = self.loader.layout.layer_prefix_name(layer_id)
 
+        t_shared_load_start = time.perf_counter()
         shared_gate = self.loader.load_weight(
             f"{prefix}.mlp.shared_expert.gate_proj.weight"
         )
-
         shared_up = self.loader.load_weight(
             f"{prefix}.mlp.shared_expert.up_proj.weight"
         )
-
         shared_down = self.loader.load_weight(
             f"{prefix}.mlp.shared_expert.down_proj.weight"
         )
-
         shared_gate_weight = self.loader.load_weight(
             f"{prefix}.mlp.shared_expert_gate.weight"
         )
+        if self.loader.DEVICE == "cuda":
+            torch.cuda.synchronize()
+        self.last_shared_load_ms = (time.perf_counter() - t_shared_load_start) * 1000.0
 
-        t_gemm_start = time.time()
+        t_list_start = time.perf_counter()
+        fused_gate_up_weights = []
+        down_weights = []
+        for exp_id in expert_ids:
+            gate_up, down = self.loader.load_expert(layer_id, exp_id)
+            fused_gate_up_weights.append(gate_up)
+            down_weights.append(down)
+        raw_list_ms = (time.perf_counter() - t_list_start) * 1000.0
+        self.last_list_build_ms = max(0.0, raw_list_ms - (self.loader.load_ms_accum + self.loader.dequant_ms_accum + self.loader.evict_ms_accum))
+            
+        t_expert_gemm = time.perf_counter()
         
-        if turbollm_cpp is not None and hasattr(turbollm_cpp, "execute_moe_with_cache"):
-            final_output = turbollm_cpp.execute_moe_with_cache(
-                layer_id,
-                expert_ids,
-                hidden_states,
-                top_k_weights,
-                self.loader
-            )
+        t_concat = time.perf_counter()
+        top_k = top_k_weights.shape[1]
+        inter_dim = fused_gate_up_weights[0].shape[0] // 2
+        self.last_concat_ms = 0.0
+        
+        t_cpp_call = time.perf_counter()
+        if self.loader.DEVICE == "cuda":
+            torch.cuda.synchronize()
+        if cpp_gemm is not None and hidden_states.is_cuda and hidden_states.shape[0] == 1:
+            gate_up_fused = cpp_gemm.cublas_fused_gate_up_grouped_gemm_fp16(hidden_states, fused_gate_up_weights)
+            g_fused = gate_up_fused[:, :, :inter_dim]
+            u_fused = gate_up_fused[:, :, inter_dim:]
+            inter_fused = cpp_gemm.fused_silu_mul_cpp(g_fused, u_fused)
+            inter_fused_list = [inter_fused[i] for i in range(top_k)]
+            o_grouped = cpp_gemm.cublas_grouped_gemm_fp16(inter_fused_list[0], down_weights)
+            final_output = (o_grouped * top_k_weights.view(top_k, 1, 1)).sum(0)
         else:
-            # Fallback path if C++ cache isn't available
-            gate_weights = []
-            up_weights = []
-            down_weights = []
-            for exp_id in expert_ids:
-                gate, up, down = self.loader.load_expert(layer_id, exp_id)
-                gate_weights.append(gate)
-                up_weights.append(up)
-                down_weights.append(down)
+            gate_weights = [w[:inter_dim] for w in fused_gate_up_weights]
+            up_weights = [w[inter_dim:] for w in fused_gate_up_weights]
             final_output = moe_seq(hidden_states, gate_weights, up_weights, down_weights, top_k_weights)
+            
+        if self.loader.DEVICE == "cuda":
+            torch.cuda.synchronize()
+        self.last_boundary_ms = (time.perf_counter() - t_cpp_call) * 1000.0
+        self.last_expert_gemm_ms = self.last_boundary_ms
         
-        # Shared expert
+        # Shared expert projections with micro-timers
+        t_sgate = time.perf_counter()
         shared_gate_out = F.linear(hidden_states, shared_gate)
+        if self.loader.DEVICE == "cuda":
+            torch.cuda.synchronize()
+        self.last_shared_gate_ms = (time.perf_counter() - t_sgate) * 1000.0
+
+        t_sup = time.perf_counter()
         shared_up_out = F.linear(hidden_states, shared_up)
+        if self.loader.DEVICE == "cuda":
+            torch.cuda.synchronize()
+        self.last_shared_up_ms = (time.perf_counter() - t_sup) * 1000.0
 
         shared_hidden = F.silu(shared_gate_out) * shared_up_out
 
+        t_sdown = time.perf_counter()
         shared_output = F.linear(shared_hidden, shared_down)
+        if self.loader.DEVICE == "cuda":
+            torch.cuda.synchronize()
+        self.last_shared_down_ms = (time.perf_counter() - t_sdown) * 1000.0
 
+        t_sscore = time.perf_counter()
         shared_gate_score = torch.sigmoid(
             F.linear(hidden_states, shared_gate_weight)
         )
+        if self.loader.DEVICE == "cuda":
+            torch.cuda.synchronize()
+        self.last_shared_score_ms = (time.perf_counter() - t_sscore) * 1000.0
 
+        t_accum = time.perf_counter()
         final_output += shared_gate_score * shared_output
+        if self.loader.DEVICE == "cuda":
+            torch.cuda.synchronize()
+        self.last_accum_ms = (time.perf_counter() - t_accum) * 1000.0
 
-        gemm_ms = (time.time() - t_gemm_start) * 1000.0
-        self.last_gemm_ms = gemm_ms
+        self.last_gemm_ms = self.last_expert_gemm_ms
 
         return final_output
 
