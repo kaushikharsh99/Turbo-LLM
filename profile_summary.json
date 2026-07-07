@@ -1,0 +1,19 @@
+{
+  "mode": "Batch",
+  "requests": 4,
+  "batch_size": 4,
+  "prompt_tokens": 68,
+  "generated_tokens": 44,
+  "total_tokens": 112,
+  "generation_time": 187.8998807379976,
+  "prompt_throughput": 0.7621272176770106,
+  "decode_throughput": 0.4470783279762926,
+  "overall_throughput": 0.5960621132919701,
+  "peak_gpu_memory_gb": 2.4429731369018555,
+  "peak_cpu_memory_gb": 7.242156982421875,
+  "average_unique_experts": 30.08068181818182,
+  "average_expert_batch_size": 1.6924181179403877,
+  "largest_expert_batch": 18,
+  "gpu_cache_hit_rate": 0.018861448744786045,
+  "cpu_cache_hit_rate": 8.026287304778105
+}

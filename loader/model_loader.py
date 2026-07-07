@@ -132,18 +132,21 @@ def load_model(model_dir: str | Path) -> Model:
     num_experts = get_config_val(cfg, "num_experts", 0)
     experts_per_token = get_config_val(cfg, "num_experts_per_tok", 0)
 
+    attn_output_gate = get_config_val(cfg, "attn_output_gate", False)
+
     # Parse head_dim and partial_rotary_factor
-    q_proj_name = None
-    for k in tensor_loader.weight_map.keys():
-        if "self_attn.q_proj.weight" in k:
-            q_proj_name = k
-            break
-    if q_proj_name:
-        q_shape = tensor_loader.get_shape(q_proj_name)
-        head_dim = q_shape[0] // num_attention_heads
-    else:
-        head_dim = get_config_val(cfg, "head_dim")
-        if head_dim is None:
+    head_dim = get_config_val(cfg, "head_dim")
+    if head_dim is None:
+        q_proj_name = None
+        for k in tensor_loader.weight_map.keys():
+            if "self_attn.q_proj.weight" in k:
+                q_proj_name = k
+                break
+        if q_proj_name:
+            q_shape = tensor_loader.get_shape(q_proj_name)
+            denom = 2 * num_attention_heads if attn_output_gate else num_attention_heads
+            head_dim = q_shape[0] // denom
+        else:
             head_dim = hidden_size // num_attention_heads
 
     partial_rotary_factor = get_config_val(cfg, "partial_rotary_factor")
@@ -153,6 +156,12 @@ def load_model(model_dir: str | Path) -> Model:
             partial_rotary_factor = rope_params.get("partial_rotary_factor")
     if partial_rotary_factor is None:
         partial_rotary_factor = 1.0
+
+    linear_conv_kernel_dim = get_config_val(cfg, "linear_conv_kernel_dim", 4)
+    linear_key_head_dim = get_config_val(cfg, "linear_key_head_dim", 128)
+    linear_num_key_heads = get_config_val(cfg, "linear_num_key_heads", 16)
+    linear_num_value_heads = get_config_val(cfg, "linear_num_value_heads", 32)
+    linear_value_head_dim = get_config_val(cfg, "linear_value_head_dim", 128)
 
     model_config = ModelConfig(
         architecture=architecture,
@@ -169,6 +178,12 @@ def load_model(model_dir: str | Path) -> Model:
         experts_per_token=experts_per_token,
         head_dim=int(head_dim),
         partial_rotary_factor=float(partial_rotary_factor),
+        attn_output_gate=attn_output_gate,
+        linear_conv_kernel_dim=int(linear_conv_kernel_dim),
+        linear_key_head_dim=int(linear_key_head_dim),
+        linear_num_key_heads=int(linear_num_key_heads),
+        linear_num_value_heads=int(linear_num_value_heads),
+        linear_value_head_dim=int(linear_value_head_dim),
     )
 
     # 6. Build embedding, final_norm, lm_head metadata Tensors
@@ -213,16 +228,39 @@ def load_model(model_dir: str | Path) -> Model:
         )
 
         # Attention
-        attn = Attention(
-            q_proj=make_tensor_metadata(f"{prefix}.self_attn.q_proj.weight", tensor_loader, model_dir),
-            k_proj=make_tensor_metadata(f"{prefix}.self_attn.k_proj.weight", tensor_loader, model_dir),
-            v_proj=make_tensor_metadata(f"{prefix}.self_attn.v_proj.weight", tensor_loader, model_dir),
-            o_proj=make_tensor_metadata(f"{prefix}.self_attn.o_proj.weight", tensor_loader, model_dir),
-            q_scale=make_tensor_metadata(f"{prefix}.self_attn.q_proj.weight_scale_inv", tensor_loader, model_dir),
-            k_scale=make_tensor_metadata(f"{prefix}.self_attn.k_proj.weight_scale_inv", tensor_loader, model_dir),
-            v_scale=make_tensor_metadata(f"{prefix}.self_attn.v_proj.weight_scale_inv", tensor_loader, model_dir),
-            o_scale=make_tensor_metadata(f"{prefix}.self_attn.o_proj.weight_scale_inv", tensor_loader, model_dir),
-        )
+        attn = None
+        if f"{prefix}.self_attn.q_proj.weight" in tensor_loader:
+            attn = Attention(
+                q_proj=make_tensor_metadata(f"{prefix}.self_attn.q_proj.weight", tensor_loader, model_dir),
+                k_proj=make_tensor_metadata(f"{prefix}.self_attn.k_proj.weight", tensor_loader, model_dir),
+                v_proj=make_tensor_metadata(f"{prefix}.self_attn.v_proj.weight", tensor_loader, model_dir),
+                o_proj=make_tensor_metadata(f"{prefix}.self_attn.o_proj.weight", tensor_loader, model_dir),
+                q_scale=make_tensor_metadata(f"{prefix}.self_attn.q_proj.weight_scale_inv", tensor_loader, model_dir),
+                k_scale=make_tensor_metadata(f"{prefix}.self_attn.k_proj.weight_scale_inv", tensor_loader, model_dir),
+                v_scale=make_tensor_metadata(f"{prefix}.self_attn.v_proj.weight_scale_inv", tensor_loader, model_dir),
+                o_scale=make_tensor_metadata(f"{prefix}.self_attn.o_proj.weight_scale_inv", tensor_loader, model_dir),
+                q_norm=make_tensor_metadata(f"{prefix}.self_attn.q_norm.weight", tensor_loader, model_dir),
+                k_norm=make_tensor_metadata(f"{prefix}.self_attn.k_norm.weight", tensor_loader, model_dir),
+            )
+
+        # Linear Attention
+        linear_attn = None
+        if f"{prefix}.linear_attn.conv1d.weight" in tensor_loader:
+            from model.layer import LinearAttention as ModelLinearAttention
+            linear_attn = ModelLinearAttention(
+                conv1d=make_tensor_metadata(f"{prefix}.linear_attn.conv1d.weight", tensor_loader, model_dir),
+                dt_bias=make_tensor_metadata(f"{prefix}.linear_attn.dt_bias", tensor_loader, model_dir),
+                A_log=make_tensor_metadata(f"{prefix}.linear_attn.A_log", tensor_loader, model_dir),
+                norm=make_tensor_metadata(f"{prefix}.linear_attn.norm.weight", tensor_loader, model_dir),
+                out_proj=make_tensor_metadata(f"{prefix}.linear_attn.out_proj.weight", tensor_loader, model_dir),
+                in_proj_qkv=make_tensor_metadata(f"{prefix}.linear_attn.in_proj_qkv.weight", tensor_loader, model_dir),
+                in_proj_z=make_tensor_metadata(f"{prefix}.linear_attn.in_proj_z.weight", tensor_loader, model_dir),
+                in_proj_b=make_tensor_metadata(f"{prefix}.linear_attn.in_proj_b.weight", tensor_loader, model_dir),
+                in_proj_a=make_tensor_metadata(f"{prefix}.linear_attn.in_proj_a.weight", tensor_loader, model_dir),
+                out_proj_scale=make_tensor_metadata(f"{prefix}.linear_attn.out_proj.weight_scale_inv", tensor_loader, model_dir),
+                in_proj_qkv_scale=make_tensor_metadata(f"{prefix}.linear_attn.in_proj_qkv.weight_scale_inv", tensor_loader, model_dir),
+                in_proj_z_scale=make_tensor_metadata(f"{prefix}.linear_attn.in_proj_z.weight_scale_inv", tensor_loader, model_dir),
+            )
 
         # MoE
         router_gate_name = f"{prefix}.mlp.gate.weight"
@@ -241,18 +279,56 @@ def load_model(model_dir: str | Path) -> Model:
                 gate_proj=make_tensor_metadata(expert_gate, tensor_loader, model_dir),
                 up_proj=make_tensor_metadata(f"{prefix}.mlp.experts.{expert_id}.up_proj.weight", tensor_loader, model_dir),
                 down_proj=make_tensor_metadata(f"{prefix}.mlp.experts.{expert_id}.down_proj.weight", tensor_loader, model_dir),
+                gate_scale=make_tensor_metadata(f"{prefix}.mlp.experts.{expert_id}.gate_proj.weight_scale_inv", tensor_loader, model_dir),
+                up_scale=make_tensor_metadata(f"{prefix}.mlp.experts.{expert_id}.up_proj.weight_scale_inv", tensor_loader, model_dir),
+                down_scale=make_tensor_metadata(f"{prefix}.mlp.experts.{expert_id}.down_proj.weight_scale_inv", tensor_loader, model_dir),
             )
             experts.append(expert)
-
+        
         # Shared Expert
-        shared_expert = None
-        shared_gate = f"{prefix}.mlp.shared_expert.gate_proj.weight"
-        if shared_gate in tensor_loader:
-            shared_expert = SharedExpert(
-                gate_proj=make_tensor_metadata(shared_gate, tensor_loader, model_dir),
-                up_proj=make_tensor_metadata(f"{prefix}.mlp.shared_expert.up_proj.weight", tensor_loader, model_dir),
-                down_proj=make_tensor_metadata(f"{prefix}.mlp.shared_expert.down_proj.weight", tensor_loader, model_dir),
-            )
+        shared_expert = SharedExpert(
+            gate_proj=make_tensor_metadata(
+                f"{prefix}.mlp.shared_expert.gate_proj.weight",
+                tensor_loader,
+                model_dir,
+            ),
+
+            up_proj=make_tensor_metadata(
+                f"{prefix}.mlp.shared_expert.up_proj.weight",
+                tensor_loader,
+                model_dir,
+            ),
+
+            down_proj=make_tensor_metadata(
+                f"{prefix}.mlp.shared_expert.down_proj.weight",
+                tensor_loader,
+                model_dir,
+            ),
+
+            gate_scale=make_tensor_metadata(
+                f"{prefix}.mlp.shared_expert.gate_proj.weight_scale_inv",
+                tensor_loader,
+                model_dir,
+            ),
+
+            up_scale=make_tensor_metadata(
+                f"{prefix}.mlp.shared_expert.up_proj.weight_scale_inv",
+                tensor_loader,
+                model_dir,
+            ),
+
+            down_scale=make_tensor_metadata(
+                f"{prefix}.mlp.shared_expert.down_proj.weight_scale_inv",
+                tensor_loader,
+                model_dir,
+            ),
+
+            shared_gate=make_tensor_metadata(
+                f"{prefix}.mlp.shared_expert_gate.weight",
+                tensor_loader,
+                model_dir,
+            ),
+        )
 
         moe = MoE(
             router=router,
@@ -265,6 +341,7 @@ def load_model(model_dir: str | Path) -> Model:
             attention_norm=attn_norm,
             ffn_norm=ffn_norm,
             attention=attn,
+            linear_attn=linear_attn,
             moe=moe,
         )
         layers.append(layer)

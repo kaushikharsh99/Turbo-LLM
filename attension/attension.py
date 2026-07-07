@@ -7,10 +7,17 @@ from attension.rope import RoPE
 from attension.kv_cache import KVCache
 
 
-def rms_norm(x: torch.Tensor, weight: torch.Tensor, eps: float = 1e-6) -> torch.Tensor:
-    """Standard Root Mean Square Normalization (RMSNorm)."""
-    variance = x.pow(2).mean(-1, keepdim=True)
-    return x * torch.rsqrt(variance + eps) * weight
+def rms_norm(
+    x: torch.Tensor,
+    weight: torch.Tensor,
+    eps: float = 1e-6,
+) -> torch.Tensor:
+    input_dtype = x.dtype
+    x_fp32 = x.float()
+    variance = x_fp32.pow(2).mean(-1, keepdim=True)
+    output = x_fp32 * torch.rsqrt(variance + eps)
+    output = output * (1.0 + weight.float())
+    return output.to(input_dtype)
 
 
 def repeat_kv(x: torch.Tensor, n_rep: int) -> torch.Tensor:
@@ -69,6 +76,7 @@ class Attention:
         layer: Layer,
         kv_cache: KVCache,
         position_ids: torch.Tensor,
+        attention_mask: Optional[torch.Tensor] = None,
     ) -> torch.Tensor:
         """
         Runs the attention forward pass on hidden state.
@@ -117,9 +125,23 @@ class Attention:
         num_kv_heads = self.config.num_key_value_heads
         head_dim = self.config.head_dim
 
-        q = q.view(batch_size, seq_len, num_heads, head_dim)
+        if self.config.attn_output_gate:
+            # Reshape first to split query and gate per head (interleaved layout)
+            q_and_gate = q.view(batch_size, seq_len, num_heads, head_dim * 2)
+            q, q_gate = q_and_gate.chunk(2, dim=-1)
+            q_gate = q_gate.reshape(batch_size, seq_len, num_heads * head_dim)
+        else:
+            q_gate = None
+            q = q.view(batch_size, seq_len, num_heads, head_dim)
+
         k = k.view(batch_size, seq_len, num_kv_heads, head_dim)
         v = v.view(batch_size, seq_len, num_kv_heads, head_dim)
+
+        # Apply QK normalization if present
+        if layer.attention.q_norm and layer.attention.q_norm.data is not None:
+            q = rms_norm(q, layer.attention.q_norm.data, self.eps)
+        if layer.attention.k_norm and layer.attention.k_norm.data is not None:
+            k = rms_norm(k, layer.attention.k_norm.data, self.eps)
 
         # 3. Apply RoPE
         q, k = self.rope.apply(q, k, position_ids)
@@ -142,17 +164,23 @@ class Attention:
         # scores shape: (batch_size, num_heads, seq_len, kv_seq_len)
         scores = torch.matmul(q, k.transpose(-1, -2)) / math.sqrt(head_dim)
 
-        # 7. Apply Causal Mask
-        kv_seq_len = k.shape[2]
-        if seq_len > 1:
-            mask = torch.full(
-                (seq_len, kv_seq_len), float("-inf"), device=scores.device
-            )
-            mask = torch.triu(mask, diagonal=kv_seq_len - seq_len + 1)
-            scores = scores + mask.unsqueeze(0).unsqueeze(1)
+        # 7. Apply Attention Mask (Causal + Padding)
+        if attention_mask is not None:
+            scores = scores + attention_mask
+        else:
+            kv_seq_len = k.shape[2]
+            if seq_len > 1:
+                mask = torch.full(
+                    (seq_len, kv_seq_len), float("-inf"), device=scores.device, dtype=scores.dtype
+                )
+                mask = torch.triu(mask, diagonal=kv_seq_len - seq_len + 1)
+                scores = scores + mask.unsqueeze(0).unsqueeze(1)
 
         # 8. Softmax
-        attn_probs = torch.softmax(scores, dim=-1)
+        attn_probs = torch.softmax(
+            scores.float(),
+            dim=-1,
+        ).to(scores.dtype)
 
         # 9. Compute context
         # context shape: (batch_size, num_heads, seq_len, head_dim)
@@ -161,6 +189,10 @@ class Attention:
         # 10. Reshape back & project output
         context = context.transpose(1, 2).contiguous()
         context = context.view(batch_size, seq_len, num_heads * head_dim)
+
+        # Apply gate if enabled
+        if self.config.attn_output_gate and q_gate is not None:
+            context = context * torch.sigmoid(q_gate)
 
         w_o = dequantize_weight(
             layer.attention.o_proj.data,

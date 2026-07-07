@@ -1,0 +1,11 @@
+metric,value
+ssd_to_ram_bytes,192916549248
+ram_to_gpu_bytes,232580783232
+gpu_cache_hits,61
+gpu_cache_misses,323350
+cpu_cache_hits,25953
+cpu_cache_misses,297397
+tensor_loads,177751
+tensor_evictions,145599
+peak_gpu_memory_bytes,2623122432
+peak_cpu_memory_bytes,7776206848

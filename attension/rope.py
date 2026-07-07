@@ -3,76 +3,87 @@ from typing import Tuple
 
 
 class RoPE:
-    """Qwen-style Rotary Position Embeddings (RoPE)."""
+    """Qwen3.5/3.6-MoE Text Rotary Position Embeddings (M-RoPE)."""
 
     def __init__(self, config):
         self.head_dim = config.head_dim
         self.partial_rotary_factor = config.partial_rotary_factor
         self.rotary_dim = int(self.head_dim * self.partial_rotary_factor)
-        self.max_seq_len = config.max_position_embeddings
         self.base = config.rope_theta
+        self.mrope_section = [11, 11, 10]  # default section sizes for 32 freq elements
 
-        # Precompute inverse frequencies
-        # shape: (rotary_dim // 2,)
+        # Compute inv_freq in double precision to match HF
         inv_freq = 1.0 / (
             self.base
-            ** (torch.arange(0, self.rotary_dim, 2).float() / self.rotary_dim)
+            ** (torch.arange(0, self.rotary_dim, 2, dtype=torch.float64) / self.rotary_dim)
         )
-
-        # Precompute sin/cos tables
-        t = torch.arange(self.max_seq_len, dtype=torch.float32)
-        # shape: (max_seq_len, rotary_dim // 2)
-        freqs = torch.outer(t, inv_freq)
-
-        # Concatenate frequencies to cover full rotary dimension
-        # shape: (max_seq_len, rotary_dim)
-        emb = torch.cat((freqs, freqs), dim=-1)
-
-        # Register cos and sin buffers
-        self.cos_cached = emb.cos()
-        self.sin_cached = emb.sin()
+        self.inv_freq = inv_freq.float()
 
     def _rotate_half(self, x: torch.Tensor) -> torch.Tensor:
         """Rotates half of the hidden dimensions."""
-        half_dim = x.shape[-1] // 2
-        x1 = x[..., :half_dim]
-        x2 = x[..., half_dim:]
+        x1 = x[..., : x.shape[-1] // 2]
+        x2 = x[..., x.shape[-1] // 2 :]
         return torch.cat((-x2, x1), dim=-1)
+
+    def apply_interleaved_mrope(self, freqs, mrope_section):
+        freqs_t = freqs[0].clone()  # just overwrite the first dimension T
+        for dim, offset in enumerate((1, 2), start=1):  # H, W
+            length = mrope_section[dim] * 3
+            idx = slice(offset, length, 3)
+            freqs_t[..., idx] = freqs[dim, ..., idx]
+        return freqs_t
 
     def apply(
         self, q: torch.Tensor, k: torch.Tensor, position_ids: torch.Tensor
     ) -> Tuple[torch.Tensor, torch.Tensor]:
         """
-        Applies RoPE to query and key tensors.
-        q, k shapes: (batch_size, seq_len, num_heads, head_dim)
+        Applies M-RoPE to query and key tensors.
+        q shape: (batch_size, seq_len, num_heads, head_dim)
+        k shape: (batch_size, seq_len, num_kv_heads, head_dim)
         position_ids shape: (batch_size, seq_len)
         """
-        device = position_ids.device
+        device = q.device
         dtype = q.dtype
 
-        # Ensure precomputed tables are on the same device/dtype
-        self.cos_cached = self.cos_cached.to(device=device, dtype=dtype)
-        self.sin_cached = self.sin_cached.to(device=device, dtype=dtype)
-
-        # Lookup and expand dims for broadcasting
-        # shape: (batch_size, seq_len, 1, rotary_dim)
-        cos = self.cos_cached[position_ids].unsqueeze(-2)
-        sin = self.sin_cached[position_ids].unsqueeze(-2)
-
-        if self.rotary_dim < self.head_dim:
-            # Rotate only the first rotary_dim dimensions
-            q_rot = q[..., :self.rotary_dim]
-            q_pass = q[..., self.rotary_dim:]
-            k_rot = k[..., :self.rotary_dim]
-            k_pass = k[..., self.rotary_dim:]
-
-            q_rot = (q_rot * cos) + (self._rotate_half(q_rot) * sin)
-            k_rot = (k_rot * cos) + (self._rotate_half(k_rot) * sin)
-
-            q = torch.cat((q_rot, q_pass), dim=-1)
-            k = torch.cat((k_rot, k_pass), dim=-1)
+        # Expand position_ids to 3D: (3, batch_size, seq_len)
+        if position_ids.ndim == 2:
+            position_ids_expanded = position_ids[None, ...].expand(3, position_ids.shape[0], -1)
         else:
-            q = (q * cos) + (self._rotate_half(q) * sin)
-            k = (k * cos) + (self._rotate_half(k) * sin)
+            position_ids_expanded = position_ids
 
-        return q, k
+        # Ensure inv_freq is on the correct device and dtype
+        inv_freq = self.inv_freq.to(device=device, dtype=torch.float32)
+
+        # Expand for matrix multiplication
+        inv_freq_expanded = inv_freq[None, None, :, None].expand(3, position_ids_expanded.shape[1], -1, 1)
+        position_ids_expanded = position_ids_expanded[:, :, None, :].float()  # shape (3, bs, 1, seq_len)
+
+        # Compute freqs: shape (3, bs, seq_len, rotary_dim // 2)
+        freqs = (inv_freq_expanded @ position_ids_expanded).transpose(2, 3)
+
+        # Apply interleaved mrope
+        freqs = self.apply_interleaved_mrope(freqs, self.mrope_section)
+
+        # Concatenate frequencies to cover full rotary dimension: shape (bs, seq_len, rotary_dim)
+        emb = torch.cat((freqs, freqs), dim=-1)
+
+        # Compute cos and sin in float32 then cast back
+        cos = emb.cos().to(dtype)
+        sin = emb.sin().to(dtype)
+
+        # Broadcast shapes: (batch_size, seq_len, 1, rotary_dim)
+        cos = cos.unsqueeze(-2)
+        sin = sin.unsqueeze(-2)
+
+        # Apply rotary embedding to active dims
+        rotary_dim = cos.shape[-1]
+        q_rot, q_pass = q[..., :rotary_dim], q[..., rotary_dim:]
+        k_rot, k_pass = k[..., :rotary_dim], k[..., rotary_dim:]
+
+        q_embed = (q_rot * cos) + (self._rotate_half(q_rot) * sin)
+        k_embed = (k_rot * cos) + (self._rotate_half(k_rot) * sin)
+
+        q_out = torch.cat([q_embed, q_pass], dim=-1)
+        k_out = torch.cat([k_embed, k_pass], dim=-1)
+
+        return q_out, k_out

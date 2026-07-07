@@ -39,6 +39,10 @@ if layer.attention.v_scale:
     manager.move_to_gpu(layer.attention.v_scale.name)
 if layer.attention.o_scale:
     manager.move_to_gpu(layer.attention.o_scale.name)
+if layer.attention.q_norm:
+    manager.move_to_gpu(layer.attention.q_norm.name)
+if layer.attention.k_norm:
+    manager.move_to_gpu(layer.attention.k_norm.name)
 
 # Make sure weights are correctly loaded
 dtype = layer.attention_norm.data.dtype

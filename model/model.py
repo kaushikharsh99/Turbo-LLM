@@ -36,6 +36,12 @@ class ModelConfig:
 
     attn_output_gate: bool = False
 
+    linear_conv_kernel_dim: int = 4
+    linear_key_head_dim: int = 128
+    linear_num_key_heads: int = 16
+    linear_num_value_heads: int = 32
+    linear_value_head_dim: int = 128
+
 @dataclass(slots=True)
 class Model:
 

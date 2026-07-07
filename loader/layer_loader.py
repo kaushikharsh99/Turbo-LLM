@@ -33,6 +33,7 @@ class SharedExpert:
     gate_scale: torch.Tensor | None = None
     up_scale: torch.Tensor | None = None
     down_scale: torch.Tensor | None = None
+    shared_gate: torch.Tensor | None = None
 
 
 @dataclass
@@ -113,6 +114,11 @@ class LayerLoader:
             shared.down_proj = self.loader.get_tensor(
                 f"{shared_prefix}.down_proj.weight"
             )
+
+            shared_gate_name = f"{prefix}.mlp.shared_expert_gate.weight"
+
+            if self.loader.has_tensor(shared_gate_name):
+                shared.shared_gate = self.loader.get_tensor(shared_gate_name)
 
             for name, attr in [
                 ("gate_proj", "gate_scale"),

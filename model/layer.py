@@ -23,6 +23,25 @@ class Attention:
     k_scale: Optional[Tensor] = None
     v_scale: Optional[Tensor] = None
     o_scale: Optional[Tensor] = None
+    q_norm: Optional[Tensor] = None
+    k_norm: Optional[Tensor] = None
+
+@dataclass(slots=True)
+class LinearAttention:
+
+    conv1d: Optional[Tensor] = None
+    dt_bias: Optional[Tensor] = None
+    A_log: Optional[Tensor] = None
+    norm: Optional[Tensor] = None
+    out_proj: Optional[Tensor] = None
+    in_proj_qkv: Optional[Tensor] = None
+    in_proj_z: Optional[Tensor] = None
+    in_proj_b: Optional[Tensor] = None
+    in_proj_a: Optional[Tensor] = None
+
+    out_proj_scale: Optional[Tensor] = None
+    in_proj_qkv_scale: Optional[Tensor] = None
+    in_proj_z_scale: Optional[Tensor] = None
 
 @dataclass(slots=True)
 class Expert:
@@ -30,6 +49,9 @@ class Expert:
     gate_proj: Optional[Tensor] = None
     up_proj: Optional[Tensor] = None
     down_proj: Optional[Tensor] = None
+    gate_scale: Optional[Tensor] = None
+    up_scale: Optional[Tensor] = None
+    down_scale: Optional[Tensor] = None
 
 @dataclass(slots=True)
 class SharedExpert:
@@ -37,6 +59,10 @@ class SharedExpert:
     gate_proj: Optional[Tensor] = None
     up_proj: Optional[Tensor] = None
     down_proj: Optional[Tensor] = None
+    gate_scale: Optional[Tensor] = None
+    up_scale: Optional[Tensor] = None
+    down_scale: Optional[Tensor] = None
+    shared_gate: Optional[Tensor] = None
 
 @dataclass(slots=True)
 class Router:
@@ -57,4 +83,5 @@ class Layer:
     attention_norm: Optional[Tensor] = None
     ffn_norm: Optional[Tensor] = None
     attention: Optional[Attention] = None
+    linear_attn: Optional[LinearAttention] = None
     moe: Optional[MoE] = None

@@ -1,0 +1,4 @@
+{"id": 1, "prompt": "Write Python hello world.", "response": "```python\nprint(\"Hello, World!\")\n```", "tokens": 12, "time": 187.84, "tok_per_sec": 0.06}
+{"id": 2, "prompt": "Capital of France?", "response": "The capital of France is **Paris**.", "tokens": 9, "time": 187.84, "tok_per_sec": 0.05}
+{"id": 3, "prompt": "2+2=", "response": "2 + 2 = 4", "tokens": 8, "time": 187.84, "tok_per_sec": 0.04}
+{"id": 4, "prompt": "Explain gravity in one sentence.", "response": "Gravity is a fundamental force of nature that attracts any two objects with mass toward each other.", "tokens": 19, "time": 187.84, "tok_per_sec": 0.1}

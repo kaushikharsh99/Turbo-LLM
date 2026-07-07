@@ -48,6 +48,27 @@ class MemoryManager:
                     layer.attention.k_scale,
                     layer.attention.v_scale,
                     layer.attention.o_scale,
+                    layer.attention.q_norm,
+                    layer.attention.k_norm,
+                ]:
+                    if proj:
+                        self.tensor_registry[proj.name] = proj
+
+            # Linear Attention
+            if layer.linear_attn:
+                for proj in [
+                    layer.linear_attn.conv1d,
+                    layer.linear_attn.dt_bias,
+                    layer.linear_attn.A_log,
+                    layer.linear_attn.norm,
+                    layer.linear_attn.out_proj,
+                    layer.linear_attn.in_proj_qkv,
+                    layer.linear_attn.in_proj_z,
+                    layer.linear_attn.in_proj_b,
+                    layer.linear_attn.in_proj_a,
+                    layer.linear_attn.out_proj_scale,
+                    layer.linear_attn.in_proj_qkv_scale,
+                    layer.linear_attn.in_proj_z_scale,
                 ]:
                     if proj:
                         self.tensor_registry[proj.name] = proj
@@ -62,12 +83,23 @@ class MemoryManager:
                         layer.moe.shared_expert.gate_proj,
                         layer.moe.shared_expert.up_proj,
                         layer.moe.shared_expert.down_proj,
+                        layer.moe.shared_expert.gate_scale,
+                        layer.moe.shared_expert.up_scale,
+                        layer.moe.shared_expert.down_scale,
+                        layer.moe.shared_expert.shared_gate,
                     ]:
                         if proj:
                             self.tensor_registry[proj.name] = proj
 
                 for expert in layer.moe.experts:
-                    for proj in [expert.gate_proj, expert.up_proj, expert.down_proj]:
+                    for proj in [
+                        expert.gate_proj,
+                        expert.up_proj,
+                        expert.down_proj,
+                        expert.gate_scale,
+                        expert.up_scale,
+                        expert.down_scale,
+                    ]:
                         if proj:
                             self.tensor_registry[proj.name] = proj
 
@@ -193,3 +225,10 @@ class MemoryManager:
         else:
             # Load to CPU by default if not loaded
             return self.load_tensor(name)
+
+    def free_layer_gpu(self, layer_id: int):
+        """Unloads all tensors belonging to a specific layer from GPU resident memory."""
+        layer_prefix = f"layers.{layer_id}."
+        for name in list(self.tensor_registry.keys()):
+            if layer_prefix in name:
+                self.free_gpu(name)

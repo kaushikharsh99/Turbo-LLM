@@ -50,19 +50,17 @@ class GPUMemory:
         self.registry[name] = metadata_obj
         self.current_bytes += tensor_bytes
 
-        if evicted_names:
-            torch.cuda.empty_cache()  # Recover unused allocated memory
-
         return evicted_names
 
-    def remove(self, name: str) -> bool:
+    def remove(self, name: str, empty_cache: bool = False) -> bool:
         """Removes a tensor from the GPU cache. Returns True if found and removed."""
         if name in self.cache:
             data = self.cache.pop(name)
             meta = self.registry.pop(name)
             self.current_bytes -= meta.size_bytes
             del data
-            torch.cuda.empty_cache()
+            if empty_cache:
+                torch.cuda.empty_cache()
             return True
         return False
 
