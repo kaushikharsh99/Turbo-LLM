@@ -1,0 +1,64 @@
+{"id":1,"prompt":"Write Python hello world."}
+{"id":2,"prompt":"Capital of France?"}
+{"id":3,"prompt":"2+2="}
+{"id":4,"prompt":"Explain gravity in one sentence."}
+{"id":5,"prompt":"Write a C++ function to reverse a string."}
+{"id":6,"prompt":"Explain quantum computing simply."}
+{"id":7,"prompt":"Summarize the French Revolution."}
+{"id":8,"prompt":"What is recursion?"}
+{"id":9,"prompt":"Write a haiku about winter."}
+{"id":10,"prompt":"How does DNS work?"}
+{"id":11,"prompt":"Explain photosynthesis."}
+{"id":12,"prompt":"Write SQL to find duplicate rows."}
+{"id":13,"prompt":"What is overfitting in machine learning?"}
+{"id":14,"prompt":"Generate a random fantasy kingdom name."}
+{"id":15,"prompt":"Explain black holes."}
+{"id":16,"prompt":"Write Java code for binary search."}
+{"id":17,"prompt":"Difference between TCP and UDP."}
+{"id":18,"prompt":"Translate 'Good morning' to Japanese."}
+{"id":19,"prompt":"Write a professional resignation email."}
+{"id":20,"prompt":"Explain blockchain in simple words."}
+{"id":21,"prompt":"What causes rainbows?"}
+{"id":22,"prompt":"Write a bash script to rename files."}
+{"id":23,"prompt":"Explain the Doppler effect."}
+{"id":24,"prompt":"Who wrote Pride and Prejudice?"}
+{"id":25,"prompt":"Write Rust code to read a file."}
+{"id":26,"prompt":"Summarize Romeo and Juliet."}
+{"id":27,"prompt":"How do neural networks learn?"}
+{"id":28,"prompt":"Write a regex for email validation."}
+{"id":29,"prompt":"Explain Big O notation."}
+{"id":30,"prompt":"Give five healthy breakfast ideas."}
+{"id":31,"prompt":"Describe the water cycle."}
+{"id":32,"prompt":"Write JavaScript debounce function."}
+{"id":33,"prompt":"Explain entropy in thermodynamics."}
+{"id":34,"prompt":"What is reinforcement learning?"}
+{"id":35,"prompt":"Write a limerick about programmers."}
+{"id":36,"prompt":"Explain the solar eclipse."}
+{"id":37,"prompt":"How does Git rebase work?"}
+{"id":38,"prompt":"Write Go code for an HTTP server."}
+{"id":39,"prompt":"Explain the Tower of Hanoi."}
+{"id":40,"prompt":"What is a Bloom filter?"}
+{"id":41,"prompt":"Summarize World War II in three sentences."}
+{"id":42,"prompt":"Write a Python Fibonacci generator."}
+{"id":43,"prompt":"Explain compiler optimization."}
+{"id":44,"prompt":"Difference between RAM and SSD."}
+{"id":45,"prompt":"Write a short motivational quote."}
+{"id":46,"prompt":"Explain plate tectonics."}
+{"id":47,"prompt":"Write HTML for a login form."}
+{"id":48,"prompt":"How does RSA encryption work?"}
+{"id":49,"prompt":"Explain the Pythagorean theorem."}
+{"id":50,"prompt":"Write CSS for a centered card."}
+{"id":51,"prompt":"What is gradient descent?"}
+{"id":52,"prompt":"Summarize Darwin's theory of evolution."}
+{"id":53,"prompt":"Write Kotlin code for factorial."}
+{"id":54,"prompt":"Explain HTTP status codes."}
+{"id":55,"prompt":"Write a short science fiction story."}
+{"id":56,"prompt":"Difference between process and thread."}
+{"id":57,"prompt":"Explain Fourier transforms simply."}
+{"id":58,"prompt":"Write Swift code for a stack."}
+{"id":59,"prompt":"How does JPEG compression work?"}
+{"id":60,"prompt":"Write a palindrome checker in C."}
+{"id":61,"prompt":"Explain special relativity briefly."}
+{"id":62,"prompt":"Write Lua code for quicksort."}
+{"id":63,"prompt":"Describe how airplanes fly."}
+{"id":64,"prompt":"Explain mixture-of-experts neural networks."}

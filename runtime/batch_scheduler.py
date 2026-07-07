@@ -53,116 +53,123 @@ class BatchScheduler:
         self.profiler = profiler
 
     def generate(self, batch_requests: List[Request]) -> List[Request]:
-        """
-        Runs batched generation for the given requests.
-
-        Prefill is run per-sequence (B=1) to avoid padding corruption in
-        linear attention layers (recurrent state is corrupted by pad tokens
-        because dt_bias and sigmoid(0) produce non-trivial state updates).
-
-        After prefill, KV caches are merged for batched decode:
-        - Full attention K/V: left-padded along seq dim, concatenated along batch dim
-        - Linear attention conv/recurrent states: concatenated along batch dim (fixed size)
-        """
+        
         B = len(batch_requests)
         if B == 0:
             return batch_requests
 
         max_prompt_len = max(req.prompt_length for req in batch_requests)
 
-        # ── 1. Per-Sequence Prefill (no padding → no linear attention corruption) ──
+        merged_cache = KVCache()
 
-        per_seq_caches: List[KVCache] = []
-        all_first_logits = []
+        input_ids = []
+        position_ids = []
+        attention_masks = []
+
+        for req in batch_requests:
+
+            pad = max_prompt_len - req.prompt_length
+
+            input_ids.append(
+                req.input_ids + [self.tokenizer.pad_token_id] * pad
+            )
+
+            position_ids.append(
+                list(range(req.prompt_length)) +
+                [0] * pad
+            )
+
+            attention_masks.append(
+                [1] * req.prompt_length +
+                [0] * pad
+            )
+
+        input_ids = torch.tensor(
+            input_ids,
+            device="cuda",
+            dtype=torch.long,
+        )
+
+        position_ids = torch.tensor(
+            position_ids,
+            device="cuda",
+            dtype=torch.long,
+        )
+
+        attention_masks = torch.tensor(
+            attention_masks,
+            device="cuda",
+            dtype=torch.bool,
+        )
+
+        # ---------------------------------------------------------
+        # Build 4D attention mask for batched prefill
+        # Shape: (B, 1, L, L)
+        # ---------------------------------------------------------
+
+        L = max_prompt_len
+
+        # Standard causal mask
+        causal_mask = torch.triu(
+            torch.full(
+                (L, L),
+                float("-inf"),
+                device="cuda",
+                dtype=torch.bfloat16,
+            ),
+            diagonal=1,
+        )
+
+        # Expand to every batch element
+        attention_mask = causal_mask.unsqueeze(0).unsqueeze(0).expand(
+            B,
+            1,
+            L,
+            L,
+        ).clone()
+
+        # Padding mask
+        padding_mask = (~attention_masks).unsqueeze(1).unsqueeze(2)
+
+        # Mask padded key positions
+        attention_mask.masked_fill_(
+            padding_mask,
+            float("-inf"),
+        )
 
         start_prefill = 0.0
+
         if self.profiler and self.profiler.enabled:
             torch.cuda.synchronize()
             start_prefill = time.perf_counter()
 
-        for i, req in enumerate(batch_requests):
-            seq_cache = KVCache()
-            input_ids = torch.tensor([req.input_ids], dtype=torch.long, device="cuda")  # (1, seq_len)
-            position_ids = torch.arange(req.prompt_length, dtype=torch.long, device="cuda").unsqueeze(0)  # (1, seq_len)
-
-            logits = self.executor.forward(
-                input_ids,
-                seq_cache,
-                position_ids,
-                attention_mask=None,  # No padding → standard causal mask inside attention
-                profiler=self.profiler,
-            )
-
-            # Keep only the last token's logits for sampling
-            all_first_logits.append(logits[0, -1, :])  # (vocab_size,)
-            per_seq_caches.append(seq_cache)
-
-            if self.profiler and self.profiler.enabled:
-                self.profiler.prompt_tokens += req.prompt_length
+        logits = self.executor.forward(
+            input_ids=input_ids,
+            kv_cache=merged_cache,
+            position_ids=position_ids,
+            attention_mask=attention_mask,
+            profiler=self.profiler,
+        )
 
         if self.profiler and self.profiler.enabled:
             torch.cuda.synchronize()
             self.profiler.prefill_time += time.perf_counter() - start_prefill
+            self.profiler.prompt_tokens += attention_masks.sum().item()
 
-        # ── 2. Merge KV Caches ──
-
-        merged_cache = KVCache()
-
-        # Collect all layer IDs from the per-sequence caches
-        all_k_layers = set()
-        all_conv_layers = set()
-        all_recurrent_layers = set()
-        for sc in per_seq_caches:
-            all_k_layers.update(sc.k_caches.keys())
-            all_conv_layers.update(sc.conv_states.keys())
-            all_recurrent_layers.update(sc.recurrent_states.keys())
-
-        # Merge full-attention KV caches: left-pad shorter sequences along seq dim
-        for layer_id in all_k_layers:
-            k_list = []
-            v_list = []
-            for sc in per_seq_caches:
-                k = sc.k_caches[layer_id]  # (1, seq_len_i, num_heads, head_dim)
-                v = sc.v_caches[layer_id]
-                seq_len_i = k.shape[1]
-                pad_len = max_prompt_len - seq_len_i
-                if pad_len > 0:
-                    # Left-pad with zeros along seq dim (dim=1)
-                    k = F.pad(k, (0, 0, 0, 0, pad_len, 0))  # pad seq dim on left
-                    v = F.pad(v, (0, 0, 0, 0, pad_len, 0))
-                k_list.append(k)
-                v_list.append(v)
-            merged_cache.k_caches[layer_id] = torch.cat(k_list, dim=0)  # (B, max_prompt_len, ...)
-            merged_cache.v_caches[layer_id] = torch.cat(v_list, dim=0)
-
-        # Merge linear-attention conv states: fixed size, just concat along batch dim
-        for layer_id in all_conv_layers:
-            merged_cache.conv_states[layer_id] = torch.cat(
-                [sc.conv_states[layer_id] for sc in per_seq_caches], dim=0
-            )
-
-        # Merge linear-attention recurrent states: fixed size, just concat along batch dim
-        for layer_id in all_recurrent_layers:
-            merged_cache.recurrent_states[layer_id] = torch.cat(
-                [sc.recurrent_states[layer_id] for sc in per_seq_caches], dim=0
-            )
-
-        # Free individual caches
-        for sc in per_seq_caches:
-            sc.k_caches.clear()
-            sc.v_caches.clear()
-            sc.conv_states.clear()
-            sc.recurrent_states.clear()
-
-        # ── 3. Sample First Token ──
-
+            
         for i, req in enumerate(batch_requests):
+
             self.sampler.temperature = req.temperature
             self.sampler.top_p = req.top_p
-            tok = self.sampler.sample(all_first_logits[i].unsqueeze(0))
+
+            last_prompt_token = req.prompt_length - 1
+
+            tok = self.sampler.sample(
+                logits[i, last_prompt_token].unsqueeze(0)
+            )
+
             req.tokens.append(tok)
             req.current_length += 1
-
         # ── 4. Decode Loop (batched) ──
 
         step = 0

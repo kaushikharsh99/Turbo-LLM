@@ -98,7 +98,7 @@ class Executor:
                     self.load_to_gpu(proj.name, profiler)
 
             attn_hidden = self.linear_attention.forward(
-                hidden_states, layer, kv_cache
+                hidden_states, layer, kv_cache,attention_mask,
             )
         else:
             if layer.attention and layer.attention.q_proj:

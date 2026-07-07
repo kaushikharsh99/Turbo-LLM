@@ -52,6 +52,7 @@ class LinearAttention:
         hidden: torch.Tensor,
         layer: Layer,
         kv_cache: KVCache,
+        attention_mask: Optional[torch.Tensor] = None,
     ) -> torch.Tensor:
         """
         Runs the forward pass for Gated DeltaNet linear attention.
