@@ -44,8 +44,19 @@ class ExpertDispatcher:
 
         final_output = torch.zeros_like(flat_hidden)
 
-        # 1. Find all active experts in this layer step
+        if profiler:
+            profiler.start_layer_timer(
+                layer_id,
+                "Dispatch Table",
+            )
+        
         active_expert_ids = torch.unique(flat_indices).tolist()
+    
+        if profiler:
+            profiler.stop_layer_timer(
+                layer_id,
+                "Dispatch Table",
+            )
 
         if profiler and profiler.enabled:
             profiler.record_layer_active_experts(layer_id, len(active_expert_ids))
@@ -54,6 +65,11 @@ class ExpertDispatcher:
         for expert_id in active_expert_ids:
             expert = experts[expert_id]
 
+            if profiler:
+                profiler.start_layer_timer(
+                    layer_id,
+                    "Gather",
+                )
             # Find matching tokens
             mask = (flat_indices == expert_id)
             if not mask.any():
@@ -63,13 +79,18 @@ class ExpertDispatcher:
             num_routed_tokens = token_indices.numel()
             expert_input = flat_hidden[token_indices]
 
-            # Timing & Execution profiling
-            start_exec = 0.0
-            if profiler and profiler.enabled:
-                torch.cuda.synchronize()
-                start_exec = time.perf_counter()
+            if profiler:
+                profiler.stop_layer_timer(
+                    layer_id,
+                    "Gather",
+                )
 
             # Dequantize weights
+            if profiler:
+                profiler.start_layer_timer(
+                    layer_id,
+                    "FP8 Dequant",
+                )
             w_gate = dequantize_weight(
                 expert.gate_proj.data,
                 expert.gate_scale.data if expert.gate_scale else None,
@@ -86,27 +107,45 @@ class ExpertDispatcher:
                 dtype,
             )
 
+            if profiler:
+                profiler.stop_layer_timer(
+                    layer_id,
+                    "FP8 Dequant",
+                )
+            if profiler:
+                profiler.start_layer_timer(
+                    layer_id,
+                    "Expert Compute",
+                )
+
             # SwiGLU FFN
             gate_out = torch.matmul(expert_input, w_gate.t())
             up_out = torch.matmul(expert_input, w_up.t())
             intermediate = F.silu(gate_out) * up_out
             expert_output = torch.matmul(intermediate, w_down.t())
 
+            if profiler:
+                profiler.stop_layer_timer(
+                    layer_id,
+                    "Expert Compute",
+                )
+
             # Scale by routing weight
             routing_weight = flat_weights[token_indices, k_indices].unsqueeze(-1)
             weighted_output = expert_output * routing_weight
 
+            if profiler:
+                profiler.start_layer_timer(
+                    layer_id,
+                    "Scatter",
+                )
             # Accumulate output (Scatter)
             final_output.index_add_(0, token_indices, weighted_output)
 
-            if profiler and profiler.enabled:
-                torch.cuda.synchronize()
-                exec_time = time.perf_counter() - start_exec
-                profiler.record_expert_execution(
-                    expert_id=expert_id,
-                    tokens_count=num_routed_tokens,
-                    exec_time=exec_time,
+            if profiler:
+                profiler.stop_layer_timer(
+                    layer_id,
+                    "Scatter",
                 )
-                profiler.record_time(layer_id, "Expert Dispatcher", exec_time)
 
         return final_output.view(batch_size, seq_len, hidden_size)

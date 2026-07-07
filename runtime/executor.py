@@ -82,10 +82,11 @@ class Executor:
         if layer.attention_norm:
             self.load_to_gpu(layer.attention_norm.name, profiler)
 
-        start_att = 0.0
-        if profiler and profiler.enabled:
-            torch.cuda.synchronize()
-            start_att = time.perf_counter()
+        if profiler:
+            profiler.start_layer_timer(
+                layer_id,
+                "Linear Attention" if layer.linear_attn else "Attention",
+            )
 
         if layer.linear_attn:
             la = layer.linear_attn
@@ -118,10 +119,11 @@ class Executor:
                 hidden_states, layer, kv_cache, position_ids, attention_mask
             )
 
-        if profiler and profiler.enabled:
-            torch.cuda.synchronize()
-            duration = time.perf_counter() - start_att
-            profiler.record_time(layer_id, "Linear Attention" if layer.linear_attn else "Attention", duration)
+        if profiler:
+            profiler.stop_layer_timer(
+                layer_id,
+                "Linear Attention" if layer.linear_attn else "Attention",
+            )
 
         # --- 2. Post-Attention Norm ---
         if layer.ffn_norm:
@@ -137,29 +139,27 @@ class Executor:
 
         if layer.moe:
             if layer.moe.router and layer.moe.router.gate:
-                start_router = 0.0
-                if profiler and profiler.enabled:
-                    torch.cuda.synchronize()
-                    start_router = time.perf_counter()
-
                 self.load_to_gpu(layer.moe.router.gate.name, profiler)
 
-                # Compute router probabilities & select top-K active experts
+                if profiler:
+                    profiler.start_layer_timer(layer_id, "Router")
+
                 topk_weights, topk_indices = self.router.forward(
-                    normed_ffn_hidden, layer.moe.router.gate.data
+                    normed_ffn_hidden,
+                    layer.moe.router.gate.data,
                 )
 
-                if profiler and profiler.enabled:
-                    torch.cuda.synchronize()
-                    profiler.record_time(layer_id, "Router", time.perf_counter() - start_router)
+                if profiler:
+                    profiler.stop_layer_timer(layer_id, "Router")
 
                 # Find unique active experts
                 active_expert_ids = torch.unique(topk_indices).tolist()
-
-                # Load only the active experts' weights & scales to GPU
-                start_load = 0.0
-                if profiler and profiler.enabled:
-                    start_load = time.perf_counter()
+                
+                if profiler:
+                    profiler.start_layer_timer(
+                        layer_id,
+                        "Weight Loading",
+                    )
 
                 for exp_id in active_expert_ids:
                     expert = layer.moe.experts[exp_id]
@@ -171,10 +171,18 @@ class Executor:
                     if expert.up_scale: self.load_to_gpu(expert.up_scale.name, profiler)
                     if expert.down_scale: self.load_to_gpu(expert.down_scale.name, profiler)
 
-                if profiler and profiler.enabled:
-                    profiler.record_time(layer_id, "weight_loading", time.perf_counter() - start_load)
+                if profiler:
+                    profiler.stop_layer_timer(
+                        layer_id,
+                        "Weight Loading",
+                    )
 
-                # Execute routing via math-only ExpertDispatcher
+                if profiler:
+                    profiler.start_layer_timer(
+                        layer_id,
+                        "Experts",
+                    )
+
                 routed_output = self.expert_dispatcher.dispatch(
                     normed_ffn_hidden,
                     layer.moe.experts,
@@ -183,15 +191,21 @@ class Executor:
                     layer_id,
                     profiler,
                 )
+
+                if profiler:
+                    profiler.stop_layer_timer(
+                        layer_id,
+                        "Experts",
+                    )
             else:
                 routed_output = torch.zeros_like(normed_ffn_hidden)
 
-            # Load and execute shared expert if defined
             if layer.moe.shared_expert and layer.moe.shared_expert.gate_proj:
-                start_se = 0.0
-                if profiler and profiler.enabled:
-                    torch.cuda.synchronize()
-                    start_se = time.perf_counter()
+                if profiler:
+                    profiler.start_layer_timer(
+                        layer_id,
+                        "Shared Expert",
+                    )
 
                 shared = layer.moe.shared_expert
                 self.load_to_gpu(shared.gate_proj.name, profiler)
@@ -207,19 +221,45 @@ class Executor:
                     normed_ffn_hidden, shared
                 )
 
-                if profiler and profiler.enabled:
-                    torch.cuda.synchronize()
-                    profiler.record_time(layer_id, "Shared Expert", time.perf_counter() - start_se)
+                if profiler:
+                    profiler.stop_layer_timer(
+                        layer_id,
+                        "Shared Expert",
+                    )
             else:
                 shared_output = torch.zeros_like(normed_ffn_hidden)
 
-            # Merge outputs
-            ffn_output = self.merge.forward(routed_output, shared_output)
+            if profiler:
+                profiler.start_layer_timer(
+                    layer_id,
+                    "Merge",
+                )
 
-        # Free all layer weights from GPU
+            ffn_output = self.merge.forward(
+                routed_output,
+                shared_output,
+            )
+
+            if profiler:
+                profiler.stop_layer_timer(
+                    layer_id,
+                    "Merge",
+                )
+
+        if profiler:
+            profiler.start_layer_timer(
+                layer_id,
+                "GPU Free",
+            )
+
         self.memory_manager.free_layer_gpu(layer_id)
 
-        # Residual connection
+        if profiler:
+            profiler.stop_layer_timer(
+                layer_id,
+                "GPU Free",
+            )
+
         return attn_hidden + ffn_output
 
     def forward(
@@ -230,18 +270,9 @@ class Executor:
         attention_mask: Optional[torch.Tensor] = None,
         profiler: Optional[Any] = None,
     ) -> torch.Tensor:
-        """
-        Runs the full model forward pass.
-        input_ids shape: (batch_size, seq_len)
-        position_ids shape: (batch_size, seq_len)
-        Returns:
-            logits shape: (batch_size, seq_len, vocab_size)
-        """
-        # 1. Embedding lookup
-        start_emb = 0.0
-        if profiler and profiler.enabled:
-            torch.cuda.synchronize()
-            start_emb = time.perf_counter()
+
+        if profiler:
+            profiler.start_timer("Embedding")
 
         self.load_to_gpu(self.model.embedding.name, profiler)
         embedding_weight = self.model.embedding.data
@@ -249,21 +280,29 @@ class Executor:
         # shape: (batch_size, seq_len, hidden_size)
         hidden_states = F.embedding(input_ids, embedding_weight)
 
-        if profiler and profiler.enabled:
-            torch.cuda.synchronize()
-            profiler.record_time(-1, "Embedding", time.perf_counter() - start_emb)
+        if profiler:
+            profiler.stop_timer("Embedding")
 
         # 2. Process all layers sequentially
         for layer_id in range(self.model.config.num_layers):
+
+            if profiler:
+                profiler.start_layer_timer(layer_id, "Total")
+
             hidden_states = self.forward_layer(
-                hidden_states, layer_id, kv_cache, position_ids, attention_mask, profiler
+                hidden_states,
+                layer_id,
+                kv_cache,
+                position_ids,
+                attention_mask,
+                profiler,
             )
 
-        # 3. Final RMSNorm
-        start_norm = 0.0
-        if profiler and profiler.enabled:
-            torch.cuda.synchronize()
-            start_norm = time.perf_counter()
+            if profiler:
+                profiler.stop_layer_timer(layer_id, "Total")
+
+        if profiler:
+            profiler.start_timer("Final RMSNorm")
 
         self.load_to_gpu(self.model.final_norm.name, profiler)
         eps = self.model.config.rms_norm_eps
@@ -271,24 +310,18 @@ class Executor:
             hidden_states, self.model.final_norm.data, eps
         )
 
-        if profiler and profiler.enabled:
-            torch.cuda.synchronize()
-            profiler.record_time(-1, "Final RMSNorm", time.perf_counter() - start_norm)
+        if profiler:
+            profiler.stop_timer("Final RMSNorm")
 
-        # 4. LM Head projection
-        start_lm = 0.0
-        if profiler and profiler.enabled:
-            torch.cuda.synchronize()
-            start_lm = time.perf_counter()
+        if profiler:
+            profiler.start_timer("LM Head")
 
         self.load_to_gpu(self.model.lm_head.name, profiler)
         lm_head_weight = self.model.lm_head.data
 
-        # shape: (batch_size, seq_len, vocab_size)
         logits = torch.matmul(hidden_states, lm_head_weight.t())
 
-        if profiler and profiler.enabled:
-            torch.cuda.synchronize()
-            profiler.record_time(-1, "LM Head", time.perf_counter() - start_lm)
+        if profiler:
+            profiler.stop_timer("LM Head")
 
         return logits

@@ -54,6 +54,31 @@ class Profiler:
         self.layer_unique_experts = []
         self.expert_gemm_tokens = []
 
+        # -----------------------------
+        # Live Progress Tracking
+        # -----------------------------
+
+        self.total_requests = 0
+        self.completed_requests = 0
+
+        self.progress_generated_tokens = 0
+
+        self.last_progress_print = 0.0
+        self.progress_refresh_interval = 5.0
+
+        # --------------------------------------------------
+        # Fine-grained runtime profiling
+        # --------------------------------------------------
+
+        self.component_times = defaultdict(float)
+        self.component_counts = defaultdict(int)
+
+        self.layer_times = defaultdict(
+            lambda: defaultdict(float)
+        )
+
+        self._active_timers = {}
+
     def record_memory_movement(
         self,
         gpu_cache_hit: bool = False,
@@ -140,6 +165,118 @@ class Profiler:
             return
         self.step_batch_sizes.append(batch_size)
         self.active_requests_per_step.append(active_reqs)
+
+
+    def update_progress(
+        self,
+        completed_requests: int,
+        total_requests: int,
+        generated_tokens: int,
+        active_requests: int,
+    ):
+        if not self.enabled:
+            return
+
+        self.completed_requests = completed_requests
+        self.total_requests = total_requests
+        self.progress_generated_tokens = generated_tokens
+
+        now = time.perf_counter()
+
+        if now - self.last_progress_print < self.progress_refresh_interval:
+            return
+
+        self.last_progress_print = now
+
+        elapsed = now - self.start_time
+
+        progress = completed_requests / max(total_requests, 1)
+
+        eta = (
+            elapsed / progress - elapsed
+            if progress > 0
+            else 0.0
+        )
+
+        speed = generated_tokens / max(elapsed, 1e-6)
+
+        bar_width = 30
+
+        filled = int(progress * bar_width)
+
+        bar = (
+            "█" * filled +
+            "-" * (bar_width - filled)
+        )
+
+        print(
+            f"\r[{bar}] "
+            f"{progress*100:5.1f}% | "
+            f"{completed_requests}/{total_requests} req | "
+            f"{generated_tokens} tok | "
+            f"{speed:.2f} tok/s | "
+            f"Active {active_requests} | "
+            f"ETA {eta:.1f}s",
+            end="",
+            flush=True,
+        )
+
+
+    def start_timer(self, name: str):
+        if not self.enabled:
+            return
+
+        if torch.cuda.is_available():
+            torch.cuda.synchronize()
+
+        self._active_timers[name] = time.perf_counter()
+
+    def stop_timer(self, name: str):
+        if not self.enabled:
+            return
+
+        start = self._active_timers.pop(name, None)
+
+        if start is None:
+            return
+
+        if torch.cuda.is_available():
+            torch.cuda.synchronize()
+
+        elapsed = time.perf_counter() - start
+
+        self.component_times[name] += elapsed
+        self.component_counts[name] += 1
+
+    def start_layer_timer(self, layer: int, component: str):
+        if not self.enabled:
+            return
+
+        key = f"{layer}:{component}"
+
+        if torch.cuda.is_available():
+            torch.cuda.synchronize()
+
+        self._active_timers[key] = time.perf_counter()
+
+
+    def stop_layer_timer(self, layer: int, component: str):
+        if not self.enabled:
+            return
+
+        key = f"{layer}:{component}"
+
+        start = self._active_timers.pop(key, None)
+
+        if start is None:
+            return
+
+        if torch.cuda.is_available():
+            torch.cuda.synchronize()
+
+        elapsed = time.perf_counter() - start
+
+        self.layer_times[layer][component] += elapsed
 
     def print_summary(self, mode: str = "Batch", batch_size_limit: int = 1):
         if not self.enabled:
@@ -323,3 +460,38 @@ class Profiler:
         }
         with open("generation_profile.json", "w") as f:
             json.dump(gen_profile, f, indent=2)
+
+        print()
+        print("=" * 52)
+        print("Runtime Breakdown")
+        print("=" * 52)
+
+        for name, value in sorted(
+            self.component_times.items(),
+            key=lambda x: x[1],
+            reverse=True,
+        ):
+            print(f"{name:<28}{value*1000:10.2f} ms")
+
+        print()
+        print("=" * 52)
+        print("Layer Breakdown")
+        print("=" * 52)
+
+        for layer in sorted(self.layer_times.keys()):
+
+            print(f"\nLayer {layer}")
+
+            total = 0.0
+
+            for component, value in self.layer_times[layer].items():
+
+                total += value
+
+                print(
+                    f"  {component:<22}{value*1000:10.2f} ms"
+                )
+
+            print(
+                f"  {'TOTAL':<22}{total*1000:10.2f} ms"
+            )
