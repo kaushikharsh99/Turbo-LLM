@@ -1,4 +1,5 @@
 from dataclasses import dataclass, field
+from typing import Any
 from model.layer import Layer
 from model.tensor import Tensor
 
@@ -29,6 +30,12 @@ class ModelConfig:
 
     experts_per_token: int
 
+    head_dim: int = 128
+
+    partial_rotary_factor: float = 1.0
+
+    attn_output_gate: bool = False
+
 @dataclass(slots=True)
 class Model:
 
@@ -45,6 +52,10 @@ class Model:
     loaded: bool = False
 
     current_device: str = "disk"
+
+    tensor_loader: Any = None
+
+    layer_loader: Any = None
 
     def __len__(self):
         return len(self.layers)

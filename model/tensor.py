@@ -41,4 +41,4 @@ class Tensor:
 
     @property
     def is_disk(self) -> bool:
-        return 
+        return self.device == "disk"

@@ -3,7 +3,7 @@ from typing import Dict
 
 import torch
 
-from .safetensor import SafeTensorLoader
+from .safetensor_loader import SafeTensorLoader
 
 @dataclass
 class AttentionWeights:
@@ -59,7 +59,10 @@ class LayerLoader:
 
         layer = Layer()
 
-        prefix = f"model.language_model.layers.{layer_id}"
+        if self.loader.has_tensor(f"model.language_model.layers.{layer_id}.input_layernorm.weight"):
+            prefix = f"model.language_model.layers.{layer_id}"
+        else:
+            prefix = f"model.layers.{layer_id}"
 
         layer.attention.q_proj = self.loader.get_tensor(
             f"{prefix}.self_attn.q_proj.weight"

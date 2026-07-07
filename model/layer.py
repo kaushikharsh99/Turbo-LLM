@@ -8,58 +8,53 @@ Execution is handled entirely by runtime/executor.py
 """
 
 from dataclasses import dataclass, field
+from typing import Optional
 
 from model.tensor import Tensor
 
 @dataclass(slots=True)
 class Attention:
 
-    q_proj: Tensor
-    k_proj: Tensor
-    v_proj: Tensor
-    o_proj: Tensor
+    q_proj: Optional[Tensor] = None
+    k_proj: Optional[Tensor] = None
+    v_proj: Optional[Tensor] = None
+    o_proj: Optional[Tensor] = None
+    q_scale: Optional[Tensor] = None
+    k_scale: Optional[Tensor] = None
+    v_scale: Optional[Tensor] = None
+    o_scale: Optional[Tensor] = None
 
 @dataclass(slots=True)
 class Expert:
 
-    gate_proj: Tensor
-
-    up_proj: Tensor
-
-    down_proj: Tensor
+    gate_proj: Optional[Tensor] = None
+    up_proj: Optional[Tensor] = None
+    down_proj: Optional[Tensor] = None
 
 @dataclass(slots=True)
 class SharedExpert:
 
-    gate_proj: Tensor
-
-    up_proj: Tensor
-
-    down_proj: Tensor
+    gate_proj: Optional[Tensor] = None
+    up_proj: Optional[Tensor] = None
+    down_proj: Optional[Tensor] = None
 
 @dataclass(slots=True)
 class Router:
 
-    gate: Tensor
+    gate: Optional[Tensor] = None
 
 @dataclass(slots=True)
 class MoE:
 
-    router: Router
-
+    router: Optional[Router] = None
     experts: list[Expert] = field(default_factory=list)
-
-    shared_expert: SharedExpert | None = None
+    shared_expert: Optional[SharedExpert] = None
 
 @dataclass(slots=True)
 class Layer:
 
     layer_id: int
-
-    attention_norm: Tensor
-
-    ffn_norm: Tensor
-
-    attention: Attention
-
-    moe: MoE
+    attention_norm: Optional[Tensor] = None
+    ffn_norm: Optional[Tensor] = None
+    attention: Optional[Attention] = None
+    moe: Optional[MoE] = None
