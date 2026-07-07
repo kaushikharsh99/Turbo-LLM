@@ -338,8 +338,8 @@ class Profiler:
             print("\n" + "=" * 52)
             print("Turbo-LLM Batch Summary".center(52))
             print("=" * 52)
-            print(f"Requests                 {len(self.step_batch_sizes) and max(self.active_requests_per_step) or 1}")
-            print(f"Completed                {len(self.step_batch_sizes) and max(self.active_requests_per_step) or 1}")
+            print(f"Requests                 {self.total_requests}")
+            print(f"Completed                {self.completed_requests}")
             print("")
             print(f"Batch Size               {batch_size_limit}")
             print("")
@@ -365,7 +365,8 @@ class Profiler:
         # profile_summary.json
         summary_data = {
             "mode": mode,
-            "requests": len(self.step_batch_sizes) and max(self.active_requests_per_step) or 1,
+            "requests": self.total_requests,
+            "completed": self.completed_requests,
             "batch_size": batch_size_limit,
             "prompt_tokens": self.prompt_tokens,
             "generated_tokens": self.generated_tokens,
@@ -389,24 +390,50 @@ class Profiler:
         # Timings for each layer (Embedding, Attention, Linear Attention, Router, Expert Dispatcher, Shared Expert, Final RMSNorm, LM Head)
         with open("layer_profile.csv", "w", newline="") as f:
             writer = csv.writer(f)
-            writer.writerow(["layer_id", "Embedding", "Attention", "Linear Attention", "Router", "Expert Dispatcher", "Shared Expert", "Final RMSNorm", "LM Head", "Total"])
+            total_l = sum(metrics.values())
+
+            writer.writerow([
+                lid,
+                metrics.get("Embedding", 0.0),
+                metrics.get("Attention", 0.0),
+                metrics.get("Linear Attention", 0.0),
+                metrics.get("Router", 0.0),
+                metrics.get("Weight Loading", 0.0),
+                metrics.get("Dispatch Table", 0.0),
+                metrics.get("Gather", 0.0),
+                metrics.get("FP8 Dequant", 0.0),
+                metrics.get("Expert Compute", 0.0),
+                metrics.get("Scatter", 0.0),
+                metrics.get("Shared Expert", 0.0),
+                metrics.get("Merge", 0.0),
+                metrics.get("GPU Free", 0.0),
+                metrics.get("Final RMSNorm", 0.0),
+                metrics.get("LM Head", 0.0),
+                total_l,
+            ])
             
             # Aggregate across layers
-            for lid in sorted(self.layer_timings.keys()):
-                metrics = self.layer_timings[lid]
-                # Total for layer
-                total_l = sum(metrics.values())
+            for lid in sorted(self.layer_times.keys()):
+                metrics = self.layer_times[lid]
+
                 writer.writerow([
-                    lid,
-                    metrics.get("Embedding", 0.0),
-                    metrics.get("Attention", 0.0),
-                    metrics.get("Linear Attention", 0.0),
-                    metrics.get("Router", 0.0),
-                    metrics.get("Expert Dispatcher", 0.0),
-                    metrics.get("Shared Expert", 0.0),
-                    metrics.get("Final RMSNorm", 0.0),
-                    metrics.get("LM Head", 0.0),
-                    total_l
+                    "layer_id",
+                    "Embedding",
+                    "Attention",
+                    "Linear Attention",
+                    "Router",
+                    "Weight Loading",
+                    "Dispatch Table",
+                    "Gather",
+                    "FP8 Dequant",
+                    "Expert Compute",
+                    "Scatter",
+                    "Shared Expert",
+                    "Merge",
+                    "GPU Free",
+                    "Final RMSNorm",
+                    "LM Head",
+                    "Total"
                 ])
                 
         # memory_profile.csv
