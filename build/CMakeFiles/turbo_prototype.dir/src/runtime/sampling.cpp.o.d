@@ -1,7 +1,7 @@
 CMakeFiles/turbo_prototype.dir/src/runtime/sampling.cpp.o: \
- /home/harsh/coding/Turbollm/Turbo-LLM/TurboPrototype/src/runtime/sampling.cpp \
+ /home/harsh/coding/Turbollm/Turbo-LLM/src/runtime/sampling.cpp \
  /usr/include/stdc-predef.h \
- /home/harsh/coding/Turbollm/Turbo-LLM/TurboPrototype/src/runtime/sampling.hpp \
+ /home/harsh/coding/Turbollm/Turbo-LLM/src/runtime/sampling.hpp \
  /usr/include/c++/16/vector /usr/include/c++/16/bits/requires_hosted.h \
  /usr/include/c++/16/x86_64-redhat-linux/bits/c++config.h \
  /usr/include/bits/wordsize.h \

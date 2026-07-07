@@ -17,7 +17,10 @@ turbo_prototype: \
   CMakeFiles/turbo_prototype.dir/src/runtime/sampling.cpp.o \
   CMakeFiles/turbo_prototype.dir/src/runtime/kv_cache.cpp.o \
   CMakeFiles/turbo_prototype.dir/src/runtime/tokenizer.cpp.o \
-  /usr/local/cuda/lib64/libcudart.so \
+  /usr/local/cuda-12.4/lib64/libcudart.so \
+  /usr/local/cuda-12.4/lib64/libcublas.so \
+  /usr/local/cuda-12.4/lib64/libnvrtc.so \
+  /usr/lib64/libcuda.so \
   /usr/lib/gcc/x86_64-redhat-linux/16/libstdc++.so \
   /usr/lib/gcc/x86_64-redhat-linux/16/../../../../lib64/libm.so \
   /usr/lib/gcc/x86_64-redhat-linux/16/../../../../lib64/libm.so \
@@ -54,7 +57,8 @@ turbo_prototype: \
   /lib64/ld-linux-x86-64.so.2 \
   /usr/lib64/libdl.so.2 \
   /usr/lib64/libpthread.so.0 \
-  /usr/lib64/librt.so.1
+  /usr/lib64/librt.so.1 \
+  /usr/local/cuda-12.4/lib64/libcublasLt.so.12
 
 /usr/lib/gcc/x86_64-redhat-linux/16/../../../../lib64/crt1.o:
 
@@ -92,7 +96,13 @@ CMakeFiles/turbo_prototype.dir/src/runtime/kv_cache.cpp.o:
 
 CMakeFiles/turbo_prototype.dir/src/runtime/tokenizer.cpp.o:
 
-/usr/local/cuda/lib64/libcudart.so:
+/usr/local/cuda-12.4/lib64/libcudart.so:
+
+/usr/local/cuda-12.4/lib64/libcublas.so:
+
+/usr/local/cuda-12.4/lib64/libnvrtc.so:
+
+/usr/lib64/libcuda.so:
 
 /usr/lib/gcc/x86_64-redhat-linux/16/libstdc++.so:
 
@@ -167,3 +177,5 @@ CMakeFiles/turbo_prototype.dir/src/runtime/tokenizer.cpp.o:
 /usr/lib64/libpthread.so.0:
 
 /usr/lib64/librt.so.1:
+
+/usr/local/cuda-12.4/lib64/libcublasLt.so.12:

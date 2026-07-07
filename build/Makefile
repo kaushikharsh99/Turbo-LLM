@@ -57,10 +57,10 @@ RM = /usr/bin/cmake -E rm -f
 EQUALS = =
 
 # The top-level source directory on which CMake was run.
-CMAKE_SOURCE_DIR = /home/harsh/coding/Turbollm/Turbo-LLM/TurboPrototype
+CMAKE_SOURCE_DIR = /home/harsh/coding/Turbollm/Turbo-LLM
 
 # The top-level build directory on which CMake was run.
-CMAKE_BINARY_DIR = /home/harsh/coding/Turbollm/Turbo-LLM/TurboPrototype/build
+CMAKE_BINARY_DIR = /home/harsh/coding/Turbollm/Turbo-LLM/build
 
 #=============================================================================
 # Targets provided globally by CMake.
@@ -87,9 +87,9 @@ rebuild_cache/fast: rebuild_cache
 
 # The main all target
 all: cmake_check_build_system
-	$(CMAKE_COMMAND) -E cmake_progress_start /home/harsh/coding/Turbollm/Turbo-LLM/TurboPrototype/build/CMakeFiles /home/harsh/coding/Turbollm/Turbo-LLM/TurboPrototype/build//CMakeFiles/progress.marks
+	$(CMAKE_COMMAND) -E cmake_progress_start /home/harsh/coding/Turbollm/Turbo-LLM/build/CMakeFiles /home/harsh/coding/Turbollm/Turbo-LLM/build//CMakeFiles/progress.marks
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/Makefile2 all
-	$(CMAKE_COMMAND) -E cmake_progress_start /home/harsh/coding/Turbollm/Turbo-LLM/TurboPrototype/build/CMakeFiles 0
+	$(CMAKE_COMMAND) -E cmake_progress_start /home/harsh/coding/Turbollm/Turbo-LLM/build/CMakeFiles 0
 .PHONY : all
 
 # The main clean target
@@ -128,6 +128,32 @@ turbo_prototype: cmake_check_build_system
 turbo_prototype/fast:
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/turbo_prototype.dir/build.make CMakeFiles/turbo_prototype.dir/build
 .PHONY : turbo_prototype/fast
+
+#=============================================================================
+# Target rules for targets named turbo_tests
+
+# Build rule for target.
+turbo_tests: cmake_check_build_system
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/Makefile2 turbo_tests
+.PHONY : turbo_tests
+
+# fast build rule for target.
+turbo_tests/fast:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/turbo_tests.dir/build.make CMakeFiles/turbo_tests.dir/build
+.PHONY : turbo_tests/fast
+
+#=============================================================================
+# Target rules for targets named turbo_cuda
+
+# Build rule for target.
+turbo_cuda: cmake_check_build_system
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/Makefile2 turbo_cuda
+.PHONY : turbo_cuda
+
+# fast build rule for target.
+turbo_cuda/fast:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/turbo_cuda.dir/build.make CMakeFiles/turbo_cuda.dir/build
+.PHONY : turbo_cuda/fast
 
 src/config.o: src/config.cpp.o
 .PHONY : src/config.o
@@ -327,6 +353,8 @@ src/runtime/cuda.o: src/runtime/cuda.cpp.o
 # target to build an object file
 src/runtime/cuda.cpp.o:
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/turbo_prototype.dir/build.make CMakeFiles/turbo_prototype.dir/src/runtime/cuda.cpp.o
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/turbo_tests.dir/build.make CMakeFiles/turbo_tests.dir/src/runtime/cuda.cpp.o
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/turbo_cuda.dir/build.make CMakeFiles/turbo_cuda.dir/src/runtime/cuda.cpp.o
 .PHONY : src/runtime/cuda.cpp.o
 
 src/runtime/cuda.i: src/runtime/cuda.cpp.i
@@ -335,6 +363,8 @@ src/runtime/cuda.i: src/runtime/cuda.cpp.i
 # target to preprocess a source file
 src/runtime/cuda.cpp.i:
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/turbo_prototype.dir/build.make CMakeFiles/turbo_prototype.dir/src/runtime/cuda.cpp.i
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/turbo_tests.dir/build.make CMakeFiles/turbo_tests.dir/src/runtime/cuda.cpp.i
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/turbo_cuda.dir/build.make CMakeFiles/turbo_cuda.dir/src/runtime/cuda.cpp.i
 .PHONY : src/runtime/cuda.cpp.i
 
 src/runtime/cuda.s: src/runtime/cuda.cpp.s
@@ -343,6 +373,8 @@ src/runtime/cuda.s: src/runtime/cuda.cpp.s
 # target to generate assembly for a file
 src/runtime/cuda.cpp.s:
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/turbo_prototype.dir/build.make CMakeFiles/turbo_prototype.dir/src/runtime/cuda.cpp.s
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/turbo_tests.dir/build.make CMakeFiles/turbo_tests.dir/src/runtime/cuda.cpp.s
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/turbo_cuda.dir/build.make CMakeFiles/turbo_cuda.dir/src/runtime/cuda.cpp.s
 .PHONY : src/runtime/cuda.cpp.s
 
 src/runtime/executor.o: src/runtime/executor.cpp.o
@@ -375,6 +407,7 @@ src/runtime/kv_cache.o: src/runtime/kv_cache.cpp.o
 # target to build an object file
 src/runtime/kv_cache.cpp.o:
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/turbo_prototype.dir/build.make CMakeFiles/turbo_prototype.dir/src/runtime/kv_cache.cpp.o
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/turbo_tests.dir/build.make CMakeFiles/turbo_tests.dir/src/runtime/kv_cache.cpp.o
 .PHONY : src/runtime/kv_cache.cpp.o
 
 src/runtime/kv_cache.i: src/runtime/kv_cache.cpp.i
@@ -383,6 +416,7 @@ src/runtime/kv_cache.i: src/runtime/kv_cache.cpp.i
 # target to preprocess a source file
 src/runtime/kv_cache.cpp.i:
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/turbo_prototype.dir/build.make CMakeFiles/turbo_prototype.dir/src/runtime/kv_cache.cpp.i
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/turbo_tests.dir/build.make CMakeFiles/turbo_tests.dir/src/runtime/kv_cache.cpp.i
 .PHONY : src/runtime/kv_cache.cpp.i
 
 src/runtime/kv_cache.s: src/runtime/kv_cache.cpp.s
@@ -391,6 +425,7 @@ src/runtime/kv_cache.s: src/runtime/kv_cache.cpp.s
 # target to generate assembly for a file
 src/runtime/kv_cache.cpp.s:
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/turbo_prototype.dir/build.make CMakeFiles/turbo_prototype.dir/src/runtime/kv_cache.cpp.s
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/turbo_tests.dir/build.make CMakeFiles/turbo_tests.dir/src/runtime/kv_cache.cpp.s
 .PHONY : src/runtime/kv_cache.cpp.s
 
 src/runtime/memory.o: src/runtime/memory.cpp.o
@@ -489,6 +524,30 @@ src/runtime/tokenizer.cpp.s:
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/turbo_prototype.dir/build.make CMakeFiles/turbo_prototype.dir/src/runtime/tokenizer.cpp.s
 .PHONY : src/runtime/tokenizer.cpp.s
 
+tests/correctness_test.o: tests/correctness_test.cpp.o
+.PHONY : tests/correctness_test.o
+
+# target to build an object file
+tests/correctness_test.cpp.o:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/turbo_tests.dir/build.make CMakeFiles/turbo_tests.dir/tests/correctness_test.cpp.o
+.PHONY : tests/correctness_test.cpp.o
+
+tests/correctness_test.i: tests/correctness_test.cpp.i
+.PHONY : tests/correctness_test.i
+
+# target to preprocess a source file
+tests/correctness_test.cpp.i:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/turbo_tests.dir/build.make CMakeFiles/turbo_tests.dir/tests/correctness_test.cpp.i
+.PHONY : tests/correctness_test.cpp.i
+
+tests/correctness_test.s: tests/correctness_test.cpp.s
+.PHONY : tests/correctness_test.s
+
+# target to generate assembly for a file
+tests/correctness_test.cpp.s:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/turbo_tests.dir/build.make CMakeFiles/turbo_tests.dir/tests/correctness_test.cpp.s
+.PHONY : tests/correctness_test.cpp.s
+
 # Help Target
 help:
 	@echo "The following are some of the valid targets for this Makefile:"
@@ -497,7 +556,9 @@ help:
 	@echo "... depend"
 	@echo "... edit_cache"
 	@echo "... rebuild_cache"
+	@echo "... turbo_cuda"
 	@echo "... turbo_prototype"
+	@echo "... turbo_tests"
 	@echo "... src/config.o"
 	@echo "... src/config.i"
 	@echo "... src/config.s"
@@ -543,6 +604,9 @@ help:
 	@echo "... src/runtime/tokenizer.o"
 	@echo "... src/runtime/tokenizer.i"
 	@echo "... src/runtime/tokenizer.s"
+	@echo "... tests/correctness_test.o"
+	@echo "... tests/correctness_test.i"
+	@echo "... tests/correctness_test.s"
 .PHONY : help
 
 

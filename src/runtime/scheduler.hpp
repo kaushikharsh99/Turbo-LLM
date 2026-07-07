@@ -22,6 +22,7 @@ private:
 
     bool is_buffer_a_active = true;
     int prefetch_layer_idx = -1;
+    int active_layer_idx = -1;
     std::map<int, std::chrono::high_resolution_clock::time_point> ssd_start_times;
 
 public:

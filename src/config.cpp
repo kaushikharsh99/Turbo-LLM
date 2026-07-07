@@ -25,6 +25,14 @@ void Config::load_from_args(int argc, char* argv[]) {
             max_ram_bytes = static_cast<size_t>(std::atoll(argv[++i])) * 1024ULL * 1024ULL;
         } else if (strcmp(argv[i], "--dtype") == 0 && i + 1 < argc) {
             dtype = argv[++i];
+        } else if (strcmp(argv[i], "--batch_size") == 0 && i + 1 < argc) {
+            batch_size = std::atoi(argv[++i]);
+        } else if (strcmp(argv[i], "--validate") == 0) {
+            validate = true;
+        } else if ((strcmp(argv[i], "--prompt") == 0 || strcmp(argv[i], "-p") == 0) && i + 1 < argc) {
+            prompt_str = argv[++i];
+        } else if ((strcmp(argv[i], "--prompts_jsonl") == 0 || strcmp(argv[i], "-j") == 0) && i + 1 < argc) {
+            prompts_jsonl_path = argv[++i];
         }
     }
 }
@@ -39,6 +47,10 @@ void Config::print() const {
               << "  Max VRAM:        " << (max_vram_bytes / (1024 * 1024)) << " MB\n"
               << "  Max RAM:         " << (max_ram_bytes / (1024 * 1024)) << " MB\n"
               << "  Chat Mode:       " << (chat_mode ? "Enabled" : "Disabled") << "\n"
+              << "  Prompt:          " << prompt_str << "\n"
+              << "  Prompts JSONL:   " << prompts_jsonl_path << "\n"
+              << "  Batch Size:      " << batch_size << "\n"
+              << "  Validation Mode: " << (validate ? "Enabled" : "Disabled") << "\n"
               << "  Benchmarking:    " << (benchmarking ? "Enabled" : "Disabled") << "\n"
               << "  Data Type:       " << dtype << "\n"
               << "========================================\n";

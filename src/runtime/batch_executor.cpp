@@ -58,6 +58,9 @@ void BatchExecutor::run(const std::vector<std::string>& prompts) {
         }
         if (!any_active) break;
 
+        int active_token_id = step == 0 ? batch_tokens[0][0] : (generated_tokens[0].empty() ? 0 : generated_tokens[0].back());
+        profiler.start_step(step, active_token_id);
+
         // 2. Setup concatenated hidden state for active batch elements
         // Shape: [batch_size, seq_len, hidden_size]
         // Here we mock the embedding loading for the active sequences
@@ -85,7 +88,9 @@ void BatchExecutor::run(const std::vector<std::string>& prompts) {
                 l,
                 batch_size,
                 1, // seq_len = 1 for decoding step
-                step
+                step,
+                model.config.num_heads,
+                model.config.num_kv_heads
             );
 
             // Asynchronously fetch next layer
@@ -131,6 +136,7 @@ void BatchExecutor::run(const std::vector<std::string>& prompts) {
 
         step++;
         profiler.update_vram(model.config.vocab_size * hidden_size * sizeof(float) + memory_manager->get_layer_size() * 2);
+        profiler.end_step();
     }
 
     std::cout << "\n=== Generated Sequences ===\n";
@@ -141,6 +147,8 @@ void BatchExecutor::run(const std::vector<std::string>& prompts) {
 
     profiler.end_generation(total_tokens_generated);
     profiler.print_summary();
+    profiler.export_json("batch_profiler_run.json");
+    std::cout << "Exported detailed execution profile to: batch_profiler_run.json\n";
 }
 
 } // namespace turbo

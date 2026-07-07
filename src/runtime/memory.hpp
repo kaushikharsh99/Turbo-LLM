@@ -55,6 +55,7 @@ public:
     void* get_host_buffer_b() { return host_buffer_b; }
     
     size_t get_layer_size() const { return host_buffer_size; }
+    std::shared_ptr<GGUFLoader> get_loader() { return loader; }
 
     // Async loading from disk to pinned RAM
     void async_load_layer_to_pinned_ram(const Layer& layer, void* host_target_buffer);

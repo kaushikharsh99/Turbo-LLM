@@ -1,9 +1,9 @@
 CMakeFiles/turbo_prototype.dir/src/runtime/memory.cpp.o: \
- /home/harsh/coding/Turbollm/Turbo-LLM/TurboPrototype/src/runtime/memory.cpp \
+ /home/harsh/coding/Turbollm/Turbo-LLM/src/runtime/memory.cpp \
  /usr/include/stdc-predef.h \
- /home/harsh/coding/Turbollm/Turbo-LLM/TurboPrototype/src/runtime/memory.hpp \
- /home/harsh/coding/Turbollm/Turbo-LLM/TurboPrototype/src/runtime/../model/model.hpp \
- /home/harsh/coding/Turbollm/Turbo-LLM/TurboPrototype/src/runtime/../model/../gguf/loader.hpp \
+ /home/harsh/coding/Turbollm/Turbo-LLM/src/runtime/memory.hpp \
+ /home/harsh/coding/Turbollm/Turbo-LLM/src/runtime/../model/model.hpp \
+ /home/harsh/coding/Turbollm/Turbo-LLM/src/runtime/../model/../gguf/loader.hpp \
  /usr/include/c++/16/string /usr/include/c++/16/bits/requires_hosted.h \
  /usr/include/c++/16/x86_64-redhat-linux/bits/c++config.h \
  /usr/include/bits/wordsize.h \
@@ -170,7 +170,7 @@ CMakeFiles/turbo_prototype.dir/src/runtime/memory.cpp.o: \
  /usr/lib/gcc/x86_64-redhat-linux/16/include/stdint.h \
  /usr/include/stdint.h /usr/include/bits/stdint-uintn.h \
  /usr/include/bits/stdint-least.h \
- /home/harsh/coding/Turbollm/Turbo-LLM/TurboPrototype/src/runtime/cuda.hpp \
+ /home/harsh/coding/Turbollm/Turbo-LLM/src/runtime/cuda.hpp \
  /usr/include/c++/16/thread /usr/include/c++/16/bits/std_thread.h \
  /usr/include/c++/16/bits/this_thread_sleep.h \
  /usr/include/c++/16/bits/chrono.h /usr/include/c++/16/ratio \

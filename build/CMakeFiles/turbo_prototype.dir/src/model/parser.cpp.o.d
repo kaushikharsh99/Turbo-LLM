@@ -1,8 +1,8 @@
 CMakeFiles/turbo_prototype.dir/src/model/parser.cpp.o: \
- /home/harsh/coding/Turbollm/Turbo-LLM/TurboPrototype/src/model/parser.cpp \
+ /home/harsh/coding/Turbollm/Turbo-LLM/src/model/parser.cpp \
  /usr/include/stdc-predef.h \
- /home/harsh/coding/Turbollm/Turbo-LLM/TurboPrototype/src/model/parser.hpp \
- /home/harsh/coding/Turbollm/Turbo-LLM/TurboPrototype/src/model/../gguf/loader.hpp \
+ /home/harsh/coding/Turbollm/Turbo-LLM/src/model/parser.hpp \
+ /home/harsh/coding/Turbollm/Turbo-LLM/src/model/../gguf/loader.hpp \
  /usr/include/c++/16/string /usr/include/c++/16/bits/requires_hosted.h \
  /usr/include/c++/16/x86_64-redhat-linux/bits/c++config.h \
  /usr/include/bits/wordsize.h \
@@ -169,6 +169,6 @@ CMakeFiles/turbo_prototype.dir/src/model/parser.cpp.o: \
  /usr/lib/gcc/x86_64-redhat-linux/16/include/stdint.h \
  /usr/include/stdint.h /usr/include/bits/stdint-uintn.h \
  /usr/include/bits/stdint-least.h \
- /home/harsh/coding/Turbollm/Turbo-LLM/TurboPrototype/src/model/model.hpp \
+ /home/harsh/coding/Turbollm/Turbo-LLM/src/model/model.hpp \
  /usr/include/c++/16/iostream /usr/include/c++/16/cstring \
  /usr/include/string.h /usr/include/strings.h

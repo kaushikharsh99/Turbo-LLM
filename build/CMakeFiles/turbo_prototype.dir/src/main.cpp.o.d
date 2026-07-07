@@ -1,7 +1,7 @@
 CMakeFiles/turbo_prototype.dir/src/main.cpp.o: \
- /home/harsh/coding/Turbollm/Turbo-LLM/TurboPrototype/src/main.cpp \
+ /home/harsh/coding/Turbollm/Turbo-LLM/src/main.cpp \
  /usr/include/stdc-predef.h \
- /home/harsh/coding/Turbollm/Turbo-LLM/TurboPrototype/src/config.hpp \
+ /home/harsh/coding/Turbollm/Turbo-LLM/src/config.hpp \
  /usr/include/c++/16/string /usr/include/c++/16/bits/requires_hosted.h \
  /usr/include/c++/16/x86_64-redhat-linux/bits/c++config.h \
  /usr/include/bits/wordsize.h \
@@ -97,7 +97,7 @@ CMakeFiles/turbo_prototype.dir/src/main.cpp.o: \
  /usr/include/c++/16/bits/uses_allocator.h \
  /usr/include/c++/16/bits/uses_allocator_args.h /usr/include/c++/16/tuple \
  /usr/include/c++/16/bits/invoke.h \
- /home/harsh/coding/Turbollm/Turbo-LLM/TurboPrototype/src/profiler.hpp \
+ /home/harsh/coding/Turbollm/Turbo-LLM/src/profiler.hpp \
  /usr/include/c++/16/chrono /usr/include/c++/16/bits/chrono.h \
  /usr/include/c++/16/ratio /usr/include/c++/16/cstdint \
  /usr/lib/gcc/x86_64-redhat-linux/16/include/stdint.h \
@@ -116,7 +116,7 @@ CMakeFiles/turbo_prototype.dir/src/main.cpp.o: \
  /usr/include/c++/16/bits/stl_vector.h \
  /usr/include/c++/16/bits/stl_bvector.h \
  /usr/include/c++/16/bits/vector.tcc \
- /home/harsh/coding/Turbollm/Turbo-LLM/TurboPrototype/src/gguf/loader.hpp \
+ /home/harsh/coding/Turbollm/Turbo-LLM/src/gguf/loader.hpp \
  /usr/include/c++/16/unordered_map \
  /usr/include/c++/16/bits/unordered_map.h \
  /usr/include/c++/16/bits/hashtable.h \
@@ -179,10 +179,10 @@ CMakeFiles/turbo_prototype.dir/src/main.cpp.o: \
  /usr/include/c++/16/backward/auto_ptr.h \
  /usr/include/c++/16/pstl/glue_memory_defs.h \
  /usr/include/c++/16/pstl/execution_defs.h \
- /home/harsh/coding/Turbollm/Turbo-LLM/TurboPrototype/src/model/model.hpp \
- /home/harsh/coding/Turbollm/Turbo-LLM/TurboPrototype/src/model/parser.hpp \
- /home/harsh/coding/Turbollm/Turbo-LLM/TurboPrototype/src/runtime/memory.hpp \
- /home/harsh/coding/Turbollm/Turbo-LLM/TurboPrototype/src/runtime/cuda.hpp \
+ /home/harsh/coding/Turbollm/Turbo-LLM/src/model/model.hpp \
+ /home/harsh/coding/Turbollm/Turbo-LLM/src/model/parser.hpp \
+ /home/harsh/coding/Turbollm/Turbo-LLM/src/runtime/memory.hpp \
+ /home/harsh/coding/Turbollm/Turbo-LLM/src/runtime/cuda.hpp \
  /usr/include/c++/16/thread /usr/include/c++/16/bits/std_thread.h \
  /usr/include/c++/16/bits/this_thread_sleep.h /usr/include/c++/16/future \
  /usr/include/c++/16/mutex /usr/include/c++/16/bits/std_mutex.h \
@@ -190,10 +190,10 @@ CMakeFiles/turbo_prototype.dir/src/main.cpp.o: \
  /usr/include/c++/16/condition_variable \
  /usr/include/c++/16/bits/atomic_futex.h /usr/include/c++/16/atomic \
  /usr/include/c++/16/bits/std_function.h \
- /home/harsh/coding/Turbollm/Turbo-LLM/TurboPrototype/src/runtime/scheduler.hpp \
- /home/harsh/coding/Turbollm/Turbo-LLM/TurboPrototype/src/runtime/chat_executor.hpp \
- /home/harsh/coding/Turbollm/Turbo-LLM/TurboPrototype/src/runtime/executor.hpp \
- /home/harsh/coding/Turbollm/Turbo-LLM/TurboPrototype/src/runtime/kv_cache.hpp \
- /home/harsh/coding/Turbollm/Turbo-LLM/TurboPrototype/src/runtime/tokenizer.hpp \
- /home/harsh/coding/Turbollm/Turbo-LLM/TurboPrototype/src/runtime/batch_executor.hpp \
+ /home/harsh/coding/Turbollm/Turbo-LLM/src/runtime/scheduler.hpp \
+ /home/harsh/coding/Turbollm/Turbo-LLM/src/runtime/chat_executor.hpp \
+ /home/harsh/coding/Turbollm/Turbo-LLM/src/runtime/executor.hpp \
+ /home/harsh/coding/Turbollm/Turbo-LLM/src/runtime/kv_cache.hpp \
+ /home/harsh/coding/Turbollm/Turbo-LLM/src/runtime/tokenizer.hpp \
+ /home/harsh/coding/Turbollm/Turbo-LLM/src/runtime/batch_executor.hpp \
  /usr/include/c++/16/iostream

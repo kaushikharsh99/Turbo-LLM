@@ -14,6 +14,10 @@ struct Config {
     bool chat_mode = false;
     bool benchmarking = true;
     std::string dtype = "fp16";
+    int batch_size = 4;
+    bool validate = false;
+    std::string prompt_str = "";
+    std::string prompts_jsonl_path = "";
 
     static Config& get() {
         static Config instance;

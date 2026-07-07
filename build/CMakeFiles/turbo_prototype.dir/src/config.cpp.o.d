@@ -1,7 +1,7 @@
 CMakeFiles/turbo_prototype.dir/src/config.cpp.o: \
- /home/harsh/coding/Turbollm/Turbo-LLM/TurboPrototype/src/config.cpp \
+ /home/harsh/coding/Turbollm/Turbo-LLM/src/config.cpp \
  /usr/include/stdc-predef.h \
- /home/harsh/coding/Turbollm/Turbo-LLM/TurboPrototype/src/config.hpp \
+ /home/harsh/coding/Turbollm/Turbo-LLM/src/config.hpp \
  /usr/include/c++/16/string /usr/include/c++/16/bits/requires_hosted.h \
  /usr/include/c++/16/x86_64-redhat-linux/bits/c++config.h \
  /usr/include/bits/wordsize.h \

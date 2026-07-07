@@ -131,6 +131,7 @@ std::unique_ptr<Model> Parser::parse(const GGUFLoader& loader) {
         }
 
         // Shared experts
+        layer.shared_expert_gate_inp = find_tensor(prefix + "ffn_gate_inp_shexp.weight");
         layer.shared_expert_gate = find_tensor(prefix + "ffn_gate_shexp.weight");
         layer.shared_expert_up = find_tensor(prefix + "ffn_up_shexp.weight");
         layer.shared_expert_down = find_tensor(prefix + "ffn_down_shexp.weight");

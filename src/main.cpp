@@ -10,6 +10,7 @@
 #include <iostream>
 #include <memory>
 #include <vector>
+#include <fstream>
 
 int main(int argc, char* argv[]) {
     // 1. Load configuration from command line arguments
@@ -59,19 +60,50 @@ int main(int argc, char* argv[]) {
     // 6. Run Execution Engine
     if (config.chat_mode) {
         // Chat mode (batch size = 1)
-        std::string prompt = "Explain Mixture of Experts in one simple sentence.";
-        std::cout << "Running Chat Mode. Default prompt: \"" << prompt << "\"\n";
-        
         turbo::ChatExecutor chat(*model, mem_mgr, scheduler, config);
-        chat.run(prompt);
+        chat.run(config.prompt_str);
     } else {
         // Batch mode (maximizing throughput)
-        std::vector<std::string> batch_prompts = {
-            "Explain quantum computing.",
-            "Write a poem about a computer.",
-            "What is the theory of relativity?",
-            "How does a neural network learn?"
-        };
+        std::vector<std::string> batch_prompts;
+        if (!config.prompts_jsonl_path.empty()) {
+            std::cout << "Reading prompts from JSONL file: " << config.prompts_jsonl_path << "\n";
+            std::ifstream infile(config.prompts_jsonl_path);
+            if (!infile.is_open()) {
+                std::cerr << "Failed to open prompts JSONL file: " << config.prompts_jsonl_path << "\n";
+                return 1;
+            }
+            std::string line;
+            while (std::getline(infile, line)) {
+                if (line.empty()) continue;
+                std::string prompt = "";
+                size_t p_idx = line.find("\"prompt\"");
+                if (p_idx == std::string::npos) p_idx = line.find("\"text\"");
+                
+                if (p_idx != std::string::npos) {
+                    size_t colon_idx = line.find(":", p_idx);
+                    if (colon_idx != std::string::npos) {
+                        size_t start_quote = line.find("\"", colon_idx);
+                        if (start_quote != std::string::npos) {
+                            size_t end_quote = line.find("\"", start_quote + 1);
+                            if (end_quote != std::string::npos) {
+                                prompt = line.substr(start_quote + 1, end_quote - start_quote - 1);
+                            }
+                        }
+                    }
+                }
+                if (!prompt.empty()) {
+                    batch_prompts.push_back(prompt);
+                }
+            }
+            std::cout << "Loaded " << batch_prompts.size() << " prompts from JSONL file.\n";
+        }
+        
+        if (batch_prompts.empty()) {
+            std::cout << "No prompts loaded from JSONL. Generating default batch prompts...\n";
+            for (int i = 0; i < config.batch_size; ++i) {
+                batch_prompts.push_back("Explain AI concept number " + std::to_string(i) + " in one simple sentence.");
+            }
+        }
         
         turbo::BatchExecutor batch(*model, mem_mgr, scheduler, config);
         batch.run(batch_prompts);

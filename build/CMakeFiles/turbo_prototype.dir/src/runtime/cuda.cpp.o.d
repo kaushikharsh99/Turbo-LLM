@@ -1,7 +1,7 @@
 CMakeFiles/turbo_prototype.dir/src/runtime/cuda.cpp.o: \
- /home/harsh/coding/Turbollm/Turbo-LLM/TurboPrototype/src/runtime/cuda.cpp \
+ /home/harsh/coding/Turbollm/Turbo-LLM/src/runtime/cuda.cpp \
  /usr/include/stdc-predef.h \
- /home/harsh/coding/Turbollm/Turbo-LLM/TurboPrototype/src/runtime/cuda.hpp \
+ /home/harsh/coding/Turbollm/Turbo-LLM/src/runtime/cuda.hpp \
  /usr/include/c++/16/cstddef \
  /usr/include/c++/16/x86_64-redhat-linux/bits/c++config.h \
  /usr/include/bits/wordsize.h \
@@ -161,14 +161,11 @@ CMakeFiles/turbo_prototype.dir/src/runtime/cuda.cpp.o: \
  /usr/include/c++/16/tr1/modified_bessel_func.tcc \
  /usr/include/c++/16/tr1/poly_hermite.tcc \
  /usr/include/c++/16/tr1/poly_laguerre.tcc \
- /usr/include/c++/16/tr1/riemann_zeta.tcc \
- /usr/include/c++/16/unordered_map \
- /usr/include/c++/16/bits/unordered_map.h \
- /usr/include/c++/16/bits/hashtable.h \
- /usr/include/c++/16/bits/hashtable_policy.h \
- /usr/include/c++/16/ext/aligned_buffer.h \
- /usr/include/c++/16/bits/enable_special_members.h \
- /usr/include/c++/16/bits/node_handle.h /usr/include/c++/16/mutex \
+ /usr/include/c++/16/tr1/riemann_zeta.tcc /usr/include/c++/16/vector \
+ /usr/include/c++/16/bits/stl_uninitialized.h \
+ /usr/include/c++/16/bits/stl_vector.h \
+ /usr/include/c++/16/bits/stl_bvector.h \
+ /usr/include/c++/16/bits/vector.tcc /usr/include/c++/16/mutex \
  /usr/include/c++/16/bits/chrono.h /usr/include/c++/16/ratio \
  /usr/include/c++/16/cstdint \
  /usr/lib/gcc/x86_64-redhat-linux/16/include/stdint.h \
@@ -176,26 +173,46 @@ CMakeFiles/turbo_prototype.dir/src/runtime/cuda.cpp.o: \
  /usr/include/bits/stdint-least.h /usr/include/c++/16/ctime \
  /usr/include/c++/16/bits/parse_numbers.h \
  /usr/include/c++/16/bits/std_mutex.h \
- /usr/include/c++/16/bits/unique_lock.h \
- /usr/local/cuda/include/cuda_runtime.h \
- /usr/local/cuda/include/crt/host_config.h \
- /usr/local/cuda/include/builtin_types.h \
- /usr/local/cuda/include/device_types.h \
- /usr/local/cuda/include/crt/host_defines.h \
- /usr/local/cuda/include/driver_types.h \
- /usr/local/cuda/include/vector_types.h \
+ /usr/include/c++/16/bits/unique_lock.h /usr/include/c++/16/unordered_map \
+ /usr/include/c++/16/bits/unordered_map.h \
+ /usr/include/c++/16/bits/hashtable.h \
+ /usr/include/c++/16/bits/hashtable_policy.h \
+ /usr/include/c++/16/ext/aligned_buffer.h \
+ /usr/include/c++/16/bits/enable_special_members.h \
+ /usr/include/c++/16/bits/node_handle.h \
+ /usr/local/cuda-12.4/include/cuda.h /usr/include/c++/16/stdlib.h \
+ /usr/local/cuda-12.4/include/cuda_runtime.h \
+ /usr/local/cuda-12.4/include/crt/host_config.h \
+ /usr/local/cuda-12.4/include/builtin_types.h \
+ /usr/local/cuda-12.4/include/device_types.h \
+ /usr/local/cuda-12.4/include/crt/host_defines.h \
+ /usr/local/cuda-12.4/include/driver_types.h \
+ /usr/local/cuda-12.4/include/vector_types.h \
  /usr/lib/gcc/x86_64-redhat-linux/16/include/limits.h \
  /usr/lib/gcc/x86_64-redhat-linux/16/include/syslimits.h \
  /usr/include/limits.h /usr/include/bits/posix1_lim.h \
  /usr/include/bits/local_lim.h /usr/include/linux/limits.h \
  /usr/include/bits/posix2_lim.h /usr/include/bits/xopen_lim.h \
- /usr/include/bits/uio_lim.h /usr/local/cuda/include/surface_types.h \
- /usr/local/cuda/include/texture_types.h \
- /usr/local/cuda/include/library_types.h \
- /usr/local/cuda/include/channel_descriptor.h \
- /usr/local/cuda/include/cuda_runtime_api.h \
- /usr/local/cuda/include/cuda_device_runtime_api.h \
- /usr/local/cuda/include/driver_functions.h \
- /usr/local/cuda/include/vector_functions.h \
- /usr/local/cuda/include/vector_functions.hpp /usr/include/c++/16/utility \
- /usr/include/c++/16/bits/stl_relops.h
+ /usr/include/bits/uio_lim.h /usr/local/cuda-12.4/include/surface_types.h \
+ /usr/local/cuda-12.4/include/texture_types.h \
+ /usr/local/cuda-12.4/include/library_types.h \
+ /usr/local/cuda-12.4/include/channel_descriptor.h \
+ /usr/local/cuda-12.4/include/cuda_runtime_api.h \
+ /usr/local/cuda-12.4/include/cuda_device_runtime_api.h \
+ /usr/local/cuda-12.4/include/driver_functions.h \
+ /usr/local/cuda-12.4/include/vector_functions.h \
+ /usr/local/cuda-12.4/include/vector_functions.hpp \
+ /usr/include/c++/16/utility /usr/include/c++/16/bits/stl_relops.h \
+ /usr/local/cuda-12.4/include/cublas_v2.h \
+ /usr/local/cuda-12.4/include/cublas_api.h \
+ /usr/local/cuda-12.4/include/cuComplex.h /usr/include/c++/16/math.h \
+ /usr/local/cuda-12.4/include/cuda_fp16.h \
+ /usr/local/cuda-12.4/include/nv/target \
+ /usr/local/cuda-12.4/include/nv/detail/__target_macros \
+ /usr/local/cuda-12.4/include/nv/detail/__preprocessor \
+ /usr/local/cuda-12.4/include/cuda_fp16.hpp \
+ /usr/local/cuda-12.4/include/cuda_bf16.h \
+ /usr/local/cuda-12.4/include/cuda_fp16.h \
+ /usr/local/cuda-12.4/include/cuda_bf16.hpp \
+ /usr/local/cuda-12.4/include/library_types.h \
+ /usr/local/cuda-12.4/include/nvrtc.h

@@ -43,6 +43,7 @@ void MemoryManager::initialize(const Model& model) {
         for (const auto& t : layer.expert_down) layer_bytes += t.size_bytes;
         
         if (layer.has_shared_expert) {
+            layer_bytes += layer.shared_expert_gate_inp.size_bytes;
             layer_bytes += layer.shared_expert_gate.size_bytes;
             layer_bytes += layer.shared_expert_up.size_bytes;
             layer_bytes += layer.shared_expert_down.size_bytes;
@@ -123,6 +124,7 @@ void MemoryManager::async_load_layer_to_pinned_ram(const Layer& layer, void* hos
         for (const auto& t : layer.expert_down) load_one(t);
 
         if (layer.has_shared_expert) {
+            load_one(layer.shared_expert_gate_inp);
             load_one(layer.shared_expert_gate);
             load_one(layer.shared_expert_up);
             load_one(layer.shared_expert_down);

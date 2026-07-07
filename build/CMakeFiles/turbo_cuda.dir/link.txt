@@ -1,0 +1,1 @@
+/usr/bin/c++ -fPIC -shared -Wl,--dependency-file=CMakeFiles/turbo_cuda.dir/link.d -Wl,-soname,libturbo_cuda.so -o libturbo_cuda.so CMakeFiles/turbo_cuda.dir/src/runtime/cuda.cpp.o  -Wl,-rpath,/usr/local/cuda-12.4/lib64 /usr/local/cuda-12.4/lib64/libcudart.so /usr/local/cuda-12.4/lib64/libcublas.so /usr/local/cuda-12.4/lib64/libnvrtc.so /usr/lib64/libcuda.so

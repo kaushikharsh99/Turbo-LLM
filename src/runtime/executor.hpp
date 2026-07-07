@@ -17,6 +17,7 @@ struct LayerPointers {
     std::vector<void*> expert_gate;
     std::vector<void*> expert_up;
     std::vector<void*> expert_down;
+    void* shared_expert_gate_inp = nullptr;
     void* shared_expert_gate = nullptr;
     void* shared_expert_up = nullptr;
     void* shared_expert_down = nullptr;
@@ -42,7 +43,9 @@ public:
         int layer_idx,
         int batch_size,
         int seq_len,
-        int pos
+        int pos,
+        int num_heads = 16,
+        int num_kv_heads = 2
     );
 };
 

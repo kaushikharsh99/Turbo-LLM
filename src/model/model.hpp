@@ -44,6 +44,7 @@ struct Layer {
 
     // Shared Experts (if any)
     bool has_shared_expert = false;
+    GGUFTensor shared_expert_gate_inp; // Sigmoid gating scale tensor [hidden_size]
     GGUFTensor shared_expert_gate;
     GGUFTensor shared_expert_up;
     GGUFTensor shared_expert_down;

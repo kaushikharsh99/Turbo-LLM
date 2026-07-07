@@ -1,9 +1,9 @@
 CMakeFiles/turbo_prototype.dir/src/runtime/tokenizer.cpp.o: \
- /home/harsh/coding/Turbollm/Turbo-LLM/TurboPrototype/src/runtime/tokenizer.cpp \
+ /home/harsh/coding/Turbollm/Turbo-LLM/src/runtime/tokenizer.cpp \
  /usr/include/stdc-predef.h \
- /home/harsh/coding/Turbollm/Turbo-LLM/TurboPrototype/src/runtime/tokenizer.hpp \
- /home/harsh/coding/Turbollm/Turbo-LLM/TurboPrototype/src/runtime/../model/model.hpp \
- /home/harsh/coding/Turbollm/Turbo-LLM/TurboPrototype/src/runtime/../model/../gguf/loader.hpp \
+ /home/harsh/coding/Turbollm/Turbo-LLM/src/runtime/tokenizer.hpp \
+ /home/harsh/coding/Turbollm/Turbo-LLM/src/runtime/../model/model.hpp \
+ /home/harsh/coding/Turbollm/Turbo-LLM/src/runtime/../model/../gguf/loader.hpp \
  /usr/include/c++/16/string /usr/include/c++/16/bits/requires_hosted.h \
  /usr/include/c++/16/x86_64-redhat-linux/bits/c++config.h \
  /usr/include/bits/wordsize.h \

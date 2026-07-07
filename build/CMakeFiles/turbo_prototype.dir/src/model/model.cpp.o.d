@@ -1,8 +1,8 @@
 CMakeFiles/turbo_prototype.dir/src/model/model.cpp.o: \
- /home/harsh/coding/Turbollm/Turbo-LLM/TurboPrototype/src/model/model.cpp \
+ /home/harsh/coding/Turbollm/Turbo-LLM/src/model/model.cpp \
  /usr/include/stdc-predef.h \
- /home/harsh/coding/Turbollm/Turbo-LLM/TurboPrototype/src/model/model.hpp \
- /home/harsh/coding/Turbollm/Turbo-LLM/TurboPrototype/src/model/../gguf/loader.hpp \
+ /home/harsh/coding/Turbollm/Turbo-LLM/src/model/model.hpp \
+ /home/harsh/coding/Turbollm/Turbo-LLM/src/model/../gguf/loader.hpp \
  /usr/include/c++/16/string /usr/include/c++/16/bits/requires_hosted.h \
  /usr/include/c++/16/x86_64-redhat-linux/bits/c++config.h \
  /usr/include/bits/wordsize.h \

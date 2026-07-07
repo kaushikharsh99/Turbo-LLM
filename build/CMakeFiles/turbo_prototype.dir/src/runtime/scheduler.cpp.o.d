@@ -1,9 +1,9 @@
 CMakeFiles/turbo_prototype.dir/src/runtime/scheduler.cpp.o: \
- /home/harsh/coding/Turbollm/Turbo-LLM/TurboPrototype/src/runtime/scheduler.cpp \
+ /home/harsh/coding/Turbollm/Turbo-LLM/src/runtime/scheduler.cpp \
  /usr/include/stdc-predef.h \
- /home/harsh/coding/Turbollm/Turbo-LLM/TurboPrototype/src/runtime/scheduler.hpp \
- /home/harsh/coding/Turbollm/Turbo-LLM/TurboPrototype/src/runtime/../model/model.hpp \
- /home/harsh/coding/Turbollm/Turbo-LLM/TurboPrototype/src/runtime/../model/../gguf/loader.hpp \
+ /home/harsh/coding/Turbollm/Turbo-LLM/src/runtime/scheduler.hpp \
+ /home/harsh/coding/Turbollm/Turbo-LLM/src/runtime/../model/model.hpp \
+ /home/harsh/coding/Turbollm/Turbo-LLM/src/runtime/../model/../gguf/loader.hpp \
  /usr/include/c++/16/string /usr/include/c++/16/bits/requires_hosted.h \
  /usr/include/c++/16/x86_64-redhat-linux/bits/c++config.h \
  /usr/include/bits/wordsize.h \
@@ -170,8 +170,8 @@ CMakeFiles/turbo_prototype.dir/src/runtime/scheduler.cpp.o: \
  /usr/lib/gcc/x86_64-redhat-linux/16/include/stdint.h \
  /usr/include/stdint.h /usr/include/bits/stdint-uintn.h \
  /usr/include/bits/stdint-least.h \
- /home/harsh/coding/Turbollm/Turbo-LLM/TurboPrototype/src/runtime/memory.hpp \
- /home/harsh/coding/Turbollm/Turbo-LLM/TurboPrototype/src/runtime/cuda.hpp \
+ /home/harsh/coding/Turbollm/Turbo-LLM/src/runtime/memory.hpp \
+ /home/harsh/coding/Turbollm/Turbo-LLM/src/runtime/cuda.hpp \
  /usr/include/c++/16/thread /usr/include/c++/16/bits/std_thread.h \
  /usr/include/c++/16/bits/this_thread_sleep.h \
  /usr/include/c++/16/bits/chrono.h /usr/include/c++/16/ratio \
@@ -184,7 +184,7 @@ CMakeFiles/turbo_prototype.dir/src/runtime/scheduler.cpp.o: \
  /usr/include/c++/16/bits/std_function.h /usr/include/c++/16/map \
  /usr/include/c++/16/bits/stl_tree.h /usr/include/c++/16/bits/stl_map.h \
  /usr/include/c++/16/bits/stl_multimap.h /usr/include/c++/16/chrono \
- /home/harsh/coding/Turbollm/Turbo-LLM/TurboPrototype/src/runtime/../profiler.hpp \
+ /home/harsh/coding/Turbollm/Turbo-LLM/src/runtime/../profiler.hpp \
  /usr/include/c++/16/iostream /usr/include/c++/16/algorithm \
  /usr/include/c++/16/bits/stl_algo.h \
  /usr/include/c++/16/bits/algorithmfwd.h \

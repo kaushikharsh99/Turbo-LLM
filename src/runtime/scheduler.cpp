@@ -51,6 +51,7 @@ void Scheduler::ensure_loaded(const Model& model, int layer_idx) {
 }
 
 void Scheduler::prefetch_next(const Model& model, int current_layer_idx) {
+    active_layer_idx = current_layer_idx;
     int next_layer = current_layer_idx + 1;
     if (next_layer >= model.config.num_layers) {
         prefetch_layer_idx = -1;
@@ -93,8 +94,15 @@ void Scheduler::swap_buffers() {
         prefetch_layer_idx = -1;
     }
 
-    // Wait for execution stream to finish current layer
-    cuda_stream_synchronize(exec_stream);
+    if (active_layer_idx != -1) {
+        // Wait for execution stream to finish current layer
+        profiler.start_event();
+        cuda_stream_synchronize(exec_stream);
+        profiler.record_layer_metric(active_layer_idx, "sync", profiler.end_event());
+        active_layer_idx = -1;
+    } else {
+        cuda_stream_synchronize(exec_stream);
+    }
     
     // Swap pointers
     std::swap(active_host_buf, standby_host_buf);
