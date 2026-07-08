@@ -43,7 +43,11 @@ class BatchScheduler:
         sampler: Sampler,
         max_new_tokens: int = 128,
         think_mode: bool = True,
-        profiler: Optional[Any] = None
+        profiler: Optional[Any] = None,
+        k_bits: Optional[int] = None,
+        v_bits: Optional[int] = None,
+        group_size: int = 32,
+        residual_length: int = 32
     ):
         self.executor = executor
         self.tokenizer = tokenizer
@@ -53,6 +57,10 @@ class BatchScheduler:
         self.profiler = profiler
         self.device_manager = executor.device_manager
         self.device = self.device_manager.device
+        self.k_bits = k_bits
+        self.v_bits = v_bits
+        self.group_size = group_size
+        self.residual_length = residual_length
 
     def generate(self, batch_requests: List[Request]) -> List[Request]:
         
@@ -62,7 +70,13 @@ class BatchScheduler:
 
         max_prompt_len = max(req.prompt_length for req in batch_requests)
 
-        merged_cache = KVCache(self.device_manager)
+        merged_cache = KVCache(
+            self.device_manager,
+            k_bits=self.k_bits,
+            v_bits=self.v_bits,
+            group_size=self.group_size,
+            residual_length=self.residual_length
+        )
 
         input_ids = []
         position_ids = []

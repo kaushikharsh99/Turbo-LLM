@@ -84,6 +84,32 @@ def main():
         choices=["auto", "cuda", "cpu", "mps"],
         help="Target device to run execution on (auto, cuda, cpu, mps)",
     )
+    parser.add_argument(
+        "--k-bits",
+        type=int,
+        default=None,
+        choices=[2, 4, 8],
+        help="Number of bits for key cache quantization (KIVI)"
+    )
+    parser.add_argument(
+        "--v-bits",
+        type=int,
+        default=None,
+        choices=[2, 4, 8],
+        help="Number of bits for value cache quantization (KIVI)"
+    )
+    parser.add_argument(
+        "--kivi-group-size",
+        type=int,
+        default=32,
+        help="Group size for KIVI quantization"
+    )
+    parser.add_argument(
+        "--kivi-residual-length",
+        type=int,
+        default=32,
+        help="Residual length for KIVI quantization"
+    )
     args = parser.parse_args()
 
     # Load model and initialize MemoryManager
@@ -108,7 +134,11 @@ def main():
             batch_size=args.batch_size,
             max_new_tokens=args.max_tokens,
             think_mode=args.think,
-            profiler=profiler
+            profiler=profiler,
+            k_bits=args.k_bits,
+            v_bits=args.v_bits,
+            group_size=args.kivi_group_size,
+            residual_length=args.kivi_residual_length
         )
         batch_executor.generate_from_jsonl(args.batch, "output.jsonl")
         print("Batch generation complete. Outputs written to output.jsonl")
@@ -118,7 +148,11 @@ def main():
             executor=executor,
             model_path=args.model_path,
             think_mode=args.think,
-            profiler=profiler
+            profiler=profiler,
+            k_bits=args.k_bits,
+            v_bits=args.v_bits,
+            group_size=args.kivi_group_size,
+            residual_length=args.kivi_residual_length
         )
         
         if args.prompt:
@@ -157,7 +191,11 @@ def main():
             executor=executor,
             model_path=args.model_path,
             think_mode=args.think,
-            profiler=profiler
+            profiler=profiler,
+            k_bits=args.k_bits,
+            v_bits=args.v_bits,
+            group_size=args.kivi_group_size,
+            residual_length=args.kivi_residual_length
         )
         sys.stdout.write("Turbo-LLM: ")
         sys.stdout.flush()

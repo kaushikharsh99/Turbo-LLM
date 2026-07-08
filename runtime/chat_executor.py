@@ -14,7 +14,11 @@ class ChatExecutor:
         executor: Executor,
         model_path: str,
         think_mode: bool = True,
-        profiler: Optional[Any] = None
+        profiler: Optional[Any] = None,
+        k_bits: Optional[int] = None,
+        v_bits: Optional[int] = None,
+        group_size: int = 32,
+        residual_length: int = 32
     ):
         self.executor = executor
         self.tokenizer = AutoTokenizer.from_pretrained(model_path, trust_remote_code=True)
@@ -22,6 +26,10 @@ class ChatExecutor:
         self.profiler = profiler
         self.device_manager = executor.device_manager
         self.device = self.device_manager.device
+        self.k_bits = k_bits
+        self.v_bits = v_bits
+        self.group_size = group_size
+        self.residual_length = residual_length
         
         self.sampler = Sampler(
             temperature=0.0,
@@ -53,7 +61,13 @@ class ChatExecutor:
         seq_len = input_ids.shape[1]
 
         # Initialize KV Cache
-        kv_cache = KVCache(self.device_manager)
+        kv_cache = KVCache(
+            self.device_manager,
+            k_bits=self.k_bits,
+            v_bits=self.v_bits,
+            group_size=self.group_size,
+            residual_length=self.residual_length
+        )
 
         # 2. Prefill Phase
         position_ids = torch.arange(seq_len, dtype=torch.long, device=self.device).unsqueeze(0)

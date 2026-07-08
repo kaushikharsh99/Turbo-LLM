@@ -17,7 +17,11 @@ class BatchExecutor:
         batch_size: int = 1,
         max_new_tokens: int = 128,
         think_mode: bool = True,
-        profiler: Optional[Any] = None
+        profiler: Optional[Any] = None,
+        k_bits: Optional[int] = None,
+        v_bits: Optional[int] = None,
+        group_size: int = 32,
+        residual_length: int = 32
     ):
         self.executor = executor
         self.tokenizer = AutoTokenizer.from_pretrained(model_path, trust_remote_code=True)
@@ -25,6 +29,10 @@ class BatchExecutor:
         self.max_new_tokens = max_new_tokens
         self.think_mode = think_mode
         self.profiler = profiler
+        self.k_bits = k_bits
+        self.v_bits = v_bits
+        self.group_size = group_size
+        self.residual_length = residual_length
 
         # Batch greedy decoding by default (temperature=0.0)
         self.sampler = Sampler(
@@ -39,7 +47,11 @@ class BatchExecutor:
             sampler=self.sampler,
             max_new_tokens=max_new_tokens,
             think_mode=think_mode,
-            profiler=profiler
+            profiler=profiler,
+            k_bits=self.k_bits,
+            v_bits=self.v_bits,
+            group_size=self.group_size,
+            residual_length=self.residual_length
         )
 
     def generate_from_jsonl(self, input_jsonl_path: str, output_jsonl_path: str = "output.jsonl") -> List[Dict[str, Any]]:
