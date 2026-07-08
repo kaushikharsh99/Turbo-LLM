@@ -13,9 +13,10 @@ class ExpertDispatcher:
     Pure math kernel, does not manage memory or load/unload tensors.
     """
 
-    def __init__(self, config):
+    def __init__(self, config, device_manager=None):
         self.config = config
         self.num_experts = config.num_experts
+        self.device_manager = device_manager
 
     def dispatch(
         self,
@@ -81,7 +82,10 @@ class ExpertDispatcher:
             start_exec = 0.0
 
             if profiler and profiler.enabled:
-                torch.cuda.synchronize()
+                if self.device_manager:
+                    self.device_manager.synchronize()
+                else:
+                    torch.cuda.synchronize()
                 start_exec = time.perf_counter()
                     
             expert_input = flat_hidden[token_indices]
@@ -150,7 +154,10 @@ class ExpertDispatcher:
             final_output.index_add_(0, token_indices, weighted_output)
 
             if profiler and profiler.enabled:
-                torch.cuda.synchronize()
+                if self.device_manager:
+                    self.device_manager.synchronize()
+                else:
+                    torch.cuda.synchronize()
 
                 profiler.record_expert_execution(
                     expert_id=expert_id,

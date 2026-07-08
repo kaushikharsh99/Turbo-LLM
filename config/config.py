@@ -10,7 +10,7 @@ class EngineConfig:
 
     model_path: Path
 
-    device: str = "cuda"
+    device: str = "auto"
 
     dtype: torch.dtype = torch.float16
 

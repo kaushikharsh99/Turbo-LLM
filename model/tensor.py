@@ -33,7 +33,7 @@ class Tensor:
 
     @property
     def is_gpu(self) -> bool:
-        return self.device == "cuda"
+        return self.device in ("cuda", "mps")
 
     @property
     def is_cpu(self) -> bool:

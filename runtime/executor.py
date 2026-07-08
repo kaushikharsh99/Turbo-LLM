@@ -20,6 +20,8 @@ class Executor:
     def __init__(self, model: Model, memory_manager: MemoryManager):
         self.model = model
         self.memory_manager = memory_manager
+        self.device_manager = memory_manager.device_manager
+        self.device = self.device_manager.device
 
         # Initialize math sub-modules
         self.attention = Attention(model.config)
@@ -28,7 +30,7 @@ class Executor:
         self.experts = MoEExperts(model.config)
         self.shared_expert = SharedExpert(model.config)
         self.merge = MoEMerge(model.config)
-        self.expert_dispatcher = ExpertDispatcher(model.config)
+        self.expert_dispatcher = ExpertDispatcher(model.config, self.device_manager)
 
     def load_to_gpu(self, name: str, profiler: Optional[Any] = None) -> torch.Tensor:
         """Loads a tensor to GPU and records cache hit/miss and byte tracking for profiling."""

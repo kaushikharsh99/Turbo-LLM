@@ -5,6 +5,7 @@ import torch
 
 from loader.model_loader import load_model
 from memory.memory_manager import MemoryManager
+from runtime.device import DeviceManager
 from runtime.executor import Executor
 from runtime.chat_executor import ChatExecutor
 from runtime.batch_executor import BatchExecutor
@@ -76,17 +77,27 @@ def main():
         default=2.5,
         help="GPU memory limit for active layer weights in GB",
     )
+    parser.add_argument(
+        "--device",
+        type=str,
+        default="auto",
+        choices=["auto", "cuda", "cpu", "mps"],
+        help="Target device to run execution on (auto, cuda, cpu, mps)",
+    )
     args = parser.parse_args()
 
     # Load model and initialize MemoryManager
     model = load_model(args.model_path)
     
+    device_manager = DeviceManager(args.device)
+    print(f"Using device: {device_manager.device}")
+    
     max_cpu_bytes = int(args.cpu_memory_gb * 1024**3)
     max_gpu_bytes = int(args.gpu_memory_gb * 1024**3)
-    memory_manager = MemoryManager(model, max_cpu_bytes, max_gpu_bytes)
+    memory_manager = MemoryManager(model, max_cpu_bytes, max_gpu_bytes, device_manager=device_manager)
     
     executor = Executor(model, memory_manager)
-    profiler = Profiler(enabled=args.profile, num_experts=model.config.num_experts)
+    profiler = Profiler(enabled=args.profile, num_experts=model.config.num_experts, device_manager=device_manager)
 
     # Route execution based on flags
     if args.batch:

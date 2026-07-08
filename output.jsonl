@@ -1,64 +1,100 @@
-{"id": 1, "prompt": "Write Python hello world.", "response": "```python\nprint(\"Hello", "tokens": 6, "time": 101.86, "tok_per_sec": 0.06}
-{"id": 2, "prompt": "Capital of France?", "response": "The capital of France is **", "tokens": 6, "time": 101.86, "tok_per_sec": 0.06}
-{"id": 3, "prompt": "2+2=", "response": "2", "tokens": 2, "time": 101.86, "tok_per_sec": 0.02}
-{"id": 4, "prompt": "Explain gravity in one sentence.", "response": "Gravity is a fundamental force of", "tokens": 6, "time": 101.86, "tok_per_sec": 0.06}
-{"id": 5, "prompt": "Write a C++ function to reverse a string.", "response": "```cpp\n#include <string", "tokens": 6, "time": 101.86, "tok_per_sec": 0.06}
-{"id": 6, "prompt": "Explain quantum computing simply.", "response": "To", "tokens": 2, "time": 101.86, "tok_per_sec": 0.02}
-{"id": 7, "prompt": "Summarize the French Revolution.", "response": "The French Revolution (17", "tokens": 6, "time": 101.86, "tok_per_sec": 0.06}
-{"id": 8, "prompt": "What is recursion?", "response": "**", "tokens": 2, "time": 101.86, "tok_per_sec": 0.02}
-{"id": 9, "prompt": "Write a haiku about winter.", "response": "White", "tokens": 2, "time": 101.86, "tok_per_sec": 0.02}
-{"id": 10, "prompt": "How does DNS work?", "response": "**", "tokens": 2, "time": 101.86, "tok_per_sec": 0.02}
-{"id": 11, "prompt": "Explain photosynthesis.", "response": "**", "tokens": 2, "time": 101.86, "tok_per_sec": 0.02}
-{"id": 12, "prompt": "Write SQL to find duplicate rows.", "response": "# SQL to Find Duplicate Rows", "tokens": 6, "time": 101.86, "tok_per_sec": 0.06}
-{"id": 13, "prompt": "What is overfitting in machine learning?", "response": "**What is Overfitting", "tokens": 6, "time": 101.86, "tok_per_sec": 0.06}
-{"id": 14, "prompt": "Generate a random fantasy kingdom name.", "response": "Here is a random fantasy kingdom", "tokens": 6, "time": 101.86, "tok_per_sec": 0.06}
-{"id": 15, "prompt": "Explain black holes.", "response": "A black hole is a region", "tokens": 6, "time": 101.86, "tok_per_sec": 0.06}
-{"id": 16, "prompt": "Write Java code for binary search.", "response": "# Java Binary Search Implementation\n\n", "tokens": 6, "time": 101.86, "tok_per_sec": 0.06}
-{"id": 17, "prompt": "Difference between TCP and UDP.", "response": "Transmission Control Protocol (TCP)", "tokens": 6, "time": 101.86, "tok_per_sec": 0.06}
-{"id": 18, "prompt": "Translate 'Good morning' to Japanese.", "response": "\u304a\u306f\u3088\u3046\u3054\u3056\u3044\u307e\u3059", "tokens": 5, "time": 101.86, "tok_per_sec": 0.05}
-{"id": 19, "prompt": "Write a professional resignation email.", "response": "Subject: Resignation -", "tokens": 6, "time": 101.86, "tok_per_sec": 0.06}
-{"id": 20, "prompt": "Explain blockchain in simple words.", "response": "Imagine a **shared digital notebook", "tokens": 6, "time": 101.86, "tok_per_sec": 0.06}
-{"id": 21, "prompt": "What causes rainbows?", "response": "Rainbows are a natural optical", "tokens": 6, "time": 101.86, "tok_per_sec": 0.06}
-{"id": 22, "prompt": "Write a bash script to rename files.", "response": "# Bash Script to Rename Files", "tokens": 6, "time": 101.86, "tok_per_sec": 0.06}
-{"id": 23, "prompt": "Explain the Doppler effect.", "response": "### The Doppler Effect\n\n", "tokens": 6, "time": 101.86, "tok_per_sec": 0.06}
-{"id": 24, "prompt": "Who wrote Pride and Prejudice?", "response": "**", "tokens": 2, "time": 101.86, "tok_per_sec": 0.02}
-{"id": 25, "prompt": "Write Rust code to read a file.", "response": "```markdown\n```rust\n", "tokens": 6, "time": 79.72, "tok_per_sec": 0.08}
-{"id": 26, "prompt": "Summarize Romeo and Juliet.", "response": "**", "tokens": 2, "time": 79.72, "tok_per_sec": 0.03}
-{"id": 27, "prompt": "How do neural networks learn?", "response": "Neural networks learn through a", "tokens": 6, "time": 79.72, "tok_per_sec": 0.08}
-{"id": 28, "prompt": "Write a regex for email validation.", "response": "# Email Validation Regex\n\n##", "tokens": 6, "time": 79.72, "tok_per_sec": 0.08}
-{"id": 29, "prompt": "Explain Big O notation.", "response": "# Understanding Big O Notation", "tokens": 6, "time": 79.72, "tok_per_sec": 0.08}
-{"id": 30, "prompt": "Give five healthy breakfast ideas.", "response": "Here are five healthy and delicious", "tokens": 6, "time": 79.72, "tok_per_sec": 0.08}
-{"id": 31, "prompt": "Describe the water cycle.", "response": "The water cycle, also known", "tokens": 6, "time": 79.72, "tok_per_sec": 0.08}
-{"id": 32, "prompt": "Write JavaScript debounce function.", "response": "# Debounce Function in JavaScript", "tokens": 6, "time": 79.72, "tok_per_sec": 0.08}
-{"id": 33, "prompt": "Explain entropy in thermodynamics.", "response": "**", "tokens": 2, "time": 79.72, "tok_per_sec": 0.03}
-{"id": 34, "prompt": "What is reinforcement learning?", "response": "**", "tokens": 2, "time": 79.72, "tok_per_sec": 0.03}
-{"id": 35, "prompt": "Write a limerick about programmers.", "response": "A", "tokens": 2, "time": 79.72, "tok_per_sec": 0.03}
-{"id": 36, "prompt": "Explain the solar eclipse.", "response": "A solar eclipse is a celestial", "tokens": 6, "time": 79.72, "tok_per_sec": 0.08}
-{"id": 37, "prompt": "How does Git rebase work?", "response": "# How Git Rebase Works", "tokens": 6, "time": 79.72, "tok_per_sec": 0.08}
-{"id": 38, "prompt": "Write Go code for an HTTP server.", "response": "```go\npackage main\n\n", "tokens": 6, "time": 79.72, "tok_per_sec": 0.08}
-{"id": 39, "prompt": "Explain the Tower of Hanoi.", "response": "# The Tower of Hanoi", "tokens": 6, "time": 79.72, "tok_per_sec": 0.08}
-{"id": 40, "prompt": "What is a Bloom filter?", "response": "A", "tokens": 2, "time": 79.72, "tok_per_sec": 0.03}
-{"id": 41, "prompt": "Summarize World War II in three sentences.", "response": "World War II was a global", "tokens": 6, "time": 79.72, "tok_per_sec": 0.08}
-{"id": 42, "prompt": "Write a Python Fibonacci generator.", "response": "```python\ndef fibonacci_generator", "tokens": 6, "time": 79.72, "tok_per_sec": 0.08}
-{"id": 43, "prompt": "Explain compiler optimization.", "response": "# Compiler Optimization: A Comprehensive", "tokens": 6, "time": 79.72, "tok_per_sec": 0.08}
-{"id": 44, "prompt": "Difference between RAM and SSD.", "response": "The main difference between **RAM", "tokens": 6, "time": 79.72, "tok_per_sec": 0.08}
-{"id": 45, "prompt": "Write a short motivational quote.", "response": "\"", "tokens": 2, "time": 79.72, "tok_per_sec": 0.03}
-{"id": 46, "prompt": "Explain plate tectonics.", "response": "**", "tokens": 2, "time": 79.72, "tok_per_sec": 0.03}
-{"id": 47, "prompt": "Write HTML for a login form.", "response": "```html\n<!DOCTYPE html", "tokens": 6, "time": 79.72, "tok_per_sec": 0.08}
-{"id": 48, "prompt": "How does RSA encryption work?", "response": "RSA (Rivest\u2013", "tokens": 6, "time": 79.72, "tok_per_sec": 0.08}
-{"id": 49, "prompt": "Explain the Pythagorean theorem.", "response": "The **Pythagorean theorem", "tokens": 6, "time": 64.46, "tok_per_sec": 0.09}
-{"id": 50, "prompt": "Write CSS for a centered card.", "response": "Here are a few ways to", "tokens": 6, "time": 64.46, "tok_per_sec": 0.09}
-{"id": 51, "prompt": "What is gradient descent?", "response": "**", "tokens": 2, "time": 64.46, "tok_per_sec": 0.03}
-{"id": 52, "prompt": "Summarize Darwin's theory of evolution.", "response": "Charles Darwin\u2019s theory of evolution", "tokens": 6, "time": 64.46, "tok_per_sec": 0.09}
-{"id": 53, "prompt": "Write Kotlin code for factorial.", "response": "Here are a few ways to", "tokens": 6, "time": 64.46, "tok_per_sec": 0.09}
-{"id": 54, "prompt": "Explain HTTP status codes.", "response": "HTTP status codes are three-digit", "tokens": 6, "time": 64.46, "tok_per_sec": 0.09}
-{"id": 55, "prompt": "Write a short science fiction story.", "response": "The air in the observation deck", "tokens": 6, "time": 64.46, "tok_per_sec": 0.09}
-{"id": 56, "prompt": "Difference between process and thread.", "response": "The main difference between a **", "tokens": 6, "time": 64.46, "tok_per_sec": 0.09}
-{"id": 57, "prompt": "Explain Fourier transforms simply.", "response": "Here is a simple explanation of", "tokens": 6, "time": 64.46, "tok_per_sec": 0.09}
-{"id": 58, "prompt": "Write Swift code for a stack.", "response": "```swift\n// Generic Stack", "tokens": 6, "time": 64.46, "tok_per_sec": 0.09}
-{"id": 59, "prompt": "How does JPEG compression work?", "response": "JPEG compression is a widely used", "tokens": 6, "time": 64.46, "tok_per_sec": 0.09}
-{"id": 60, "prompt": "Write a palindrome checker in C.", "response": "```c\n#include <stdio", "tokens": 6, "time": 64.46, "tok_per_sec": 0.09}
-{"id": 61, "prompt": "Explain special relativity briefly.", "response": "**", "tokens": 2, "time": 64.46, "tok_per_sec": 0.03}
-{"id": 62, "prompt": "Write Lua code for quicksort.", "response": "```lua\n-- Quicks", "tokens": 6, "time": 64.46, "tok_per_sec": 0.09}
-{"id": 63, "prompt": "Describe how airplanes fly.", "response": "Airplanes fly by harnessing", "tokens": 6, "time": 64.46, "tok_per_sec": 0.09}
-{"id": 64, "prompt": "Explain mixture-of-experts neural networks.", "response": "**Mixture of Experts (", "tokens": 6, "time": 64.46, "tok_per_sec": 0.09}
+{"id": 1, "prompt": "Write Python hello world.", "response": "```python\n", "tokens": 3, "time": 206.15, "tok_per_sec": 0.01}
+{"id": 2, "prompt": "Capital of France?", "response": "The capital of", "tokens": 3, "time": 206.15, "tok_per_sec": 0.01}
+{"id": 3, "prompt": "2+2=", "response": "2", "tokens": 2, "time": 206.15, "tok_per_sec": 0.01}
+{"id": 4, "prompt": "Explain gravity in one sentence.", "response": "Gravity", "tokens": 2, "time": 206.15, "tok_per_sec": 0.01}
+{"id": 5, "prompt": "Write a C++ function to reverse a string.", "response": "```cpp\n", "tokens": 3, "time": 206.15, "tok_per_sec": 0.01}
+{"id": 6, "prompt": "Explain quantum computing simply.", "response": "To explain quantum", "tokens": 3, "time": 206.15, "tok_per_sec": 0.01}
+{"id": 7, "prompt": "Summarize the French Revolution.", "response": "The French Revolution", "tokens": 3, "time": 206.15, "tok_per_sec": 0.01}
+{"id": 8, "prompt": "What is recursion?", "response": "**", "tokens": 2, "time": 206.15, "tok_per_sec": 0.01}
+{"id": 9, "prompt": "Write a haiku about winter.", "response": "White", "tokens": 2, "time": 206.15, "tok_per_sec": 0.01}
+{"id": 10, "prompt": "How does DNS work?", "response": "**", "tokens": 2, "time": 206.15, "tok_per_sec": 0.01}
+{"id": 11, "prompt": "Explain photosynthesis.", "response": "**", "tokens": 2, "time": 206.15, "tok_per_sec": 0.01}
+{"id": 12, "prompt": "Write SQL to find duplicate rows.", "response": "# SQL to", "tokens": 3, "time": 206.15, "tok_per_sec": 0.01}
+{"id": 13, "prompt": "What is overfitting in machine learning?", "response": "**Overfit", "tokens": 3, "time": 206.15, "tok_per_sec": 0.01}
+{"id": 14, "prompt": "Generate a random fantasy kingdom name.", "response": "Here is a", "tokens": 3, "time": 206.15, "tok_per_sec": 0.01}
+{"id": 15, "prompt": "Explain black holes.", "response": "A", "tokens": 2, "time": 206.15, "tok_per_sec": 0.01}
+{"id": 16, "prompt": "Write Java code for binary search.", "response": "# Java Binary", "tokens": 3, "time": 206.15, "tok_per_sec": 0.01}
+{"id": 17, "prompt": "Difference between TCP and UDP.", "response": "Transmission Control Protocol", "tokens": 3, "time": 206.15, "tok_per_sec": 0.01}
+{"id": 18, "prompt": "Translate 'Good morning' to Japanese.", "response": "\u304a\u306f\u3088\u3046", "tokens": 3, "time": 206.15, "tok_per_sec": 0.01}
+{"id": 19, "prompt": "Write a professional resignation email.", "response": "Subject: Res", "tokens": 3, "time": 206.15, "tok_per_sec": 0.01}
+{"id": 20, "prompt": "Explain blockchain in simple words.", "response": "Imagine a **", "tokens": 3, "time": 206.15, "tok_per_sec": 0.01}
+{"id": 21, "prompt": "What causes rainbows?", "response": "Rainbows are", "tokens": 3, "time": 206.15, "tok_per_sec": 0.01}
+{"id": 22, "prompt": "Write a bash script to rename files.", "response": "# Bash Script", "tokens": 3, "time": 206.15, "tok_per_sec": 0.01}
+{"id": 23, "prompt": "Explain the Doppler effect.", "response": "### The Dop", "tokens": 3, "time": 206.15, "tok_per_sec": 0.01}
+{"id": 24, "prompt": "Who wrote Pride and Prejudice?", "response": "**", "tokens": 2, "time": 206.15, "tok_per_sec": 0.01}
+{"id": 25, "prompt": "Write Rust code to read a file.", "response": "```markdown\n", "tokens": 3, "time": 206.15, "tok_per_sec": 0.01}
+{"id": 26, "prompt": "Summarize Romeo and Juliet.", "response": "**", "tokens": 2, "time": 206.15, "tok_per_sec": 0.01}
+{"id": 27, "prompt": "How do neural networks learn?", "response": "Neural networks", "tokens": 3, "time": 206.15, "tok_per_sec": 0.01}
+{"id": 28, "prompt": "Write a regex for email validation.", "response": "# Email Validation", "tokens": 3, "time": 206.15, "tok_per_sec": 0.01}
+{"id": 29, "prompt": "Explain Big O notation.", "response": "# Understanding Big", "tokens": 3, "time": 206.15, "tok_per_sec": 0.01}
+{"id": 30, "prompt": "Give five healthy breakfast ideas.", "response": "Here are five", "tokens": 3, "time": 206.15, "tok_per_sec": 0.01}
+{"id": 31, "prompt": "Describe the water cycle.", "response": "The water cycle", "tokens": 3, "time": 206.15, "tok_per_sec": 0.01}
+{"id": 32, "prompt": "Write JavaScript debounce function.", "response": "# JavaScript Deb", "tokens": 3, "time": 206.15, "tok_per_sec": 0.01}
+{"id": 33, "prompt": "Explain entropy in thermodynamics.", "response": "**", "tokens": 2, "time": 206.15, "tok_per_sec": 0.01}
+{"id": 34, "prompt": "What is reinforcement learning?", "response": "**", "tokens": 2, "time": 206.15, "tok_per_sec": 0.01}
+{"id": 35, "prompt": "Write a limerick about programmers.", "response": "A", "tokens": 2, "time": 206.15, "tok_per_sec": 0.01}
+{"id": 36, "prompt": "Explain the solar eclipse.", "response": "A solar eclipse", "tokens": 3, "time": 206.15, "tok_per_sec": 0.01}
+{"id": 37, "prompt": "How does Git rebase work?", "response": "# How Git", "tokens": 3, "time": 206.15, "tok_per_sec": 0.01}
+{"id": 38, "prompt": "Write Go code for an HTTP server.", "response": "```go\n", "tokens": 3, "time": 206.15, "tok_per_sec": 0.01}
+{"id": 39, "prompt": "Explain the Tower of Hanoi.", "response": "# The Tower", "tokens": 3, "time": 206.15, "tok_per_sec": 0.01}
+{"id": 40, "prompt": "What is a Bloom filter?", "response": "A", "tokens": 2, "time": 206.15, "tok_per_sec": 0.01}
+{"id": 41, "prompt": "Summarize World War II in three sentences.", "response": "World War II", "tokens": 3, "time": 206.15, "tok_per_sec": 0.01}
+{"id": 42, "prompt": "Write a Python Fibonacci generator.", "response": "```python\n", "tokens": 3, "time": 206.15, "tok_per_sec": 0.01}
+{"id": 43, "prompt": "Explain compiler optimization.", "response": "**Compiler optimization", "tokens": 3, "time": 206.15, "tok_per_sec": 0.01}
+{"id": 44, "prompt": "Difference between RAM and SSD.", "response": "The main difference", "tokens": 3, "time": 206.15, "tok_per_sec": 0.01}
+{"id": 45, "prompt": "Write a short motivational quote.", "response": "\"", "tokens": 2, "time": 206.15, "tok_per_sec": 0.01}
+{"id": 46, "prompt": "Explain plate tectonics.", "response": "**", "tokens": 2, "time": 206.15, "tok_per_sec": 0.01}
+{"id": 47, "prompt": "Write HTML for a login form.", "response": "```html\n", "tokens": 3, "time": 206.15, "tok_per_sec": 0.01}
+{"id": 48, "prompt": "How does RSA encryption work?", "response": "RSA (R", "tokens": 3, "time": 206.15, "tok_per_sec": 0.01}
+{"id": 49, "prompt": "Explain the Pythagorean theorem.", "response": "The Pythag", "tokens": 3, "time": 206.15, "tok_per_sec": 0.01}
+{"id": 50, "prompt": "Write CSS for a centered card.", "response": "Here are a", "tokens": 3, "time": 206.15, "tok_per_sec": 0.01}
+{"id": 51, "prompt": "What is gradient descent?", "response": "**", "tokens": 2, "time": 197.22, "tok_per_sec": 0.01}
+{"id": 52, "prompt": "Summarize Darwin's theory of evolution.", "response": "Charles Darwin's", "tokens": 3, "time": 197.22, "tok_per_sec": 0.02}
+{"id": 53, "prompt": "Write Kotlin code for factorial.", "response": "Here are a", "tokens": 3, "time": 197.22, "tok_per_sec": 0.02}
+{"id": 54, "prompt": "Explain HTTP status codes.", "response": "HTTP status codes", "tokens": 3, "time": 197.22, "tok_per_sec": 0.02}
+{"id": 55, "prompt": "Write a short science fiction story.", "response": "The air in", "tokens": 3, "time": 197.22, "tok_per_sec": 0.02}
+{"id": 56, "prompt": "Difference between process and thread.", "response": "The main difference", "tokens": 3, "time": 197.22, "tok_per_sec": 0.02}
+{"id": 57, "prompt": "Explain Fourier transforms simply.", "response": "Here is a", "tokens": 3, "time": 197.22, "tok_per_sec": 0.02}
+{"id": 58, "prompt": "Write Swift code for a stack.", "response": "```swift\n", "tokens": 3, "time": 197.22, "tok_per_sec": 0.02}
+{"id": 59, "prompt": "How does JPEG compression work?", "response": "JPEG", "tokens": 2, "time": 197.22, "tok_per_sec": 0.01}
+{"id": 60, "prompt": "Write a palindrome checker in C.", "response": "```markdown\n", "tokens": 3, "time": 197.22, "tok_per_sec": 0.02}
+{"id": 61, "prompt": "Explain special relativity briefly.", "response": "**", "tokens": 2, "time": 197.22, "tok_per_sec": 0.01}
+{"id": 62, "prompt": "Write Lua code for quicksort.", "response": "```lua\n", "tokens": 3, "time": 197.22, "tok_per_sec": 0.02}
+{"id": 63, "prompt": "Describe how airplanes fly.", "response": "Airplanes fly", "tokens": 3, "time": 197.22, "tok_per_sec": 0.02}
+{"id": 64, "prompt": "Explain mixture-of-experts neural networks.", "response": "**Mixture", "tokens": 3, "time": 197.22, "tok_per_sec": 0.02}
+{"id": 65, "prompt": "Explain how blockchain consensus works.", "response": "At its core", "tokens": 3, "time": 197.22, "tok_per_sec": 0.02}
+{"id": 66, "prompt": "Write Python code for binary search.", "response": "```python\n", "tokens": 3, "time": 197.22, "tok_per_sec": 0.02}
+{"id": 67, "prompt": "What is reinforcement learning?", "response": "**", "tokens": 2, "time": 197.22, "tok_per_sec": 0.01}
+{"id": 68, "prompt": "Describe how DNS resolves domain names.", "response": "Domain Name System", "tokens": 3, "time": 197.22, "tok_per_sec": 0.02}
+{"id": 69, "prompt": "Write a merge sort implementation in C++.", "response": "```cpp\n", "tokens": 3, "time": 197.22, "tok_per_sec": 0.02}
+{"id": 70, "prompt": "Explain the difference between TCP and UDP.", "response": "Transmission Control Protocol", "tokens": 3, "time": 197.22, "tok_per_sec": 0.02}
+{"id": 71, "prompt": "How does gradient descent optimize neural networks?", "response": "#", "tokens": 2, "time": 197.22, "tok_per_sec": 0.01}
+{"id": 72, "prompt": "Write Java code to reverse a linked list.", "response": "# Reverse a", "tokens": 3, "time": 197.22, "tok_per_sec": 0.02}
+{"id": 73, "prompt": "Describe how operating system scheduling works.", "response": "Operating system (", "tokens": 3, "time": 197.22, "tok_per_sec": 0.02}
+{"id": 74, "prompt": "Explain the transformer architecture.", "response": "The **Transformer", "tokens": 3, "time": 197.22, "tok_per_sec": 0.02}
+{"id": 75, "prompt": "Write Rust code for a hash map example.", "response": "```markdown\n", "tokens": 3, "time": 197.22, "tok_per_sec": 0.02}
+{"id": 76, "prompt": "What causes seasons on Earth?", "response": "The primary cause", "tokens": 3, "time": 197.22, "tok_per_sec": 0.02}
+{"id": 77, "prompt": "Explain virtual memory in operating systems.", "response": "**", "tokens": 2, "time": 197.22, "tok_per_sec": 0.01}
+{"id": 78, "prompt": "Write JavaScript code to debounce a function.", "response": "# JavaScript Deb", "tokens": 3, "time": 197.22, "tok_per_sec": 0.02}
+{"id": 79, "prompt": "Describe the process of photosynthesis.", "response": "**", "tokens": 2, "time": 197.22, "tok_per_sec": 0.01}
+{"id": 80, "prompt": "Explain how public key cryptography works.", "response": "Public key cryptography", "tokens": 3, "time": 197.22, "tok_per_sec": 0.02}
+{"id": 81, "prompt": "Write Go code for a concurrent worker pool.", "response": "```go\n", "tokens": 3, "time": 197.22, "tok_per_sec": 0.02}
+{"id": 82, "prompt": "What is overfitting in machine learning?", "response": "**Overfit", "tokens": 3, "time": 197.22, "tok_per_sec": 0.02}
+{"id": 83, "prompt": "Explain the CAP theorem.", "response": "The **CAP", "tokens": 3, "time": 197.22, "tok_per_sec": 0.02}
+{"id": 84, "prompt": "Write SQL to find the second highest salary.", "response": "# Finding the", "tokens": 3, "time": 197.22, "tok_per_sec": 0.02}
+{"id": 85, "prompt": "Describe how compilers translate source code.", "response": "Compilers translate", "tokens": 3, "time": 197.22, "tok_per_sec": 0.02}
+{"id": 86, "prompt": "Explain the difference between processes and threads.", "response": "To understand the", "tokens": 3, "time": 197.22, "tok_per_sec": 0.02}
+{"id": 87, "prompt": "Write Kotlin code for breadth-first search.", "response": "```kotlin", "tokens": 3, "time": 197.22, "tok_per_sec": 0.02}
+{"id": 88, "prompt": "How does garbage collection work?", "response": "# How Gar", "tokens": 3, "time": 197.22, "tok_per_sec": 0.02}
+{"id": 89, "prompt": "Explain the basics of quantum computing.", "response": "Quantum computing", "tokens": 3, "time": 197.22, "tok_per_sec": 0.02}
+{"id": 90, "prompt": "Write a Python implementation of Dijkstra's algorithm.", "response": "```python\n", "tokens": 3, "time": 197.22, "tok_per_sec": 0.02}
+{"id": 91, "prompt": "Describe how HTTP requests are processed.", "response": "# How HTTP", "tokens": 3, "time": 197.22, "tok_per_sec": 0.02}
+{"id": 92, "prompt": "Explain the purpose of batch normalization.", "response": "**", "tokens": 2, "time": 197.22, "tok_per_sec": 0.01}
+{"id": 93, "prompt": "Write C code to implement a stack using arrays.", "response": "```c\n", "tokens": 3, "time": 197.22, "tok_per_sec": 0.02}
+{"id": 94, "prompt": "How do recommendation systems work?", "response": "Recommendation systems", "tokens": 3, "time": 197.22, "tok_per_sec": 0.02}
+{"id": 95, "prompt": "Explain the producer-consumer problem.", "response": "# The Producer", "tokens": 3, "time": 197.22, "tok_per_sec": 0.02}
+{"id": 96, "prompt": "Write Swift code for a binary tree traversal.", "response": "```swift\n", "tokens": 3, "time": 197.22, "tok_per_sec": 0.02}
+{"id": 97, "prompt": "Describe how database indexing improves performance.", "response": "Database indexing improves", "tokens": 3, "time": 197.22, "tok_per_sec": 0.02}
+{"id": 98, "prompt": "Explain the bias-variance tradeoff.", "response": "The **bias", "tokens": 3, "time": 197.22, "tok_per_sec": 0.02}
+{"id": 99, "prompt": "Write Python code to implement a trie data structure.", "response": "```python\n", "tokens": 3, "time": 197.22, "tok_per_sec": 0.02}
+{"id": 100, "prompt": "Describe how large language models generate text.", "response": "Large language models", "tokens": 3, "time": 197.22, "tok_per_sec": 0.02}

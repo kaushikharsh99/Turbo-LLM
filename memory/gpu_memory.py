@@ -6,13 +6,14 @@ from typing import Optional, Dict, List, Any
 class GPUMemory:
     """GPU cache for resident tensors (VRAM) with LRU eviction."""
 
-    def __init__(self, max_bytes: int | float):
+    def __init__(self, max_bytes: int | float, device_manager=None):
         self.max_bytes = max_bytes
         self.current_bytes = 0
         # Map tensor name -> GPU torch.Tensor
         self.cache: OrderedDict[str, torch.Tensor] = OrderedDict()
         # Map tensor name -> Tensor metadata object
         self.registry: Dict[str, Any] = {}
+        self.device_manager = device_manager
 
     def exists(self, name: str) -> bool:
         """Checks if the tensor is resident in GPU memory."""
@@ -60,13 +61,19 @@ class GPUMemory:
             self.current_bytes -= meta.size_bytes
             del data
             if empty_cache:
-                torch.cuda.empty_cache()
+                if self.device_manager:
+                    self.device_manager.empty_cache()
+                else:
+                    torch.cuda.empty_cache()
             return True
         return False
 
     def clear(self):
-        """Clears all resident GPU tensors and empties PyTorch's CUDA cache."""
+        """Clears all resident GPU tensors and empties PyTorch's cache."""
         self.cache.clear()
         self.registry.clear()
         self.current_bytes = 0
-        torch.cuda.empty_cache()
+        if self.device_manager:
+            self.device_manager.empty_cache()
+        else:
+            torch.cuda.empty_cache()

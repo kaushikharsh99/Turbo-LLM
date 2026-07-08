@@ -62,3 +62,39 @@
 {"id":62,"prompt":"Write Lua code for quicksort."}
 {"id":63,"prompt":"Describe how airplanes fly."}
 {"id":64,"prompt":"Explain mixture-of-experts neural networks."}
+{"id":65,"prompt":"Explain how blockchain consensus works."}
+{"id":66,"prompt":"Write Python code for binary search."}
+{"id":67,"prompt":"What is reinforcement learning?"}
+{"id":68,"prompt":"Describe how DNS resolves domain names."}
+{"id":69,"prompt":"Write a merge sort implementation in C++."}
+{"id":70,"prompt":"Explain the difference between TCP and UDP."}
+{"id":71,"prompt":"How does gradient descent optimize neural networks?"}
+{"id":72,"prompt":"Write Java code to reverse a linked list."}
+{"id":73,"prompt":"Describe how operating system scheduling works."}
+{"id":74,"prompt":"Explain the transformer architecture."}
+{"id":75,"prompt":"Write Rust code for a hash map example."}
+{"id":76,"prompt":"What causes seasons on Earth?"}
+{"id":77,"prompt":"Explain virtual memory in operating systems."}
+{"id":78,"prompt":"Write JavaScript code to debounce a function."}
+{"id":79,"prompt":"Describe the process of photosynthesis."}
+{"id":80,"prompt":"Explain how public key cryptography works."}
+{"id":81,"prompt":"Write Go code for a concurrent worker pool."}
+{"id":82,"prompt":"What is overfitting in machine learning?"}
+{"id":83,"prompt":"Explain the CAP theorem."}
+{"id":84,"prompt":"Write SQL to find the second highest salary."}
+{"id":85,"prompt":"Describe how compilers translate source code."}
+{"id":86,"prompt":"Explain the difference between processes and threads."}
+{"id":87,"prompt":"Write Kotlin code for breadth-first search."}
+{"id":88,"prompt":"How does garbage collection work?"}
+{"id":89,"prompt":"Explain the basics of quantum computing."}
+{"id":90,"prompt":"Write a Python implementation of Dijkstra's algorithm."}
+{"id":91,"prompt":"Describe how HTTP requests are processed."}
+{"id":92,"prompt":"Explain the purpose of batch normalization."}
+{"id":93,"prompt":"Write C code to implement a stack using arrays."}
+{"id":94,"prompt":"How do recommendation systems work?"}
+{"id":95,"prompt":"Explain the producer-consumer problem."}
+{"id":96,"prompt":"Write Swift code for a binary tree traversal."}
+{"id":97,"prompt":"Describe how database indexing improves performance."}
+{"id":98,"prompt":"Explain the bias-variance tradeoff."}
+{"id":99,"prompt":"Write Python code to implement a trie data structure."}
+{"id":100,"prompt":"Describe how large language models generate text."}

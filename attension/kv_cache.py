@@ -5,7 +5,7 @@ from typing import Dict, Tuple
 class KVCache:
         """Production-style Key-Value cache stored on GPU."""
 
-        def __init__(self):
+        def __init__(self, device_manager=None):
             # Maps layer_id -> k_cache (torch.Tensor)
             self.k_caches: Dict[int, torch.Tensor] = {}
             # Maps layer_id -> v_cache (torch.Tensor)
@@ -14,6 +14,11 @@ class KVCache:
             self.conv_states: Dict[int, torch.Tensor] = {}
             # Maps layer_id -> recurrent_state (torch.Tensor)
             self.recurrent_states: Dict[int, torch.Tensor] = {}
+            self.device_manager = device_manager
+            if device_manager is not None:
+                self.device = device_manager.device
+            else:
+                self.device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
         def append(
             self, layer_id: int, k: torch.Tensor, v: torch.Tensor
@@ -23,9 +28,9 @@ class KVCache:
             k, v shape: (batch_size, seq_len, num_kv_heads, head_dim)
             Returns the full concatenated (k_cache, v_cache) tensors.
             """
-            # Ensure caches reside on GPU
-            k = k.cuda()
-            v = v.cuda()
+            # Ensure caches reside on active device
+            k = k.to(self.device)
+            v = v.to(self.device)
 
             if layer_id not in self.k_caches:
                 self.k_caches[layer_id] = k
@@ -69,8 +74,10 @@ class KVCache:
             self.conv_states.clear()
             self.recurrent_states.clear()
 
-            # Release unused cached GPU memory
-            if torch.cuda.is_available():
+            # Release unused cached memory
+            if self.device_manager is not None:
+                self.device_manager.empty_cache()
+            elif torch.cuda.is_available():
                 torch.cuda.empty_cache()
 
         def reset(self):

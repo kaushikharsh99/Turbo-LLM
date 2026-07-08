@@ -11,13 +11,18 @@ from memory.gpu_memory import GPUMemory
 class MemoryManager:
     """Coordinates weight loading and transitions between SSD -> CPU RAM -> GPU VRAM."""
 
-    def __init__(self, model: Model, max_cpu_bytes: int | float, max_gpu_bytes: int | float):
+    def __init__(self, model: Model, max_cpu_bytes: int | float, max_gpu_bytes: int | float, device_manager=None):
         self.model = model
         self.max_cpu_bytes = max_cpu_bytes
         self.max_gpu_bytes = max_gpu_bytes
 
+        if device_manager is None:
+            from runtime.device import DeviceManager
+            device_manager = DeviceManager()
+        self.device_manager = device_manager
+
         self.cpu_memory = CPUMemory(max_cpu_bytes)
-        self.gpu_memory = GPUMemory(max_gpu_bytes)
+        self.gpu_memory = GPUMemory(max_gpu_bytes, device_manager=device_manager)
 
         # Mapping of tensor name -> Tensor (metadata wrapper object)
         self.tensor_registry: Dict[str, Tensor] = {}
@@ -160,7 +165,7 @@ class MemoryManager:
         cpu_data = self.load_tensor(name)
 
         # Copy data to GPU
-        gpu_data = cpu_data.to("cuda")
+        gpu_data = cpu_data.to(self.device_manager.device)
 
         # Cache in GPU memory and handle evicted tensors
         evicted_names = self.gpu_memory.add(name, gpu_data, tensor_obj)
@@ -175,7 +180,7 @@ class MemoryManager:
                 evicted_obj.data = None
 
         # Update metadata of resident tensor
-        tensor_obj.device = "cuda"
+        tensor_obj.device = self.device_manager.device.type
         tensor_obj.loaded = True
         tensor_obj.data = gpu_data
 

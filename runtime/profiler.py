@@ -12,9 +12,10 @@ class Profiler:
     expert activations, and memory footprints.
     """
 
-    def __init__(self, enabled: bool = False, num_experts: int = 256):
+    def __init__(self, enabled: bool = False, num_experts: int = 256, device_manager=None):
         self.enabled = enabled
         self.num_experts = num_experts
+        self.device_manager = device_manager
         self.start_time = 0.0
         self.end_time = 0.0
         self.total_time = 0.0
@@ -113,15 +114,23 @@ class Profiler:
     def start(self):
         if not self.enabled:
             return
-        torch.cuda.synchronize()
+        if self.device_manager is not None:
+            self.device_manager.synchronize()
+            self.device_manager.reset_peak_memory_stats()
+        else:
+            if torch.cuda.is_available():
+                torch.cuda.synchronize()
+                torch.cuda.reset_peak_memory_stats()
         self.start_time = time.perf_counter()
-        # Reset max memory tracking in PyTorch
-        torch.cuda.reset_peak_memory_stats()
 
     def stop(self, prompt_tokens: int, generated_tokens: int):
         if not self.enabled:
             return
-        torch.cuda.synchronize()
+        if self.device_manager is not None:
+            self.device_manager.synchronize()
+        else:
+            if torch.cuda.is_available():
+                torch.cuda.synchronize()
         self.end_time = time.perf_counter()
 
         self.total_time = self.end_time - self.start_time
@@ -134,7 +143,10 @@ class Profiler:
         self.peak_cpu_bytes = cpu_kb * 1024
         
         # Record peak GPU memory
-        self.peak_gpu_bytes = torch.cuda.max_memory_allocated()
+        if self.device_manager is not None:
+            self.peak_gpu_bytes = self.device_manager.max_memory_allocated()
+        else:
+            self.peak_gpu_bytes = torch.cuda.max_memory_allocated() if torch.cuda.is_available() else 0
 
     def record_time(self, layer_id: int, metric: str, duration: float):
         if not self.enabled:
@@ -232,7 +244,9 @@ class Profiler:
         if not self.enabled:
             return
 
-        if torch.cuda.is_available():
+        if self.device_manager is not None:
+            self.device_manager.synchronize()
+        elif torch.cuda.is_available():
             torch.cuda.synchronize()
 
         self._active_timers[name] = time.perf_counter()
@@ -246,7 +260,9 @@ class Profiler:
         if start is None:
             return
 
-        if torch.cuda.is_available():
+        if self.device_manager is not None:
+            self.device_manager.synchronize()
+        elif torch.cuda.is_available():
             torch.cuda.synchronize()
 
         elapsed = time.perf_counter() - start
@@ -260,7 +276,9 @@ class Profiler:
 
         key = f"{layer}:{component}"
 
-        if torch.cuda.is_available():
+        if self.device_manager is not None:
+            self.device_manager.synchronize()
+        elif torch.cuda.is_available():
             torch.cuda.synchronize()
 
         self._active_timers[key] = time.perf_counter()
@@ -277,7 +295,9 @@ class Profiler:
         if start is None:
             return
 
-        if torch.cuda.is_available():
+        if self.device_manager is not None:
+            self.device_manager.synchronize()
+        elif torch.cuda.is_available():
             torch.cuda.synchronize()
 
         elapsed = time.perf_counter() - start

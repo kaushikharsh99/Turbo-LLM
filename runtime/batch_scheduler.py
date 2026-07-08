@@ -51,6 +51,8 @@ class BatchScheduler:
         self.max_new_tokens = max_new_tokens
         self.think_mode = think_mode
         self.profiler = profiler
+        self.device_manager = executor.device_manager
+        self.device = self.device_manager.device
 
     def generate(self, batch_requests: List[Request]) -> List[Request]:
         
@@ -60,7 +62,7 @@ class BatchScheduler:
 
         max_prompt_len = max(req.prompt_length for req in batch_requests)
 
-        merged_cache = KVCache()
+        merged_cache = KVCache(self.device_manager)
 
         input_ids = []
         position_ids = []
@@ -86,19 +88,19 @@ class BatchScheduler:
 
         input_ids = torch.tensor(
             input_ids,
-            device="cuda",
+            device=self.device,
             dtype=torch.long,
         )
 
         position_ids = torch.tensor(
             position_ids,
-            device="cuda",
+            device=self.device,
             dtype=torch.long,
         )
 
         attention_masks = torch.tensor(
             attention_masks,
-            device="cuda",
+            device=self.device,
             dtype=torch.bool,
         )
 
@@ -114,7 +116,7 @@ class BatchScheduler:
             torch.full(
                 (L, L),
                 float("-inf"),
-                device="cuda",
+                device=self.device,
                 dtype=torch.bfloat16,
             ),
             diagonal=1,
@@ -140,7 +142,7 @@ class BatchScheduler:
         start_prefill = 0.0
 
         if self.profiler and self.profiler.enabled:
-            torch.cuda.synchronize()
+            self.device_manager.synchronize()
             start_prefill = time.perf_counter()
 
         logits = self.executor.forward(
@@ -152,7 +154,7 @@ class BatchScheduler:
         )
 
         if self.profiler and self.profiler.enabled:
-            torch.cuda.synchronize()
+            self.device_manager.synchronize()
             self.profiler.prefill_time += time.perf_counter() - start_prefill
             self.profiler.prompt_tokens += attention_masks.sum().item()
 
@@ -188,8 +190,8 @@ class BatchScheduler:
                 input_tokens_list.append(req.tokens[-1])
                 decode_pos_list.append(req.current_length - 1)
 
-            decode_input_ids = torch.tensor(input_tokens_list, dtype=torch.long, device="cuda").unsqueeze(1)  # (B, 1)
-            decode_position_ids = torch.tensor(decode_pos_list, dtype=torch.long, device="cuda").unsqueeze(1)  # (B, 1)
+            decode_input_ids = torch.tensor(input_tokens_list, dtype=torch.long, device=self.device).unsqueeze(1)  # (B, 1)
+            decode_position_ids = torch.tensor(decode_pos_list, dtype=torch.long, device=self.device).unsqueeze(1)  # (B, 1)
 
             # 4D attention mask for decode: (B, 1, 1, kv_seq_len)
             # KV cache has max_prompt_len (with left-pad zeros) + step+1 generated tokens
@@ -200,13 +202,13 @@ class BatchScheduler:
                 mask = [0.0] * pad_len + [1.0] * (req.prompt_length + step + 1)
                 decode_mask_list.append(mask)
 
-            decode_attention_mask = torch.tensor(decode_mask_list, dtype=torch.bfloat16, device="cuda")
-            decode_mask = torch.zeros((B, 1, 1, kv_seq_len), device="cuda", dtype=torch.bfloat16)
+            decode_attention_mask = torch.tensor(decode_mask_list, dtype=torch.bfloat16, device=self.device)
+            decode_mask = torch.zeros((B, 1, 1, kv_seq_len), device=self.device, dtype=torch.bfloat16)
             decode_mask = decode_mask.masked_fill(decode_attention_mask.unsqueeze(1).unsqueeze(2) == 0.0, float("-inf"))
 
             start_decode = 0.0
             if self.profiler and self.profiler.enabled:
-                torch.cuda.synchronize()
+                self.device_manager.synchronize()
                 start_decode = time.perf_counter()
 
             logits = self.executor.forward(
@@ -218,7 +220,7 @@ class BatchScheduler:
             )
 
             if self.profiler and self.profiler.enabled:
-                torch.cuda.synchronize()
+                self.device_manager.synchronize()
                 self.profiler.decode_times.append(time.perf_counter() - start_decode)
 
             # Sample next tokens for unfinished sequences
