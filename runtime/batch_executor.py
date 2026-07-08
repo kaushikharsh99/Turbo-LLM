@@ -65,6 +65,7 @@ class BatchExecutor:
         for req_data in requests_data:
             prompt = req_data.get("prompt", "")
             req_id = req_data.get("id", 0)
+            
 
             # Check for request-specific think_mode override
             req_think = req_data.get("think", self.think_mode)
@@ -94,9 +95,12 @@ class BatchExecutor:
                 metadata=req_data
             ))
 
-        # Run batch execution
         results = []
         num_requests = len(requests)
+
+        if self.profiler and self.profiler.enabled:
+            self.profiler.total_requests = num_requests
+            self.profiler.completed_requests = 0
         
         for i in range(0, num_requests, self.batch_size):
             batch = requests[i : i + self.batch_size]
@@ -119,6 +123,9 @@ class BatchExecutor:
                     out_data["tok_per_sec"] = round(len(req.tokens) / max(batch_time, 1e-6), 2)
                 
                 results.append(out_data)
+
+                if self.profiler and self.profiler.enabled:
+                    self.profiler.completed_requests += 1
 
         # Write output JSONL
         with open(output_jsonl_path, "w") as f:

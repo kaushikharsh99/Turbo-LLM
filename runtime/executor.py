@@ -286,9 +286,6 @@ class Executor:
         # 2. Process all layers sequentially
         for layer_id in range(self.model.config.num_layers):
 
-            if profiler:
-                profiler.start_layer_timer(layer_id, "Total")
-
             hidden_states = self.forward_layer(
                 hidden_states,
                 layer_id,
@@ -297,9 +294,6 @@ class Executor:
                 attention_mask,
                 profiler,
             )
-
-            if profiler:
-                profiler.stop_layer_timer(layer_id, "Total")
 
         if profiler:
             profiler.start_timer("Final RMSNorm")

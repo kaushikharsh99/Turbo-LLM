@@ -77,6 +77,13 @@ class ExpertDispatcher:
 
             token_indices, k_indices = mask.nonzero(as_tuple=True)
             num_routed_tokens = token_indices.numel()
+
+            start_exec = 0.0
+
+            if profiler and profiler.enabled:
+                torch.cuda.synchronize()
+                start_exec = time.perf_counter()
+                    
             expert_input = flat_hidden[token_indices]
 
             if profiler:
@@ -141,6 +148,15 @@ class ExpertDispatcher:
                 )
             # Accumulate output (Scatter)
             final_output.index_add_(0, token_indices, weighted_output)
+
+            if profiler and profiler.enabled:
+                torch.cuda.synchronize()
+
+                profiler.record_expert_execution(
+                    expert_id=expert_id,
+                    tokens_count=num_routed_tokens,
+                    exec_time=time.perf_counter() - start_exec,
+                )
 
             if profiler:
                 profiler.stop_layer_timer(

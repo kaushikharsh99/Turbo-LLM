@@ -1,3 +1,5 @@
+import json
+import csv
 import time
 import torch
 import resource
@@ -15,6 +17,7 @@ class Profiler:
         self.num_experts = num_experts
         self.start_time = 0.0
         self.end_time = 0.0
+        self.total_time = 0.0
         self.prompt_tokens = 0
         self.generated_tokens = 0
         
@@ -120,6 +123,9 @@ class Profiler:
             return
         torch.cuda.synchronize()
         self.end_time = time.perf_counter()
+
+        self.total_time = self.end_time - self.start_time
+
         self.prompt_tokens = prompt_tokens
         self.generated_tokens = generated_tokens
         
@@ -282,8 +288,7 @@ class Profiler:
         if not self.enabled:
             return
             
-        import json
-        import csv
+
 
         total_time = self.end_time - self.start_time
         total_tokens = self.prompt_tokens + self.generated_tokens
@@ -321,7 +326,10 @@ class Profiler:
             print(f"Total Tokens        {total_tokens}")
             print("")
             print(f"TTFT                {self.prefill_time:.2f} s")
-            print(f"Generation Time     {total_time:.2f} s")
+            total_decode_time = sum(self.decode_times)
+            print(f"Generation Time          {self.total_time:.2f} s")
+            print(f"Prefill Time            {self.prefill_time:.2f} s")
+            print(f"Decode Time             {total_decode_time:.2f} s")
             print("")
             print(f"Prompt Throughput   {prompt_speed:.2f} tok/s")
             print(f"Decode Throughput   {decode_speed:.2f} tok/s")
@@ -347,7 +355,10 @@ class Profiler:
             print(f"Generated Tokens         {self.generated_tokens:,}")
             print(f"Total Tokens             {total_tokens:,}")
             print("")
-            print(f"Generation Time          {total_time:.1f} s")
+            total_decode_time = sum(self.decode_times)
+            print(f"Generation Time          {self.total_time:.2f} s")
+            print(f"Prefill Time            {self.prefill_time:.2f} s")
+            print(f"Decode Time             {total_decode_time:.2f} s")
             print("")
             print(f"Overall Throughput       {overall_throughput:.1f} tok/s")
             print(f"Prompt Throughput        {prompt_speed:.1f} tok/s")
@@ -386,54 +397,53 @@ class Profiler:
         with open("profile_summary.json", "w") as f:
             json.dump(summary_data, f, indent=2)
 
-        # layer_profile.csv
-        # Timings for each layer (Embedding, Attention, Linear Attention, Router, Expert Dispatcher, Shared Expert, Final RMSNorm, LM Head)
+                # layer_profile.csv
         with open("layer_profile.csv", "w", newline="") as f:
             writer = csv.writer(f)
-            total_l = sum(metrics.values())
 
             writer.writerow([
-                lid,
-                metrics.get("Embedding", 0.0),
-                metrics.get("Attention", 0.0),
-                metrics.get("Linear Attention", 0.0),
-                metrics.get("Router", 0.0),
-                metrics.get("Weight Loading", 0.0),
-                metrics.get("Dispatch Table", 0.0),
-                metrics.get("Gather", 0.0),
-                metrics.get("FP8 Dequant", 0.0),
-                metrics.get("Expert Compute", 0.0),
-                metrics.get("Scatter", 0.0),
-                metrics.get("Shared Expert", 0.0),
-                metrics.get("Merge", 0.0),
-                metrics.get("GPU Free", 0.0),
-                metrics.get("Final RMSNorm", 0.0),
-                metrics.get("LM Head", 0.0),
-                total_l,
+                "layer_id",
+                "Embedding",
+                "Attention",
+                "Linear Attention",
+                "Router",
+                "Weight Loading",
+                "Dispatch Table",
+                "Gather",
+                "FP8 Dequant",
+                "Expert Compute",
+                "Scatter",
+                "Shared Expert",
+                "Merge",
+                "GPU Free",
+                "Final RMSNorm",
+                "LM Head"
             ])
-            
-            # Aggregate across layers
+
             for lid in sorted(self.layer_times.keys()):
+
                 metrics = self.layer_times[lid]
 
+                total_l = sum(metrics.values())
+
                 writer.writerow([
-                    "layer_id",
-                    "Embedding",
-                    "Attention",
-                    "Linear Attention",
-                    "Router",
-                    "Weight Loading",
-                    "Dispatch Table",
-                    "Gather",
-                    "FP8 Dequant",
-                    "Expert Compute",
-                    "Scatter",
-                    "Shared Expert",
-                    "Merge",
-                    "GPU Free",
-                    "Final RMSNorm",
-                    "LM Head",
-                    "Total"
+                    lid,
+                    metrics.get("Embedding", 0.0),
+                    metrics.get("Attention", 0.0),
+                    metrics.get("Linear Attention", 0.0),
+                    metrics.get("Router", 0.0),
+                    metrics.get("Weight Loading", 0.0),
+                    metrics.get("Dispatch Table", 0.0),
+                    metrics.get("Gather", 0.0),
+                    metrics.get("FP8 Dequant", 0.0),
+                    metrics.get("Expert Compute", 0.0),
+                    metrics.get("Scatter", 0.0),
+                    metrics.get("Shared Expert", 0.0),
+                    metrics.get("Merge", 0.0),
+                    metrics.get("GPU Free", 0.0),
+                    metrics.get("Final RMSNorm", 0.0),
+                    metrics.get("LM Head", 0.0),
+                    total_l,
                 ])
                 
         # memory_profile.csv
@@ -489,16 +499,43 @@ class Profiler:
             json.dump(gen_profile, f, indent=2)
 
         print()
-        print("=" * 52)
-        print("Runtime Breakdown")
-        print("=" * 52)
+        print("=" * 60)
+        print("Overall Runtime Breakdown".center(60))
+        print("=" * 60)
+
+        from collections import defaultdict
+
+        overall = defaultdict(float)
+
+        # Sum every component from every layer
+        for metrics in self.layer_times.values():
+            for name, value in metrics.items():
+                overall[name] += value
+
+        # Add global timings
+        for name, value in self.component_times.items():
+            overall[name] += value
+
+        wall_time = self.total_time
 
         for name, value in sorted(
-            self.component_times.items(),
+            overall.items(),
             key=lambda x: x[1],
             reverse=True,
         ):
-            print(f"{name:<28}{value*1000:10.2f} ms")
+            percent = (value / max(wall_time, 1e-9)) * 100
+
+            print(
+                f"{name:<24}"
+                f"{value:>10.3f} s"
+                f"{percent:>10.2f}%"
+            )
+
+        print("-" * 60)
+        print(
+            f"{'Wall Clock Time':<24}"
+            f"{wall_time:>10.3f} s"
+        )
 
         print()
         print("=" * 52)
@@ -509,16 +546,16 @@ class Profiler:
 
             print(f"\nLayer {layer}")
 
-            total = 0.0
+            layer_total = 0.0
 
             for component, value in self.layer_times[layer].items():
 
-                total += value
+                layer_total += value
 
                 print(
                     f"  {component:<22}{value*1000:10.2f} ms"
                 )
 
             print(
-                f"  {'TOTAL':<22}{total*1000:10.2f} ms"
+                f"  {'Layer Total':<22}{layer_total*1000:10.2f} ms"
             )
