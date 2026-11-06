@@ -61,6 +61,9 @@ class KVCache(BaseCache):
         """Returns the number of cached tokens for the given layer."""
         return self._seq_lengths.get(layer_idx, 0)
 
+    def get_query_offset(self, layer_idx=0):
+        return self.get_seq_length(layer_idx)
+
     def get_mask_sizes(self, query_length: int, layer_idx: int) -> tuple[int, int]:
         """
         Returns (kv_length, kv_offset) for causal mask construction.

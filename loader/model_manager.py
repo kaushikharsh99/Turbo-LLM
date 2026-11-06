@@ -30,6 +30,9 @@ def get_model(
         print(f"\nLocation:\n{model_path}\n")
         return model_path
 
+    if str(model_id).endswith(".gguf") or str(model_id).startswith(("/", "./", "../")):
+        raise FileNotFoundError(f"Local model does not exist: {model_id}")
+
     local = (
         MODELS
         /

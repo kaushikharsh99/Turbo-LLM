@@ -37,7 +37,7 @@ class LlamaAdapter(BaseModelAdapter):
             past_key_values=kv_cache,
             position_embeddings=position_embeddings,
         )
-        return outputs[0], kv_cache.get(layer_id) if kv_cache is not None else None
+        return (outputs if hasattr(outputs, "shape") else outputs[0]), kv_cache.get(layer_id) if kv_cache is not None else None
 
     def final_norm(self, hidden):
         return self.model.model.norm(hidden)
@@ -46,15 +46,10 @@ class LlamaAdapter(BaseModelAdapter):
         return self.model.lm_head(hidden)
 
     def create_attention_mask(self, hidden, kv_cache, position_ids):
-        from transformers.modeling_attn_mask_utils import _prepare_4d_causal_attention_mask
-        batch_size, seq_len = hidden.shape[0], hidden.shape[1]
-        past_key_values_length = kv_cache.get_seq_length(0) if kv_cache is not None else 0
-        return _prepare_4d_causal_attention_mask(
-            attention_mask=None,
-            input_shape=(batch_size, seq_len),
-            inputs_embeds=hidden,
-            past_key_values_length=past_key_values_length,
-        )
+        from transformers.masking_utils import create_causal_mask
+        return create_causal_mask(
+            config=self.model.config, inputs_embeds=hidden, attention_mask=None,
+            past_key_values=kv_cache, position_ids=position_ids)
 
     def rotary_embeddings(self, hidden, position_ids):
         return self.model.model.rotary_emb(hidden, position_ids=position_ids)

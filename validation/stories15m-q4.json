@@ -1,0 +1,17 @@
+{
+  "model": "stories15M-q4_0.gguf",
+  "bytes": 19077344,
+  "backend": "llama_cpp (CPU mmap, not Turbo streaming)",
+  "n_ctx": 128,
+  "n_threads": 4,
+  "n_gpu_layers": 0,
+  "load_seconds": 0.12516875400001481,
+  "generation_seconds": 0.16684538000004068,
+  "usage": {
+    "prompt_tokens": 6,
+    "completion_tokens": 24,
+    "total_tokens": 30
+  },
+  "text": " a very intelligent girl. She loves to learn new things and she always has a smile on her face.\n",
+  "max_rss_mib": 87.82421875
+}

@@ -10,7 +10,7 @@ def parse_args():
 
     parser.add_argument(
         "--config",
-        default="config/default.yaml",
+        default=None,
         help="Path to config file"
     )
 
@@ -91,6 +91,8 @@ def parse_args():
         default="routing_dataset.jsonl",
         help="Dataset output file"
     )
+
+    parser.add_argument("--backend", choices=["auto", "turbo", "llama_cpp"], default="auto")
 
     args = parser.parse_args()
 

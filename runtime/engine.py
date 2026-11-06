@@ -10,13 +10,15 @@ class TurboEngine:
     def __init__(self, adapter):
         self.adapter = adapter
         self.loader = adapter.loader
-        
+
         if self.adapter.capabilities["is_moe"]:
             from execution.router import RouterExecutor
             from execution.moe import MoEExecutor
             from execution.layer_executor import LayerExecutor
 
-            self.router = RouterExecutor(self.loader, self.adapter.num_layers)
+            self.router = RouterExecutor(self.loader, self.adapter.num_layers,
+                                         top_k=self.adapter.load_config().num_experts_per_tok,
+                                         normalize=getattr(self.adapter.load_config(), "norm_topk_prob", True))
             self.moe = MoEExecutor(self.loader)
             self.layer = LayerExecutor(self.adapter, self.loader, self.router, self.moe)
         else:
@@ -39,15 +41,16 @@ class TurboEngine:
 
 
     ):
-        
-        self.layer.collector = collector        
+
+        if self.layer is not None:
+            self.layer.collector = collector
         DEVICE = self.loader.DEVICE
-        
+
         model_name_or_path = self.loader.snapshot_path
-        
+
         tokenizer = AutoTokenizer.from_pretrained(
             model_name_or_path,
-            trust_remote_code=True,
+            trust_remote_code=False,
         )
 
         # Apply chat template if --chat mode
@@ -62,7 +65,7 @@ class TurboEngine:
                 "role": "user",
                 "content": prompt,
             })
-            
+
 
             formatted_prompt = tokenizer.apply_chat_template(
                 messages,
@@ -82,22 +85,22 @@ class TurboEngine:
         kv_cache = self.adapter.create_cache(
             prompt_len + max_new_tokens
         )
-        
+
         print(f"Generating {max_new_tokens} tokens...")
-        
+
         if DEVICE == "cuda":
             torch.cuda.reset_peak_memory_stats()
-            
+
         start_time = time.time()
         next_token_id = None
         generated_text = ""
         generated_tokens = 0
 
         ttft = None
-        
+
         for step in range(max_new_tokens):
             step_start_time = time.time()
-            
+
             # Prefill vs Decode setup
             if step == 0:
                 input_to_model = input_ids
@@ -105,10 +108,10 @@ class TurboEngine:
             else:
                 input_to_model = next_token_id.view(1, 1)
                 position_ids = torch.tensor([[prompt_len + step - 1]], device=DEVICE)
-                
+
             # 5. Embeddings Step
             hidden_states = self.adapter.embed(input_to_model)
-            
+
             # 6. Rotary Embeddings & Attention Mask Setup
             position_embeddings = self.adapter.rotary_embeddings(hidden_states, position_ids)
             causal_mask = self.adapter.create_attention_mask(
@@ -117,7 +120,7 @@ class TurboEngine:
                 position_ids=position_ids
             )
             if collector is not None:
-                
+
                 collector.begin_token(
                     token_id=-1,
                     token_text="",
@@ -218,36 +221,36 @@ class TurboEngine:
             # Record TTFT immediately after the first token is produced
             if step == 0:
                 ttft = time.time() - start_time
-                
+
 
             if collector is not None:
                 collector.current_token["token_id"] = next_token_id.item()
                 collector.current_token["token_text"] = next_token
                 collector.finish_token()
 
-            
-            
+
+
             # Memory tracking
             if DEVICE == "cuda":
                 vram_allocated = torch.cuda.memory_allocated()
             else:
                 vram_allocated = 0
-                
+
             max_vram_bytes = 5.8 * 1024**3
             if config and "memory" in config and "max_vram_mb" in config["memory"]:
                 max_vram_bytes = config["memory"]["max_vram_mb"] * 1024**2
             assert vram_allocated < max_vram_bytes, f"VRAM allocation {vram_allocated / 1024**3:.2f} GB exceeds limit!"
-            
+
             kv_bytes = kv_cache.get_memory_bytes()
             kv_mb = kv_bytes / 1024**2
-            
+
             peak_vram_step = (
                 torch.cuda.max_memory_allocated() / 1024**2
                 if DEVICE == "cuda"
                 else 0
             )
             step_duration = time.time() - step_start_time
-            
+
             if self.adapter.capabilities["is_moe"]:
                 exp_cache_count = len(self.loader.expert_cache)
                 exp_cache_limit = self.loader.cache_limit
@@ -257,7 +260,7 @@ class TurboEngine:
             else:
                 print(f"Step {step:02d} | Token: {repr(next_token):<10} (ID: {next_token_id.item():<5}) | "
                       f"Peak VRAM: {peak_vram_step:.2f} MB | Cache VRAM: {kv_mb:.2f} MB | Time: {step_duration:.2f}s")
-            
+
             # Stop if EOS token is generated
             if tokenizer.eos_token_id is not None and next_token_id.item() == tokenizer.eos_token_id:
                 print("\nEOS token generated. Stopping generation.")
@@ -308,7 +311,7 @@ class TurboEngine:
         print("-" * 60)
         print(f"Total Runtime       : {total_duration:.2f} s")
         print(f"End-to-End Speed    : {overall_tokens_per_sec:.2f} tok/s")
-        
+
         if DEVICE == "cuda":
             print(f"Peak VRAM used    : {torch.cuda.max_memory_allocated() / 1024**2:.2f} MB")
         else:
@@ -316,13 +319,13 @@ class TurboEngine:
         process = psutil.Process(os.getpid())
         ram_mb = process.memory_info().rss / (1024 * 1024)
         print(f"Current System RAM: {ram_mb:.2f} MB")
-        
+
         if self.adapter.capabilities["is_moe"] and hasattr(self.layer, "attn_times") and len(self.layer.attn_times) > 0:
             avg_attn = sum(self.layer.attn_times) / len(self.layer.attn_times)
             avg_moe = sum(self.layer.moe_times) / len(self.layer.moe_times)
             print(f"Avg Attention time per layer: {avg_attn*1000:.2f} ms")
             print(f"Avg MoE/MLP time per layer  : {avg_moe*1000:.2f} ms")
-            
+
         if self.adapter.capabilities["is_moe"]:
             total_hits = self.loader.gpu_hits + self.loader.ram_hits + self.loader.ssd_hits
             if total_hits > 0:
@@ -337,5 +340,4 @@ class TurboEngine:
             print(f"SSD hits:\n{ssd_pct:.0f}%")
             print("=" * 60)
 
-        self.loader.close()
         return generated_text

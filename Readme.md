@@ -1,3 +1,6 @@
+> Local revival status and verified compatibility: [DEVELOPMENT.md](DEVELOPMENT.md).
+> The benchmark figures below are upstream claims and have not been reproduced in this checkout.
+
 <p align="center">
   <img src="assets/logo.png" width="280">
 </p>

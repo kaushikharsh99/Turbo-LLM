@@ -7,6 +7,7 @@ def main():
 
     args = parse_args()
     cfg = load_config(args.config)
+    cfg.setdefault("execution", {})["backend"] = args.backend
 
     print(
         "\nTurbo-LLM\n"

@@ -18,14 +18,17 @@ class ExpertLoader:
         self.snapshot_path = snapshot_path
         self.config = config
 
+        from runtime.policy import ExecutionPolicy
+        policy = ExecutionPolicy.from_config(config)
+        self.DEVICE = policy.device
         # Memory / VRAM config
         self.max_vram_gb = 5.8
-        if config and "memory" in config and "max_vram_mb" in config:
+        if config and "memory" in config and "max_vram_mb" in config["memory"]:
             self.max_vram_gb = config["memory"]["max_vram_mb"] / 1024.0
 
         # Dtype config
-        self.dtype = torch.float16
-        if config and "execution" in config and "dtype" in config:
+        self.dtype = policy.dtype
+        if config and "execution" in config and "dtype" in config["execution"]:
             dtype_str = config["execution"]["dtype"]
             if dtype_str in ("bf16", "bfloat16"):
                 self.dtype = torch.bfloat16
@@ -46,10 +49,12 @@ class ExpertLoader:
 
         # Expert limit config
         self.cache_limit = 128
-        if config and "cache" in config and "expert_limit" in config:
+        if config and "cache" in config and "expert_limit" in config["cache"]:
             limit = config["cache"]["expert_limit"]
             if limit != "auto":
                 self.cache_limit = int(limit)
+                if self.cache_limit < 1:
+                    raise ValueError("cache.expert_limit must be positive or auto")
 
         # Thread lock for prefetching and cache management
         self.lock = threading.Lock()
@@ -86,9 +91,10 @@ class ExpertLoader:
         # Based on index.json, they are named model.layers.0.mlp.experts.0.gate_proj.weight
         return self.files[filename].get_tensor(weight_name)
 
-    def load_weight(self, weight_name, device=DEVICE, dtype=None):
+    def load_weight(self, weight_name, device=None, dtype=None):
         if dtype is None:
             dtype = self.dtype
+        device = self.DEVICE if device is None else device
         tensor = self._get_tensor(weight_name)
         scale_name = f"{weight_name}_scale_inv"
         if scale_name in self.weight_map:
@@ -113,7 +119,8 @@ class ExpertLoader:
         else:
             return tensor.to(device=device).to(dtype=dtype)
 
-    def load_weight_raw(self, weight_name, device=DEVICE):
+    def load_weight_raw(self, weight_name, device=None):
+        device = self.DEVICE if device is None else device
         tensor = self._get_tensor(weight_name)
         scale_name = f"{weight_name}_scale_inv"
         if scale_name in self.weight_map:
@@ -158,7 +165,7 @@ class ExpertLoader:
             w.view(M // 128, 128, N // 128, 128)
             * scale_d.view(M // 128, 1, N // 128, 1)
         ).view(M, N)
-    def load_weight_split(self, weight_name, device=DEVICE, dtype=None):
+    def load_weight_split(self, weight_name, device=None, dtype=None):
         """
         Loads the weight and returns the dequantized weight along with separated
         loading/copy time and dequantization time.
@@ -166,6 +173,7 @@ class ExpertLoader:
         if dtype is None:
             dtype = self.dtype
         t_copy_start = time.time()
+        device = self.DEVICE if device is None else device
         tensor = self._get_tensor(weight_name)
         w_fp8 = self._prepare_fp8_tensor(tensor, device)
         
@@ -198,10 +206,10 @@ class ExpertLoader:
         Dynamically adjusts cache_limit based on current PyTorch allocated VRAM
         and actual physical GPU free VRAM to prevent OOM and respect the target budget.
         """
-        if not torch.cuda.is_available():
+        if self.DEVICE != "cuda":
             return
         
-        if self.config and "cache" in self.config and "expert_limit" in self.config:
+        if self.config and "cache" in self.config and "expert_limit" in self.config["cache"]:
             if self.config["cache"]["expert_limit"] != "auto":
                 self.cache_limit = int(self.config["cache"]["expert_limit"])
                 return
@@ -243,14 +251,16 @@ class ExpertLoader:
             for d in self._expert_down_shape:
                 down_els *= d
             # gate + up (same shape) + down, each in self.dtype
-            elem_size = 2  # FP16/BF16 = 2 bytes
+            elem_size = torch.empty((), dtype=self.dtype).element_size()
             avg_expert_size = (gate_els + gate_els + down_els) * elem_size
         else:
             avg_expert_size = 9.0 * 1024**2  # fallback ~9 MB for Qwen3
         dynamic_limit = int(available_bytes // avg_expert_size)
         
         # Keep limit bounds between 16 and 450
-        self.cache_limit = max(16, min(450, dynamic_limit))
+        if dynamic_limit < 1:
+            raise MemoryError("No room for one expert cache slot within the VRAM budget; reduce backbone residency or use CPU")
+        self.cache_limit = min(450, dynamic_limit)
         
         print(f"[DEBUG Cache Limit] current_allocated: {current_allocated/1024**2:.2f} MB, "
               f"non_cache_allocated: {non_cache_allocated/1024**2:.2f} MB, "
@@ -592,7 +602,7 @@ class ExpertLoader:
     def close(self):
         with self.lock:
             for f in self.files.values():
-                del f
+                f.__exit__(None, None, None)
             self.files = {}
             self.expert_cache.clear()
             self.expert_metadata.clear()
@@ -600,3 +610,6 @@ class ExpertLoader:
             self.static_expert_up = None
             self.static_expert_down = None
             self.free_slots.clear()
+            self.pinned_slots.clear()
+            self.ram_cache.cache.clear()
+            self.ram_cache.current = 0

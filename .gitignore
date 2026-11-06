@@ -4,3 +4,8 @@ __pycache__/
 *$py.class
 routing_dataset.jsonl
 prompts.jsonl
+.venv/
+.pytest_cache/
+build/
+dist/
+.local-models/

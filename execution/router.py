@@ -2,10 +2,11 @@ import torch
 import torch.nn.functional as F
 
 class RouterExecutor:
-    def __init__(self, loader, num_layers, top_k=8):
+    def __init__(self, loader, num_layers, top_k=8, normalize=True):
         self.loader = loader
         self.num_layers = num_layers
         self.top_k = top_k
+        self.normalize = normalize
         self.routers = {}
         # Preload router weights to VRAM (only 24 MB total)
         for i in range(self.num_layers):
@@ -34,7 +35,8 @@ class RouterExecutor:
         top_k_weights, top_k_indices = torch.topk(probs, k, dim=-1)
         
         # normalize weights
-        top_k_weights = top_k_weights / top_k_weights.sum(dim=-1, keepdim=True)
+        if self.normalize:
+            top_k_weights = top_k_weights / top_k_weights.sum(dim=-1, keepdim=True)
         
         # cast back to input dtype for expert MLP computations
         top_k_weights = top_k_weights.to(logits.dtype)

@@ -11,12 +11,9 @@ class ModelLayout:
         with open(os.path.join(snapshot_path, "config.json")) as f:
             self.config = json.load(f)
 
-        index_path = os.path.join(snapshot_path, "model.safetensors.index.json")
-
-        with open(index_path) as f:
-            index = json.load(f)
-
-        self.weight_map = index["weight_map"]
+        from loader.checkpoint import SafetensorsReader
+        self.reader = SafetensorsReader(snapshot_path)
+        self.weight_map = self.reader.weight_map
 
         self.model_type = self.config.get("model_type", "unknown")
 
@@ -53,7 +50,7 @@ class ModelLayout:
 
         if self.layer_prefix is None:
             raise RuntimeError(
-                f"Unsupported model layout ({self.model_type})"
+                f"Unsupported expert layout ({self.model_type}). Turbo streaming requires individually named mlp.experts.N.gate_proj/up_proj/down_proj.weight tensors; packed experts need conversion or the GGUF backend."
             )
 
         # Detect router tensor automatically
