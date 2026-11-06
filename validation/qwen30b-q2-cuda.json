@@ -1,0 +1,42 @@
+{
+  "model": "Qwen3-30B-A3B-Instruct-2507-Q2_K_L.gguf",
+  "bytes": 11212519424,
+  "backend": "llama_cpp (mmap, not Turbo streaming)",
+  "llama_cpp_version": "0.3.31",
+  "gpu_offload_supported": true,
+  "python": "3.13.9",
+  "logical_cpus": 16,
+  "available_ram_before_mib": 8023.24609375,
+  "available_ram_after_mib": 8540.32421875,
+  "n_ctx_requested": 256,
+  "n_ctx_actual": 256,
+  "n_threads": 4,
+  "n_gpu_layers": 16,
+  "prompt": "The capital of France is",
+  "chat": false,
+  "note": "Official llama-cpp-python 0.3.31 cu132 wheel; 16 layers requested on RTX 3050. CPU baseline had concurrent source compilation; this GPU run did not.",
+  "load_seconds": 18.608682324000256,
+  "generation_seconds": 11.742711353999766,
+  "completion_tokens_per_second_including_prefill": 0.6812736648998073,
+  "usage": {
+    "prompt_tokens": 5,
+    "completion_tokens": 8,
+    "total_tokens": 13
+  },
+  "text": " Paris. What is the capital of Germany",
+  "max_rss_mib": 5763.76171875,
+  "system_gpu_peak_used_mib": 3841.0,
+  "gpu_measurement_note": "Whole GPU including desktop/other processes; sampled every 0.5s",
+  "verified_offloaded_layers": 16,
+  "total_model_layers_including_output": 49,
+  "cuda_model_buffer_mib": 3487.31,
+  "cuda_compute_buffer_mib": 90.0,
+  "llama_cpp_timings": {
+    "prompt_eval_tokens": 5,
+    "prompt_eval_seconds": 8.39169,
+    "decode_eval_tokens": 7,
+    "decode_eval_seconds": 3.3374200000000003,
+    "decode_tokens_per_second": 2.097428552594519,
+    "source": "llama.cpp verbose performance log"
+  }
+}

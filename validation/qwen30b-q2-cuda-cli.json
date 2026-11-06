@@ -1,0 +1,22 @@
+{
+  "model": "Qwen3-30B-A3B-Instruct-2507-Q2_K_L.gguf",
+  "backend": "llama_cpp CUDA cu132 wheel, not Turbo streaming",
+  "command": "PYTHONPATH=.local-cuda turbo-llm --backend llama_cpp --chat --prompt \"What is the capital of France? Answer in one word.\" --max_new_tokens 8 --temperature 0",
+  "gguf": {
+    "n_ctx": 256,
+    "n_batch": 64,
+    "n_threads": 4,
+    "n_gpu_layers": 16,
+    "seed": 0
+  },
+  "verified_offloaded_layers": 16,
+  "total_model_layers_including_output": 49,
+  "cuda_model_buffer_mib": 3487.31,
+  "generation_limit": 8,
+  "output": "Paris",
+  "exit_code": 0,
+  "wall_seconds_including_startup_load_and_generation": 29.72,
+  "max_rss_mib": 7833.55078125,
+  "major_page_faults": 422279,
+  "note": "Measured with /usr/bin/time -v. Whole-GPU peak was not sampled in this run. Verbose llama.cpp confirmed CUDA offload. System swap usage was already high."
+}

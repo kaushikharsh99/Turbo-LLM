@@ -34,8 +34,11 @@ def main():
     parser.add_argument('--prompt', default='The capital of France is')
     parser.add_argument('--chat', action='store_true')
     parser.add_argument('--note', default='')
+    parser.add_argument('--verbose', action='store_true')
     parser.add_argument('--output', type=Path, required=True)
     args = parser.parse_args()
+    if args.gpu_layers and not llama_cpp.llama_supports_gpu_offload():
+        parser.error('The selected llama.cpp runtime has no GPU offload support')
     stop = threading.Event()
     gpu_samples = []
     def monitor():
@@ -51,7 +54,7 @@ def main():
     try:
         with closing(Llama(model_path=str(args.model), n_ctx=args.context, n_batch=64,
                            n_threads=args.threads, n_gpu_layers=args.gpu_layers,
-                           use_mmap=True, use_mlock=False, seed=0, verbose=False)) as llm:
+                           use_mmap=True, use_mlock=False, seed=0, verbose=args.verbose)) as llm:
             loaded = time.perf_counter()
             kwargs = dict(max_tokens=args.tokens, temperature=0., top_p=1.)
             if args.chat:
@@ -61,6 +64,7 @@ def main():
                 result = llm.create_completion(prompt=args.prompt, **kwargs)
                 text = result['choices'][0]['text']
             finished = time.perf_counter()
+            perf = llama_cpp.llama_perf_context(llm.ctx)
             report = {
                 'model': args.model.name, 'bytes': args.model.stat().st_size,
                 'backend': 'llama_cpp (mmap, not Turbo streaming)',
@@ -75,6 +79,11 @@ def main():
                 'load_seconds': loaded - started, 'generation_seconds': finished - loaded,
                 'completion_tokens_per_second_including_prefill': result['usage']['completion_tokens'] / (finished - loaded),
                 'usage': result['usage'], 'text': text,
+                'llama_cpp_timings': {
+                    'prompt_eval_tokens': perf.n_p_eval, 'prompt_eval_seconds': perf.t_p_eval_ms / 1000,
+                    'decode_eval_tokens': perf.n_eval, 'decode_eval_seconds': perf.t_eval_ms / 1000,
+                    'decode_tokens_per_second': perf.n_eval * 1000 / perf.t_eval_ms if perf.t_eval_ms > 0 else None,
+                },
                 'max_rss_mib': resource.getrusage(resource.RUSAGE_SELF).ru_maxrss / 1024,
                 'system_gpu_peak_used_mib': max(gpu_samples) if gpu_samples else None,
                 'gpu_measurement_note': 'Whole GPU including desktop/other processes; sampled every 0.5s',

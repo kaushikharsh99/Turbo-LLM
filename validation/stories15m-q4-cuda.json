@@ -1,0 +1,30 @@
+{
+  "model": "stories15M-q4_0.gguf",
+  "bytes": 19077344,
+  "backend": "llama_cpp (mmap, not Turbo streaming)",
+  "llama_cpp_version": "0.3.31",
+  "gpu_offload_supported": true,
+  "python": "3.13.9",
+  "logical_cpus": 16,
+  "available_ram_before_mib": 7616.30078125,
+  "available_ram_after_mib": 7488.33984375,
+  "n_ctx_requested": 128,
+  "n_ctx_actual": 256,
+  "n_threads": 4,
+  "n_gpu_layers": 1,
+  "prompt": "The capital of France is",
+  "chat": false,
+  "note": "Official llama-cpp-python 0.3.31 cu132 wheel, first CUDA smoke test.",
+  "load_seconds": 0.2988457199999175,
+  "generation_seconds": 0.8729991780001001,
+  "completion_tokens_per_second_including_prefill": 9.163811606703579,
+  "usage": {
+    "prompt_tokens": 6,
+    "completion_tokens": 8,
+    "total_tokens": 14
+  },
+  "text": " a very intelligent girl. She lov",
+  "max_rss_mib": 496.55078125,
+  "system_gpu_peak_used_mib": 255.0,
+  "gpu_measurement_note": "Whole GPU including desktop/other processes; sampled every 0.5s"
+}
