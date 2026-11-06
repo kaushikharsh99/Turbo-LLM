@@ -94,6 +94,7 @@ class TurboEngine:
         start_time = time.time()
         next_token_id = None
         generated_text = ""
+        generated_ids = []
         generated_tokens = 0
 
         ttft = None
@@ -215,7 +216,8 @@ class TurboEngine:
                     ).squeeze(-1)
             next_token = tokenizer.decode([next_token_id.item()])
 
-            generated_text += next_token
+            generated_ids.append(next_token_id.item())
+            generated_text = tokenizer.decode(generated_ids)
             generated_tokens += 1
 
             # Record TTFT immediately after the first token is produced

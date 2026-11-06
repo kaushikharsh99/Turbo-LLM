@@ -23,6 +23,19 @@ class LayerExecutor:
 
         self.layer_layout = adapter.create_layer_layout()
 
+        from runtime.registry import CompatibilityError
+        required = [
+            f"{self.loader.layout.layer_prefix_name(layer)}.{name}"
+            for layer in range(self.adapter.num_layers)
+            for name in self.layer_layout.preload_weights(layer)
+        ]
+        required += [self.loader.layout.embed_tensor(), self.loader.layout.norm_tensor()]
+        head = self.loader.layout.lm_head_tensor()
+        if not getattr(self.adapter.load_config(), "tie_word_embeddings", False):
+            required.append(head)
+        missing = [name for name in required if name not in self.loader.weight_map]
+        if missing:
+            raise CompatibilityError(f"Checkpoint is missing required backbone tensors: {missing[:8]}")
         self.preload_backbone_weights()
 
     def preload_backbone_weights(self):
@@ -89,7 +102,10 @@ class LayerExecutor:
         # LM Head
         lm_head_name = self.loader.layout.lm_head_tensor()
 
-        lm_head_weight = self.loader.load_weight(lm_head_name)
+        if lm_head_name not in self.loader.weight_map and self.adapter.load_config().tie_word_embeddings:
+            lm_head_weight = embed_weight
+        else:
+            lm_head_weight = self.loader.load_weight(lm_head_name)
 
         set_module_tensor_to_device(
             self.model,

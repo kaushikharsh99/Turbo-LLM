@@ -23,3 +23,23 @@ class ExecutionPolicy:
         if name not in types:
             raise ValueError(f"Unsupported execution.dtype: {name}")
         return cls(device, types[name])
+
+
+@dataclass(frozen=True)
+class CachePolicy:
+    expert_limit: int | None
+    ram_percent: float
+    max_vram_mb: float
+
+    @classmethod
+    def from_config(cls, config=None):
+        config = config or {}
+        raw_limit = config.get("cache", {}).get("expert_limit", "auto")
+        limit = None if raw_limit == "auto" else int(raw_limit)
+        ram = float(config.get("memory", {}).get("max_ram_percent", 35))
+        vram = float(config.get("memory", {}).get("max_vram_mb", 5800))
+        if limit is not None and limit < 1:
+            raise ValueError("cache.expert_limit must be positive or auto")
+        if not 0 <= ram <= 100 or vram <= 0:
+            raise ValueError("Require 0 <= memory.max_ram_percent <= 100 and positive memory.max_vram_mb")
+        return cls(limit, ram, vram)

@@ -57,7 +57,7 @@ def test_tiny_llama_generation(tmp_path):
         expected = model.generate(ids, max_new_tokens=3, do_sample=False, pad_token_id=0)
     text = generate(str(tmp_path), 'hello world', max_new_tokens=3,
                     config={'execution': {'device': 'cpu', 'dtype': 'fp32'}})
-    assert text == ''.join(tokenizer.decode([i]) for i in expected[0, ids.shape[1]:].tolist())
+    assert text == tokenizer.decode(expected[0, ids.shape[1]:].tolist())
 
 
 def test_qwen_individual_expert_routing(tmp_path):
@@ -106,7 +106,8 @@ def test_gguf_backend_contract(tmp_path, monkeypatch):
     assert closed == [True]
 
 
-def test_qwen_streaming_logits(tmp_path):
+@pytest.mark.parametrize("packed", [False, True])
+def test_qwen_streaming_logits(tmp_path, packed):
     import json
     from transformers import Qwen3MoeConfig, Qwen3MoeForCausalLM
     from safetensors.torch import save_file
@@ -123,7 +124,9 @@ def test_qwen_streaming_logits(tmp_path):
     config.to_json_file(tmp_path / 'config.json')
     weights = {}
     for name, tensor in reference.state_dict().items():
-        if name.endswith('experts.gate_up_proj'):
+        if packed:
+            weights[name] = tensor
+        elif name.endswith('experts.gate_up_proj'):
             prefix = name.removesuffix('gate_up_proj')
             for expert, matrix in enumerate(tensor):
                 gate, up = matrix.chunk(2, dim=0)
@@ -137,7 +140,7 @@ def test_qwen_streaming_logits(tmp_path):
             weights[name] = tensor
     save_file(weights, tmp_path / 'model.safetensors')
     loader = ExpertLoader(str(tmp_path), {'execution': {'device': 'cpu', 'dtype': 'fp32'},
-                                        'cache': {'expert_limit': 3}})
+                                        'cache': {'expert_limit': 1}})
     from accelerate import init_empty_weights
     with init_empty_weights():
         skeleton = Qwen3MoeForCausalLM(config)
@@ -180,3 +183,31 @@ def test_real_gguf_when_available():
                       config={'gguf': options})
     assert actual == expected
     assert actual.strip()
+
+
+def test_cache_policy_rejects_invalid_budgets():
+    from runtime.policy import CachePolicy
+    for config in [{'cache': {'expert_limit': 0}}, {'memory': {'max_ram_percent': -1}},
+                   {'memory': {'max_vram_mb': 0}}]:
+        with pytest.raises(ValueError):
+            CachePolicy.from_config(config)
+
+
+def test_loader_cleanup_on_generation_error(tmp_path, monkeypatch):
+    # An exception during model construction must release checkpoint resources.
+    import phase2_generate
+    closed = []
+    class FakeLoader:
+        def __init__(self, *args, **kwargs):
+            pass
+        def close(self):
+            closed.append(True)
+    monkeypatch.setattr(phase2_generate.AutoConfig, 'from_pretrained',
+                        lambda *args, **kwargs: SimpleNamespace(architectures=['Qwen3MoeForCausalLM']))
+    monkeypatch.setattr(phase2_generate, 'ExpertLoader', FakeLoader)
+    def fail(*args, **kwargs):
+        raise RuntimeError('construction failed')
+    monkeypatch.setattr(phase2_generate.AutoModelForCausalLM, 'from_config', fail)
+    with pytest.raises(RuntimeError, match='construction failed'):
+        phase2_generate.generate(str(tmp_path), 'hello')
+    assert closed == [True]

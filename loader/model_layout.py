@@ -26,7 +26,35 @@ class ModelLayout:
 
         self.router_name = None
 
+        self._expand_packed_experts()
         self._detect_layout()
+        self._validate_experts()
+
+    def _expand_packed_experts(self):
+        # Qwen's HF packed storage is sliced per expert on CPU, never expanded
+        # into a full resident copy. Execution still consumes the same interface.
+        for source in list(self.weight_map):
+            match = re.fullmatch(r"(.*\.mlp\.experts)\.gate_up_proj(?:\.weight)?", source)
+            if not match:
+                continue
+            prefix = match.group(1)
+            down = prefix + ".down_proj" + (".weight" if source.endswith(".weight") else "")
+            shape = self.reader.shape(source)
+            if down not in self.weight_map or len(shape) != 3 or shape[1] % 2:
+                raise RuntimeError(f"Unsupported packed expert shape or missing down projection: {source}")
+            down_shape = self.reader.shape(down)
+            if down_shape != (shape[0], shape[2], shape[1] // 2):
+                raise RuntimeError(f"Incompatible packed projections: {shape}, {down_shape}")
+            if source + "_scale_inv" in self.weight_map or down + "_scale_inv" in self.weight_map:
+                raise RuntimeError("Packed quantized expert scales are unsupported; use separate experts or GGUF")
+            width = shape[1] // 2
+            for expert in range(shape[0]):
+                self.reader.add_slice(f"{prefix}.{expert}.gate_proj.weight", source,
+                                      (expert, slice(0, width), slice(None)))
+                self.reader.add_slice(f"{prefix}.{expert}.up_proj.weight", source,
+                                      (expert, slice(width, None), slice(None)))
+                self.reader.add_slice(f"{prefix}.{expert}.down_proj.weight", down,
+                                      (expert, slice(None), slice(None)))
 
     def _detect_layout(self):
 
@@ -83,6 +111,24 @@ class ModelLayout:
             raise RuntimeError(
                 "Could not detect router tensor."
             )
+
+    def _validate_experts(self):
+        from runtime.registry import CompatibilityError
+        config = self.config.get("text_config", self.config)
+        layers = config.get("num_hidden_layers")
+        experts = config.get("num_experts")
+        if layers is None or experts is None:
+            # Layout-only probes may omit configuration dimensions.
+            return
+        missing = []
+        for layer in range(layers):
+            names = [self.router_tensor(layer)]
+            for expert in range(experts):
+                names += [self.gate_tensor(layer, expert), self.up_tensor(layer, expert),
+                          self.down_tensor(layer, expert)]
+            missing.extend(name for name in names if name not in self.weight_map)
+        if missing:
+            raise CompatibilityError(f"Incomplete expert checkpoint; missing {len(missing)} tensors, including {missing[:4]}")
 
     def expert_prefix_name(self, layer, expert):
         return (

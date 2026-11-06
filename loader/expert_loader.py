@@ -21,19 +21,10 @@ class ExpertLoader:
         from runtime.policy import ExecutionPolicy
         policy = ExecutionPolicy.from_config(config)
         self.DEVICE = policy.device
-        # Memory / VRAM config
-        self.max_vram_gb = 5.8
-        if config and "memory" in config and "max_vram_mb" in config["memory"]:
-            self.max_vram_gb = config["memory"]["max_vram_mb"] / 1024.0
-
-        # Dtype config
+        from runtime.policy import CachePolicy
+        self.cache_policy = CachePolicy.from_config(config)
+        self.max_vram_gb = self.cache_policy.max_vram_mb / 1024
         self.dtype = policy.dtype
-        if config and "execution" in config and "dtype" in config["execution"]:
-            dtype_str = config["execution"]["dtype"]
-            if dtype_str in ("bf16", "bfloat16"):
-                self.dtype = torch.bfloat16
-            elif dtype_str in ("fp32", "float32"):
-                self.dtype = torch.float32
 
         # Model layout (NEW)
         from loader.model_layout import ModelLayout
@@ -47,14 +38,7 @@ class ExpertLoader:
         self.expert_cache = {}
         self.expert_metadata = {}
 
-        # Expert limit config
-        self.cache_limit = 128
-        if config and "cache" in config and "expert_limit" in config["cache"]:
-            limit = config["cache"]["expert_limit"]
-            if limit != "auto":
-                self.cache_limit = int(limit)
-                if self.cache_limit < 1:
-                    raise ValueError("cache.expert_limit must be positive or auto")
+        self.cache_limit = self.cache_policy.expert_limit or 128
 
         # Thread lock for prefetching and cache management
         self.lock = threading.Lock()
@@ -82,13 +66,11 @@ class ExpertLoader:
 
         
     def _get_tensor(self, weight_name):
+        if weight_name in self.layout.reader.slices:
+            return self.layout.reader.get_tensor(weight_name)
         filename = self.weight_map[weight_name]
         if filename not in self.files:
-            file_path = os.path.join(self.snapshot_path, filename)
-            self.files[filename] = safe_open(file_path, framework="pt", device="cpu")
-        
-        # Qwen3 MoE might have stacked weights even in safetensors or might be individual.
-        # Based on index.json, they are named model.layers.0.mlp.experts.0.gate_proj.weight
+            self.files[filename] = safe_open(os.path.join(self.snapshot_path, filename), framework="pt", device="cpu")
         return self.files[filename].get_tensor(weight_name)
 
     def load_weight(self, weight_name, device=None, dtype=None):
@@ -104,12 +86,12 @@ class ExpertLoader:
                 torch.float8_e5m2,
             ):
     # Convert unsupported FP8 weights before moving to MPS
-                w = tensor.to(dtype=torch.float16).to(device=device)
+                w = tensor.to(dtype=dtype).to(device=device)
             elif device == "cpu" and tensor.dtype in (
                 torch.float8_e4m3fn,
                 torch.float8_e5m2,
             ):
-                w = tensor.to(dtype=torch.float16)
+                w = tensor.to(dtype=dtype)
             else:
                 w = tensor.to(device=device).to(dtype=dtype)
             scale = self._get_tensor(scale_name).to(device=device).to(dtype=dtype)
@@ -209,11 +191,6 @@ class ExpertLoader:
         if self.DEVICE != "cuda":
             return
         
-        if self.config and "cache" in self.config and "expert_limit" in self.config["cache"]:
-            if self.config["cache"]["expert_limit"] != "auto":
-                self.cache_limit = int(self.config["cache"]["expert_limit"])
-                return
-
         if max_vram_gb is None:
             max_vram_gb = self.max_vram_gb
         
@@ -260,7 +237,7 @@ class ExpertLoader:
         # Keep limit bounds between 16 and 450
         if dynamic_limit < 1:
             raise MemoryError("No room for one expert cache slot within the VRAM budget; reduce backbone residency or use CPU")
-        self.cache_limit = min(450, dynamic_limit)
+        self.cache_limit = min(self.cache_policy.expert_limit or 450, dynamic_limit)
         
         print(f"[DEBUG Cache Limit] current_allocated: {current_allocated/1024**2:.2f} MB, "
               f"non_cache_allocated: {non_cache_allocated/1024**2:.2f} MB, "
