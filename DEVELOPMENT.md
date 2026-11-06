@@ -60,7 +60,7 @@ native Turbo GGUF inference remains separate future work. See the
 | Qwen3 MoE streaming | Tiny individual and packed unquantized experts; CPU/CUDA prefill and cached-decode logits compared with HF; cache eviction exercised with one slot | Real large model generation, production FP8 checkpoints, large-model GPU throughput |
 | Native FP8 decoder | CPU/CUDA 128×128 inverse-scale checks against explicit scaling, including a 129×257 edge matrix and invalid-grid rejection | Real large FP8 checkpoint generation and packed quantized scales |
 | Qwen3.5 MoE and OLMoE | Existing adapters remain registered | End-to-end numerical correctness and actual checkpoint layouts |
-| GGUF | Real Stories15M Q4_0 CLI/reference checks; checksum-verified Qwen3-30B-A3B-Instruct-2507 Q2_K_L CPU eight-token completion; mock API/cleanup check | 30B CUDA offload and other quantizations remain unverified; no general Q1–Q8 guarantee |
+| GGUF | Real Stories15M Q4_0 CLI/reference checks; checksum-verified Qwen3-30B-A3B-Instruct-2507 Q2_K_L CPU eight-token completion and successful CLI chat; mock API/cleanup check | 30B CUDA offload and other quantizations remain unverified; no general Q1–Q8 guarantee |
 
 Native safetensors can be indexed/sharded or unsharded. Individual expert weights
 use `mlp.experts.N.{gate_proj,up_proj,down_proj}.weight`. Qwen packed unquantized
@@ -161,7 +161,14 @@ System swap usage rose from roughly 1.9 GiB to 6.1 GiB during the run, indicatin
 strong memory pressure across the host. Do not present process RSS as total
 model/system memory or assume the model runs comfortably in 6.65 GiB RAM.
 The sampled whole-GPU 266 MiB was desktop/other-process usage, not model offload.
-A separate CLI chat check is still pending.
+A separate [30B CLI chat report](validation/qwen30b-q2-cli.json) records exit 0
+and output `Paris` for `What is the capital of France? Answer in one word.` with
+an eight-token generation limit and CPU-only 256-context configuration. Wall time
+was 28.45 s including startup, loading and generation; peak process RSS was
+7,942.34 MiB (about 7.76 GiB). `/usr/bin/time` also recorded 499,384 major page
+faults. CUDA compilation was concurrent and prior inference had already caused
+substantial system swapping. The CLI does not expose actual token count or TTFT,
+so this timing cannot be converted to a reliable decode-throughput number.
 
 To reproduce the completion probe after checking available resources:
 
@@ -212,14 +219,13 @@ large-model speed from the tiny fixture.
 
 ## Next work and keeping this handoff current
 
-1. Complete the separate 30B CLI chat check and record its actual output.
-2. Finish or diagnose the CUDA build, then evaluate bounded partial 30B offload
+1. Finish or diagnose the CUDA build, then evaluate bounded partial 30B offload
    with measured CPU/RAM/VRAM use. Compare runs without concurrent compilation
    before making performance claims.
-3. Exercise real large Qwen safetensors streaming separately from GGUF. Validate
+2. Exercise real large Qwen safetensors streaming separately from GGUF. Validate
    FP8 block/scale handling, memory budget enforcement and checkpoint mappings.
-4. Add numerical coverage before promoting Qwen3.5 or OLMoE beyond experimental.
-5. Broaden supported dependency/device combinations only with recorded results.
+3. Add numerical coverage before promoting Qwen3.5 or OLMoE beyond experimental.
+4. Broaden supported dependency/device combinations only with recorded results.
 
 After each implementation change, update the relevant README compatibility row
 and this document's boundaries/remaining work. After each measured model run,

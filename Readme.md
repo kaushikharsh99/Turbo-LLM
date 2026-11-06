@@ -19,7 +19,7 @@ The two paths have separate memory policies and validation evidence.
 | `Qwen3MoeForCausalLM` | Turbo expert streaming | Tiny individual and packed unquantized expert fixtures: CPU and CUDA prefill and cached-decode logits match Hugging Face, including a one-slot expert cache. Large real checkpoints remain to be validated. |
 | `Qwen3_5MoeForConditionalGeneration`, `Qwen3_5MoeForCausalLM` | Turbo expert streaming | Existing adapters retained; experimental, without end-to-end numerical validation. |
 | `OlmoeForCausalLM` | Turbo expert streaming | Existing adapter retained; experimental, without end-to-end numerical validation. |
-| Local `.gguf` file | Optional `llama-cpp-python` | Real Stories15M Q4_0 CLI/reference checks and a short Qwen3-30B-A3B-Instruct-2507 Q2_K_L CPU completion pass. Large-model CUDA offload remains unverified; support depends on the llama.cpp build. |
+| Local `.gguf` file | Optional `llama-cpp-python` | Real Stories15M Q4_0 CLI/reference checks, a short Qwen3-30B-A3B-Instruct-2507 Q2_K_L CPU completion, and its CLI chat check pass. Large-model CUDA offload remains unverified; support depends on the llama.cpp build. |
 
 Registration is exact, not a promise that every checkpoint for that architecture
 works. Native streaming supports indexed or unsharded safetensors, individual
@@ -35,8 +35,10 @@ Q8 ceiling. A checksum-verified 30B Q2_K_L CPU smoke test produced eight tokens
 at about 1.06 tok/s including prefill, after about 40.35 s loading. This short run
 experienced strong system memory pressure; its 6.65 GiB process peak RSS is not
 the total model/system footprint. See the [raw run](validation/qwen30b-q2-cpu.json)
-and [measurement caveats](DEVELOPMENT.md). Other quants and 30B GPU performance
-remain unverified.
+and [measurement caveats](DEVELOPMENT.md). A separate
+[30B CLI chat check](validation/qwen30b-q2-cli.json) returned `Paris` successfully;
+its 28.45 s wall time includes startup/loading/generation, not just decoding.
+Other quants and 30B GPU performance remain unverified.
 
 ## Install and test
 
