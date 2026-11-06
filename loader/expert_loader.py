@@ -74,32 +74,13 @@ class ExpertLoader:
         return self.files[filename].get_tensor(weight_name)
 
     def load_weight(self, weight_name, device=None, dtype=None):
-        if dtype is None:
-            dtype = self.dtype
+        from loader.quantization import dequantize_block_fp8
         device = self.DEVICE if device is None else device
-        tensor = self._get_tensor(weight_name)
+        dtype = self.dtype if dtype is None else dtype
+        weight = self._prepare_fp8_tensor(self._get_tensor(weight_name), device)
         scale_name = f"{weight_name}_scale_inv"
-        if scale_name in self.weight_map:
-            # Direct transfer to GPU, then cast to dtype on CUDA (16x faster)
-            if device == "mps" and tensor.dtype in (
-                torch.float8_e4m3fn,
-                torch.float8_e5m2,
-            ):
-    # Convert unsupported FP8 weights before moving to MPS
-                w = tensor.to(dtype=dtype).to(device=device)
-            elif device == "cpu" and tensor.dtype in (
-                torch.float8_e4m3fn,
-                torch.float8_e5m2,
-            ):
-                w = tensor.to(dtype=dtype)
-            else:
-                w = tensor.to(device=device).to(dtype=dtype)
-            scale = self._get_tensor(scale_name).to(device=device).to(dtype=dtype)
-            # Dequantize using reshape and broadcast (25x faster, 0 allocation copy)
-            M, N = w.shape
-            return (w.view(M // 128, 128, N // 128, 128) * scale.view(M // 128, 1, N // 128, 1)).view(M, N)
-        else:
-            return tensor.to(device=device).to(dtype=dtype)
+        scale = self._prepare_fp8_tensor(self._get_tensor(scale_name), device) if scale_name in self.weight_map else None
+        return dequantize_block_fp8(weight, scale, dtype).to(device)
 
     def load_weight_raw(self, weight_name, device=None):
         device = self.DEVICE if device is None else device
@@ -114,70 +95,19 @@ class ExpertLoader:
             return w_fp8, None
 
     def dequantize_weight(self, w_fp8, scale, dtype=None):
-        if dtype is None:
-            dtype = self.dtype
+        from loader.quantization import dequantize_block_fp8
+        dtype = self.dtype if dtype is None else dtype
+        return dequantize_block_fp8(w_fp8, scale, dtype).to(self.DEVICE)
 
-        # MPS cannot operate directly on FP8 tensors.
-        # Convert on CPU first, then move to the target device.
-        if self.DEVICE == "mps":
-            w = w_fp8.cpu().to(dtype=dtype)
-
-            if scale is None:
-                return w.to("mps")
-
-            scale_d = scale.cpu().to(dtype=dtype)
-
-            M, N = w.shape
-            w = (
-                w.view(M // 128, 128, N // 128, 128)
-                * scale_d.view(M // 128, 1, N // 128, 1)
-            ).view(M, N)
-
-            return w.to("mps")
-
-        # Original path for CUDA / CPU
-        if scale is None:
-            return w_fp8.to(dtype=dtype)
-
-        w = w_fp8.to(dtype=dtype)
-        scale_d = scale.to(dtype=dtype)
-
-        M, N = w.shape
-        return (
-            w.view(M // 128, 128, N // 128, 128)
-            * scale_d.view(M // 128, 1, N // 128, 1)
-        ).view(M, N)
     def load_weight_split(self, weight_name, device=None, dtype=None):
-        """
-        Loads the weight and returns the dequantized weight along with separated
-        loading/copy time and dequantization time.
-        """
-        if dtype is None:
-            dtype = self.dtype
-        t_copy_start = time.time()
         device = self.DEVICE if device is None else device
-        tensor = self._get_tensor(weight_name)
-        w_fp8 = self._prepare_fp8_tensor(tensor, device)
-        
-        scale_name = f"{weight_name}_scale_inv"
-        if scale_name in self.weight_map:
-            scale_fp8 = self._prepare_fp8_tensor(self._get_tensor(scale_name), device)
-            copy_ms = (time.time() - t_copy_start) * 1000.0
-            
-            t_dequant_start = time.time()
-            w = w_fp8.to(dtype=dtype)
-            scale = scale_fp8.to(dtype=dtype)
-            M, N = w.shape
-            w_dequant = (w.view(M // 128, 128, N // 128, 128) * scale.view(M // 128, 1, N // 128, 1)).view(M, N)
-            dequant_ms = (time.time() - t_dequant_start) * 1000.0
-            
-            return w_dequant.to(device=device), copy_ms, dequant_ms
-        else:
-            copy_ms = (time.time() - t_copy_start) * 1000.0
-            t_dequant_start = time.time()
-            w_dequant = w_fp8.to(dtype=dtype)
-            dequant_ms = (time.time() - t_dequant_start) * 1000.0
-            return w_dequant.to(device=device), copy_ms, dequant_ms
+        start = time.perf_counter()
+        weight, scale = self.load_weight_raw(weight_name, device)
+        copied = time.perf_counter()
+        from loader.quantization import dequantize_block_fp8
+        output = dequantize_block_fp8(weight, scale, self.dtype if dtype is None else dtype).to(device)
+        finished = time.perf_counter()
+        return output, (copied - start) * 1000, (finished - copied) * 1000
 
     def clear_pinned_slots(self):
         with self.lock:

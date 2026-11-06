@@ -30,6 +30,7 @@ def main():
     parser.add_argument('--threads', type=int, default=4)
     parser.add_argument('--prompt', default='The capital of France is')
     parser.add_argument('--chat', action='store_true')
+    parser.add_argument('--note', default='')
     parser.add_argument('--output', type=Path, required=True)
     args = parser.parse_args()
     stop = threading.Event()
@@ -62,7 +63,7 @@ def main():
                 'llama_cpp_version': version('llama-cpp-python'),
                 'n_ctx_requested': args.context, 'n_ctx_actual': llm.n_ctx(),
                 'n_threads': args.threads, 'n_gpu_layers': args.gpu_layers,
-                'prompt': args.prompt, 'chat': args.chat,
+                'prompt': args.prompt, 'chat': args.chat, 'note': args.note,
                 'load_seconds': loaded - started, 'generation_seconds': finished - loaded,
                 'completion_tokens_per_second_including_prefill': result['usage']['completion_tokens'] / (finished - loaded),
                 'usage': result['usage'], 'text': text,
