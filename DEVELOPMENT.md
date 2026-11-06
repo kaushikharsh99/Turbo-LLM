@@ -61,7 +61,7 @@ native Turbo GGUF inference remains separate future work. See the
 | Native FP8 decoder | CPU/CUDA 128×128 inverse-scale checks against explicit scaling, including a 129×257 edge matrix and invalid-grid rejection | Real large FP8 checkpoint generation and packed quantized scales |
 | Qwen3.5 MoE | Existing adapters remain registered; experimental | End-to-end numerical correctness and actual checkpoint layouts |
 | OLMoE | Registered stub; adapter-capability preflight rejects it before checkpoint tensors are opened | Unavailable for inference until required cache/layout methods and numerical checks exist |
-| GGUF | Real Stories15M Q4_0 CLI/reference checks; checksum-verified Qwen3-30B-A3B-Instruct-2507 Q2_K_L CPU eight-token completion and successful CLI chat; mock API/cleanup check | 30B CUDA offload and other quantizations remain unverified; no general Q1–Q8 guarantee |
+| GGUF | Real Stories15M Q4_0 CPU/reference and CUDA checks; checksum-verified Qwen3-30B-A3B-Instruct-2507 Q2_K_L CPU, CLI chat and 16-/22-layer CUDA completions | Other quantizations, longer contexts and controlled throughput comparisons remain unverified; no general Q1–Q8 guarantee |
 
 Native safetensors can be indexed/sharded or unsharded. Individual expert weights
 use `mlp.experts.N.{gate_proj,up_proj,down_proj}.weight`. Qwen packed unquantized
@@ -126,7 +126,7 @@ repository working directory. This lightweight GGUF run is separate from native
 PyTorch execution; do not compare its process footprint to a test process that
 already imported PyTorch. Generated egg-info is no longer tracked.
 
-## Large-model validation and pending CUDA work
+## Large-model CPU and CUDA validation
 
 The current target is roughly 30B parameters in supported low GGUF quantizations,
 prioritizing Q1–Q4 and never going above Q8. Labels such as Q2_K_L are mixtures of
@@ -183,30 +183,65 @@ To reproduce the completion probe after checking available resources:
   --output validation/qwen30b-q2-cpu-new-run.json
 ```
 
-The original installed llama-cpp-python 0.3.31 is CPU-only. A CUDA build was
-started in `.venv` using the local CUDA 13.3 toolkit, SM86 and two build workers.
-GCC 16 failed toolkit validation; GCC 15 is the current build choice:
+The original installed llama-cpp-python 0.3.31 remains CPU-only. A separate
+upstream cu132 prebuilt wheel now works in ignored `.local-cuda`. Its
+[Stories15M CUDA check](validation/stories15m-q4-cuda.json) actually offloaded the
+output layer. The redundant source compilation was intentionally stopped after
+the prebuilt wheel worked; it did not produce the tested runtime. During that
+attempt CUDA 13.3 rejected GCC 16, while GCC 15 advanced to kernel compilation.
+
+The exact successful layered install and runtime selection were:
 
 ```sh
-CC=gcc-15 CXX=g++-15 CUDACXX=/usr/local/cuda/bin/nvcc \
-CMAKE_ARGS='-DGGML_CUDA=on -DCMAKE_CUDA_ARCHITECTURES=86 -DCMAKE_CUDA_HOST_COMPILER=/usr/bin/g++-15' \
-CMAKE_BUILD_PARALLEL_LEVEL=2 \
-.venv/bin/python -m pip install --no-cache-dir --force-reinstall --no-deps llama-cpp-python==0.3.31
+.venv/bin/python -m pip install --target .local-cuda --no-deps --only-binary=:all: \
+  --index-url https://abetlen.github.io/llama-cpp-python/whl/cu132 \
+  llama-cpp-python==0.3.31
+PYTHONPATH=.local-cuda .venv/bin/python -c \
+  'from llama_cpp import llama_cpp; print(llama_cpp.llama_supports_gpu_offload())'
+PYTHONPATH=.local-cuda .venv/bin/python scripts/benchmark_gguf.py \
+  .local-models/Qwen3-30B-A3B-Instruct-2507-Q2_K_L.gguf \
+  --context 256 --tokens 8 --threads 4 --gpu-layers 16 \
+  --output validation/qwen30b-q2-cuda-new-run.json
 ```
 
-This is a machine-specific build attempt, not a confirmed working installation.
-An official upstream prebuilt 0.3.31 CUDA wheel is also being evaluated separately
-in `.local-cuda`; neither attempt yet establishes working GPU inference. Check
-`/tmp/turbo-cuda-build.log` and verify capability in a fresh process:
+This `--no-deps` installation assumes the optional GGUF dependencies are already
+available in `.venv`. Use an absolute `PYTHONPATH` if running outside the checkout.
+For CLI inference, select the same `PYTHONPATH` and set `gguf.n_gpu_layers: 16` in
+a YAML overlay. Without that selection, the existing environment still uses the
+CPU-only backend. This cu132 wheel worked on local Python 3.13.9 even though
+upstream installation guidance lists 3.10–3.12; this is evidence for this exact
+machine/wheel, not a general Python 3.13 support guarantee.
 
-```sh
-.venv/bin/python -c 'from llama_cpp import llama_cpp; print(llama_cpp.llama_supports_gpu_offload())'
-```
+Both real 30B GPU probes used four threads, a 256-token context, five prompt
+tokens and eight completion tokens. Both returned exactly the CPU continuation.
+Verbose logs verified actual offload, not just requested settings:
+
+| Measurement | [16-layer run](validation/qwen30b-q2-cuda.json) | [22-layer run](validation/qwen30b-q2-cuda-22.json) |
+| --- | ---: | ---: |
+| Verified offload, including output | 16/49 layers | 22/49 layers |
+| CUDA model buffer | 3,487.31 MiB | 4,724.91 MiB |
+| CUDA compute buffer | 90 MiB | 90 MiB |
+| Sampled whole-GPU peak, including desktop | 3,841 MiB | 5,085 MiB |
+| Process peak RSS | 5,763.76 MiB | 7,889.46 MiB |
+| Loading | 18.61 s | 22.71 s |
+| Combined prefill/generation | 11.74 s | 12.29 s |
+| Completion tok/s including prefill | 0.68 | 0.65 |
+| Verbose-log prompt evaluation, 5 tokens | 8.39 s | 8.91 s |
+| Verbose-log decode evaluation, 7 tokens | 3.34 s / 2.10 tok/s | 3.38 s / 2.07 tok/s |
+
+These are individual short runs, not a fair CPU/GPU comparison: compilation,
+cache warmth and paging conditions differed. Twenty-two layers used more VRAM
+and did not improve the observed decode rate over sixteen; this does not establish
+a general ordering. Sixteen is the cautious tested setting. Twenty-two fit this
+short run with roughly 1 GiB of sampled GPU headroom, but system swap remained
+high (about 6.7 GiB observed while it ran). Longer contexts or other processes can
+change the result. These are llama.cpp results, not native Turbo streaming
+benchmarks.
 
 The host has approximately 16 GiB RAM and a 6 GiB RTX 3050. Disk space is changing
 as the user frees it; recheck `df -h .`, `free -h` and `nvidia-smi` before large
-runs. The initial short CPU mmap test succeeded with the caveats above; bounded
-partial GPU offload is still pending the CUDA build. Allow space for the
+runs. Short CPU mmap and partial GPU-offload tests succeeded with the caveats
+above; do not assume larger contexts will fit. Allow space for the
 checkpoint, build artifacts, KV cache and runtime workspace. Memory-mapped files
 can page from disk and may be slow when RAM is scarce. Do not equate mapped file
 size with peak RSS or claim a 6 GiB-only model footprint.
@@ -225,9 +260,9 @@ large-model speed from the tiny fixture.
 
 ## Next work and keeping this handoff current
 
-1. Finish or diagnose the CUDA build, then evaluate bounded partial 30B offload
-   with measured CPU/RAM/VRAM use. Compare runs without concurrent compilation
-   before making performance claims.
+1. Repeat CPU/partial-offload measurements under comparable cache and paging
+   conditions, then test longer generations/contexts within measured budgets.
+   Evaluate other supported low quants individually without exceeding Q8.
 2. Exercise real large Qwen safetensors streaming separately from GGUF. Validate
    FP8 block/scale handling, memory budget enforcement and checkpoint mappings.
 3. Add numerical coverage before promoting Qwen3.5 beyond experimental. Complete

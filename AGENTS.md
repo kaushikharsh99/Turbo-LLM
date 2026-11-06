@@ -45,7 +45,10 @@ work and agree on file ownership before parallel edits.
   The current target is roughly 30B in low GGUF quants, prioritizing supported
   Q1–Q4 variants with a Q8 ceiling. Never imply every quant label is supported.
 - Check GPU offload capability in llama.cpp itself. CUDA-enabled PyTorch does not
-  make a CPU-only llama.cpp build use the GPU.
+  make a CPU-only llama.cpp build use the GPU. The tested layered CUDA wheel
+  requires explicit `PYTHONPATH` selection from ignored `.local-cuda`; see
+  `DEVELOPMENT.md`. Distinguish requested from verified offloaded layers and
+  combined prefill throughput from decode-only timing.
 
 ## Keep the handoff usable
 

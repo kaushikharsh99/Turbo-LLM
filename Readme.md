@@ -19,7 +19,7 @@ The two paths have separate memory policies and validation evidence.
 | `Qwen3MoeForCausalLM` | Turbo expert streaming | Tiny individual and packed unquantized expert fixtures: CPU and CUDA prefill and cached-decode logits match Hugging Face, including a one-slot expert cache. Large real checkpoints remain to be validated. |
 | `Qwen3_5MoeForConditionalGeneration`, `Qwen3_5MoeForCausalLM` | Turbo expert streaming | Existing adapters retained; experimental, without end-to-end numerical validation. |
 | `OlmoeForCausalLM` | Registered stub; unavailable | Adapter lacks required cache/layout methods. Preflight raises a compatibility error before opening checkpoint tensors. |
-| Local `.gguf` file | Optional `llama-cpp-python` | Real Stories15M Q4_0 CLI/reference checks, a short Qwen3-30B-A3B-Instruct-2507 Q2_K_L CPU completion, and its CLI chat check pass. Large-model CUDA offload remains unverified; support depends on the llama.cpp build. |
+| Local `.gguf` file | Optional `llama-cpp-python` | Real Stories15M Q4_0 checks and Qwen3-30B-A3B-Instruct-2507 Q2_K_L CPU/CLI chat plus 16- and 22-layer CUDA completion checks pass. These are short runs; support depends on the llama.cpp build. |
 
 Registration is exact, not a promise that every checkpoint for that architecture
 works. Native streaming supports indexed or unsharded safetensors, individual
@@ -38,7 +38,13 @@ the total model/system footprint. See the [raw run](validation/qwen30b-q2-cpu.js
 and [measurement caveats](DEVELOPMENT.md). A separate
 [30B CLI chat check](validation/qwen30b-q2-cli.json) returned `Paris` successfully;
 its 28.45 s wall time includes startup/loading/generation, not just decoding.
-Other quants and 30B GPU performance remain unverified.
+Actual CUDA partial-offload checks also succeeded: 16 layers used about
+3,841 MiB sampled whole-GPU memory and the llama.cpp log reported 2.10 decode
+tok/s over seven decode tokens. The combined prefill/generation rate was
+0.68 completion tok/s. These short, memory-constrained runs are not a controlled
+CPU/GPU comparison; see [GPU results](validation/qwen30b-q2-cuda.json) and
+[22-layer results](validation/qwen30b-q2-cuda-22.json). Other quantizations and
+longer-context behavior remain unverified.
 
 ## Install and test
 
@@ -68,6 +74,23 @@ GPU layers fail early when the installed llama.cpp build has no offload support.
 command `turbo-llm` is installed into the active environment. Its packaged default
 configuration is found independently of the working directory. The GGUF path
 lazily imports its backend and does not load PyTorch for inference startup.
+
+A working upstream cu132 wheel was tested separately in ignored `.local-cuda`:
+
+```sh
+.venv/bin/python -m pip install --target .local-cuda --no-deps --only-binary=:all: \
+  --index-url https://abetlen.github.io/llama-cpp-python/whl/cu132 \
+  llama-cpp-python==0.3.31
+PYTHONPATH=.local-cuda .venv/bin/python -c \
+  'from llama_cpp import llama_cpp; print(llama_cpp.llama_supports_gpu_offload())'
+```
+
+This uses the GGUF dependencies already installed above. Select this wheel for
+inference with `PYTHONPATH=.local-cuda .venv/bin/python run.py ...` and set
+`gguf.n_gpu_layers: 16` in YAML for the cautious tested 30B setting. CPU remains
+the default otherwise. This exact wheel worked locally on Python 3.13; upstream
+installation guidance lists Python 3.10–3.12, so broader Python/platform
+compatibility is not established.
 
 ## Run local inference
 
