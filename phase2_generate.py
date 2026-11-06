@@ -1,6 +1,4 @@
-import torch
 
-@torch.no_grad()
 def generate(
         model,
         prompt,
@@ -41,7 +39,6 @@ def generate(
 
 
 
-@torch.no_grad()
 def main():
     print("=" * 60)
     print("PHASE 2.2 — AUTOREGRESSIVE GENERATION WITH KV CACHE")

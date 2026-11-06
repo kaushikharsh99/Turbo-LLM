@@ -161,7 +161,7 @@ class TurboEngine:
                     )
 
             # 8. Final LayerNorm
-            hidden_states = self.adapter.final_norm(hidden_states)
+            hidden_states = self.adapter.final_norm(hidden_states[:, -1:, :])
 
             # 9. LM Head Projection
             logits = self.adapter.lm_head(hidden_states)

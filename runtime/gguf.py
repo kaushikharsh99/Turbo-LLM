@@ -26,6 +26,10 @@ def generate_gguf(model, prompt, max_new_tokens=50, temperature=0.0, top_p=1.0,
     except ImportError as exc:
         raise CompatibilityError("GGUF requires pip install 'turbo-llm[gguf]'") from exc
     options = (config or {}).get("gguf", {})
+    if options.get("n_gpu_layers", 0) != 0:
+        from llama_cpp import llama_cpp
+        if not llama_cpp.llama_supports_gpu_offload():
+            raise CompatibilityError("This llama.cpp build has no GPU offload; install a CUDA-enabled build or set gguf.n_gpu_layers: 0")
     llm = Llama(model_path=str(path), n_ctx=options.get("n_ctx", 512),
                 n_gpu_layers=options.get("n_gpu_layers", 0),
                 seed=options.get("seed", 0), n_batch=options.get("n_batch", 128),

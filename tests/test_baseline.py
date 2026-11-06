@@ -243,3 +243,10 @@ def test_generation_rejects_invalid_options(options):
     from runtime.options import validate_generation
     with pytest.raises(ValueError):
         validate_generation(*options)
+
+
+def test_gguf_entrypoint_does_not_import_torch():
+    import subprocess
+    import sys
+    subprocess.run([sys.executable, '-c',
+        'import sys; import runtime.generate; assert "torch" not in sys.modules'], check=True)
