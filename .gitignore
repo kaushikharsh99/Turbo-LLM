@@ -9,3 +9,4 @@ prompts.jsonl
 build/
 dist/
 .local-models/
+*.egg-info/
