@@ -42,8 +42,16 @@ class TurboEngine:
 
     ):
 
+        from runtime.options import validate_generation
+        validate_generation(max_new_tokens, temperature, top_p)
+        if self.adapter is None:
+            raise RuntimeError("This Turbo session is closed; open a new session")
+        if max_new_tokens == 0:
+            return ""
         if self.layer is not None:
             self.layer.collector = collector
+            self.layer.attn_times = []
+            self.layer.moe_times = []
         DEVICE = self.loader.DEVICE
 
         model_name_or_path = self.loader.snapshot_path

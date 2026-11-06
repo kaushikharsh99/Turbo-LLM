@@ -9,6 +9,10 @@ from runtime.registry import CompatibilityError
 def generate_gguf(model, prompt, max_new_tokens=50, temperature=0.0, top_p=1.0,
                   config=None, chat=False, system_prompt=None, collector=None,
                   thinking="off"):
+    from runtime.options import validate_generation
+    validate_generation(max_new_tokens, temperature, top_p)
+    if max_new_tokens == 0:
+        return ""
     if collector is not None:
         raise CompatibilityError("GGUF backend does not expose Turbo routing collection")
     if thinking != "off":

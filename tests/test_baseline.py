@@ -34,7 +34,8 @@ def test_policy():
     assert ExecutionPolicy.from_config({'execution': {'device': 'cpu', 'dtype': 'fp32'}}).dtype == torch.float32
 
 
-def test_tiny_llama_generation(tmp_path):
+@pytest.mark.parametrize("reusable", [False, True])
+def test_tiny_llama_generation(tmp_path, reusable):
     from transformers import LlamaConfig, LlamaForCausalLM, PreTrainedTokenizerFast
     from tokenizers import Tokenizer
     from tokenizers.models import WordLevel
@@ -55,9 +56,19 @@ def test_tiny_llama_generation(tmp_path):
     ids = tokenizer('hello world', return_tensors='pt').input_ids
     with torch.no_grad():
         expected = model.generate(ids, max_new_tokens=3, do_sample=False, pad_token_id=0)
-    text = generate(str(tmp_path), 'hello world', max_new_tokens=3,
-                    config={'execution': {'device': 'cpu', 'dtype': 'fp32'}})
-    assert text == tokenizer.decode(expected[0, ids.shape[1]:].tolist())
+    options = dict(prompt='hello world', max_new_tokens=3,
+                   config={'execution': {'device': 'cpu', 'dtype': 'fp32'}})
+    expected_text = tokenizer.decode(expected[0, ids.shape[1]:].tolist())
+    if reusable:
+        from runtime.session import open_turbo_session
+        with open_turbo_session(str(tmp_path), options['config']) as engine:
+            assert engine.generate(**options) == expected_text
+            assert engine.generate(**options) == expected_text
+        with pytest.raises(RuntimeError, match='closed'):
+            engine.generate(**options)
+    else:
+        assert generate(str(tmp_path), **options) == expected_text
+
 
 
 def test_qwen_individual_expert_routing(tmp_path):
@@ -197,18 +208,38 @@ def test_cache_policy_rejects_invalid_budgets():
 def test_loader_cleanup_on_generation_error(tmp_path, monkeypatch):
     # An exception during model construction must release checkpoint resources.
     import phase2_generate
+    import runtime.session as session
     closed = []
     class FakeLoader:
         def __init__(self, *args, **kwargs):
             pass
         def close(self):
             closed.append(True)
-    monkeypatch.setattr(phase2_generate.AutoConfig, 'from_pretrained',
+    monkeypatch.setattr(session.AutoConfig, 'from_pretrained',
                         lambda *args, **kwargs: SimpleNamespace(architectures=['Qwen3MoeForCausalLM']))
-    monkeypatch.setattr(phase2_generate, 'ExpertLoader', FakeLoader)
+    monkeypatch.setattr(session, 'ExpertLoader', FakeLoader)
     def fail(*args, **kwargs):
         raise RuntimeError('construction failed')
-    monkeypatch.setattr(phase2_generate.AutoModelForCausalLM, 'from_config', fail)
+    monkeypatch.setattr(session.AutoModelForCausalLM, 'from_config', fail)
     with pytest.raises(RuntimeError, match='construction failed'):
         phase2_generate.generate(str(tmp_path), 'hello')
     assert closed == [True]
+
+
+def test_partial_config_uses_packaged_defaults(tmp_path, monkeypatch):
+    from config.config import load_config
+    config = tmp_path / 'local.yaml'
+    config.write_text('execution:\n  device: cpu\ngguf:\n  n_ctx: 512\n')
+    monkeypatch.chdir(tmp_path)
+    result = load_config(config)
+    assert result['runtime']['max_new_tokens'] == 50
+    assert result['execution']['dtype'] == 'fp16'
+    assert result['execution']['device'] == 'cpu'
+    assert result['gguf']['n_ctx'] == 512
+
+
+@pytest.mark.parametrize('options', [(-1, 0., 1.), (1, float('nan'), 1.), (1, 0., 0.)])
+def test_generation_rejects_invalid_options(options):
+    from runtime.options import validate_generation
+    with pytest.raises(ValueError):
+        validate_generation(*options)

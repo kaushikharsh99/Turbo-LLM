@@ -49,27 +49,19 @@ def main():
             output_file=args.output,
         )
 
-        for prompt in prompt_loader.load():
-
-            print("=" * 80)
-            print(prompt)
-            print("=" * 80)
-
-            run_generation(
-                model=model_path,
-                prompt=prompt,
-                max_new_tokens=max_new_tokens,
-                temperature=temperature,
-                top_p=top_p,
-                config=cfg,
-                chat=args.chat,
-                system_prompt=args.system,
-                collector=collector,
-                thinking=args.thinking,
-            )
-
-        if args.collect is not None:
+        from runtime.session import open_turbo_session
+        try:
+            with open_turbo_session(model_path, cfg) as engine:
+                collector.num_layers = engine.adapter.num_layers
+                for prompt in prompt_loader.load():
+                    engine.generate(
+                        prompt=prompt, max_new_tokens=max_new_tokens,
+                        temperature=temperature, top_p=top_p, config=cfg,
+                        chat=args.chat, system_prompt=args.system,
+                        collector=collector, thinking=args.thinking)
+        finally:
             collector.close()
+
 
 
 if __name__=="__main__":

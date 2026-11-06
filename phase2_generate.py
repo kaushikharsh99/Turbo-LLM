@@ -1,10 +1,4 @@
 import torch
-from transformers import AutoConfig, AutoModelForCausalLM
-from accelerate import init_empty_weights
-
-from loader.expert_loader import ExpertLoader
-from runtime.model_factory import create_adapter
-from runtime.engine import TurboEngine
 
 @torch.no_grad()
 def generate(
@@ -19,8 +13,8 @@ def generate(
         collector=None,
         thinking="off",
     ):
-    if max_new_tokens < 0 or temperature < 0 or not 0 < top_p <= 1:
-        raise ValueError("Require max_new_tokens >= 0, temperature >= 0 and 0 < top_p <= 1")
+    from runtime.options import validate_generation
+    validate_generation(max_new_tokens, temperature, top_p)
     if max_new_tokens == 0:
         return ""
     from runtime.registry import CompatibilityError
@@ -36,36 +30,14 @@ def generate(
         from runtime.gguf import generate_gguf
         return generate_gguf(model, prompt, max_new_tokens, temperature, top_p,
                              config, chat, system_prompt, collector, thinking)
-    from runtime.registry import resolve_architecture
-    from runtime.policy import ExecutionPolicy
-    from types import SimpleNamespace
-    hf_config = AutoConfig.from_pretrained(model, trust_remote_code=False)
-    spec = resolve_architecture(hf_config)
-    policy = ExecutionPolicy.from_config(config)
-    loader = None
-    try:
-        if spec.streaming:
-            loader = ExpertLoader(model, config=config)
-            with init_empty_weights():
-                causal_model = AutoModelForCausalLM.from_config(
-                    hf_config, trust_remote_code=False, dtype=policy.dtype)
-        else:
-            loader = SimpleNamespace(DEVICE=policy.device, snapshot_path=model, close=lambda: None)
-            causal_model = AutoModelForCausalLM.from_pretrained(
-                model, config=hf_config, trust_remote_code=False, dtype=policy.dtype
-            ).to(policy.device)
-        causal_model.eval()
-        adapter = create_adapter(causal_model, loader, hf_config)
+    from runtime.session import open_turbo_session
+    with open_turbo_session(model, config) as engine:
         if collector is not None:
-            collector.num_layers = adapter.num_layers
-        engine = TurboEngine(adapter)
+            collector.num_layers = engine.adapter.num_layers
         return engine.generate(
             prompt=prompt, max_new_tokens=max_new_tokens, temperature=temperature,
             top_p=top_p, config=config, chat=chat, system_prompt=system_prompt,
             collector=collector, thinking=thinking)
-    finally:
-        if loader is not None:
-            loader.close()
 
 
 
