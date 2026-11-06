@@ -3,12 +3,15 @@ import argparse
 from contextlib import closing
 from importlib.metadata import version
 import json
+import os
+import platform
+import psutil
 import resource
 import subprocess
 import threading
 import time
 from pathlib import Path
-from llama_cpp import Llama
+from llama_cpp import Llama, llama_cpp
 
 
 def gpu_used_mib():
@@ -43,6 +46,7 @@ def main():
             stop.wait(0.5)
     worker = threading.Thread(target=monitor, daemon=True)
     worker.start()
+    available_ram_before = psutil.virtual_memory().available
     started = time.perf_counter()
     try:
         with closing(Llama(model_path=str(args.model), n_ctx=args.context, n_batch=64,
@@ -61,6 +65,10 @@ def main():
                 'model': args.model.name, 'bytes': args.model.stat().st_size,
                 'backend': 'llama_cpp (mmap, not Turbo streaming)',
                 'llama_cpp_version': version('llama-cpp-python'),
+                'gpu_offload_supported': bool(llama_cpp.llama_supports_gpu_offload()),
+                'python': platform.python_version(), 'logical_cpus': os.cpu_count(),
+                'available_ram_before_mib': available_ram_before / 1024**2,
+                'available_ram_after_mib': psutil.virtual_memory().available / 1024**2,
                 'n_ctx_requested': args.context, 'n_ctx_actual': llm.n_ctx(),
                 'n_threads': args.threads, 'n_gpu_layers': args.gpu_layers,
                 'prompt': args.prompt, 'chat': args.chat, 'note': args.note,

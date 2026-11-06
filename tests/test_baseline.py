@@ -253,12 +253,13 @@ def test_gguf_entrypoint_does_not_import_torch():
 
 
 @pytest.mark.parametrize('shape', [(128, 256), (129, 257)])
-def test_block_fp8_scales_and_edges(shape):
+@pytest.mark.parametrize('device', ['cpu', pytest.param('cuda', marks=pytest.mark.skipif(not torch.cuda.is_available(), reason='CUDA unavailable'))])
+def test_block_fp8_scales_and_edges(shape, device):
     from loader.quantization import dequantize_block_fp8
     values = torch.linspace(-2, 2, shape[0] * shape[1]).reshape(shape).to(torch.float8_e4m3fn)
     rows, columns = ((length + 127) // 128 for length in shape)
     scales = torch.arange(1, rows * columns + 1).reshape(rows, columns).float()
     expected = values.float() * scales.repeat_interleave(128, 0).repeat_interleave(128, 1)[:shape[0], :shape[1]]
-    torch.testing.assert_close(dequantize_block_fp8(values, scales, torch.float32), expected)
+    torch.testing.assert_close(dequantize_block_fp8(values.to(device), scales.to(device), torch.float32).cpu(), expected)
     with pytest.raises(CompatibilityError, match='scale grid'):
         dequantize_block_fp8(values, torch.ones(1, 1), torch.float32)
