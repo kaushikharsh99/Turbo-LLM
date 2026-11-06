@@ -12,9 +12,14 @@ work and agree on file ownership before parallel edits.
 - Native model lifetime belongs to `runtime/session.py`: use its context for
   repeated requests, close resources on success/error, and reject use after close.
   Keep native/GGUF option validation shared through `runtime/options.py`.
+  Keep GGUF imports lazy so that its startup does not load the native PyTorch
+  stack; test the installed CLI outside the checkout when changing packaging.
 - Dense Llama is a separate resident-model path. GGUF delegates metadata,
   tokenization, mapping and quantized execution to optional llama.cpp; it does
   not validate or use Turbo's native expert-cache implementation.
+- Keep native FP8 inverse-scale decoding in `loader/quantization.py`, including
+  scale-grid validation and partial-block behavior. Packed quantized scale
+  support still requires separate mapping and reference tests.
 - Register exact architecture names in `runtime/registry.py`. Unsupported
   checkpoints should fail early with an actionable compatibility error. An
   architecture name or adapter stub is not evidence of numerical support.

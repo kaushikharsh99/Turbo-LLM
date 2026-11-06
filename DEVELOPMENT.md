@@ -16,6 +16,7 @@ checking the checkout.
 | Adapter contract and model-specific behavior | `models/base.py`, `models/*.py`, `execution/layouts/` |
 | Safetensors discovery and per-expert views | `loader/checkpoint.py`, `loader/model_layout.py` |
 | Native expert loading and caches | `loader/expert_loader.py`, `cache/ram_cache.py`, `cache/kv_cache.py` |
+| Shared native FP8 inverse-scale decoding | `loader/quantization.py` |
 | Native layer, routing and expert execution | `runtime/engine.py`, `execution/layer_executor.py`, `execution/router.py`, `execution/moe.py` |
 | Execution and cache policy | `runtime/policy.py`; structural extension contracts in `runtime/interfaces.py` |
 | Optional GGUF backend | `runtime/gguf.py` |
@@ -26,7 +27,8 @@ Native MoE constructs a meta model, preloads the backbone, and fetches selected
 experts from storage as needed. Prefill processes experts one at a time. Decode
 uses bounded static cache slots; RAM stores raw expert weights. Preserve this
 approach when adding adapters. Dense Llama loads the full model onto the selected
-device and bypasses the expert loader.
+device and bypasses the expert loader. The native engine projects only the final
+hidden position to vocabulary logits, avoiding a full prefill sequence of logits.
 
 `runtime.session.open_turbo_session(model, config)` owns native model/loader
 lifetime. Its context loads once and yields an engine for repeated `generate`
@@ -44,7 +46,9 @@ running inference. Keep this shared contract consistent when adding backends.
 GGUF deliberately delegates metadata, embedded tokenization, tensor mapping and
 quantized kernels to llama.cpp through `llama-cpp-python`. It does not use the
 Turbo expert cache, and native YAML device/dtype/cache budgets do not configure
-it. A native GGUF parser would not supply quantized kernels or model execution;
+it. The GGUF entrypoint lazily imports the backend without importing PyTorch;
+requests for nonzero GPU layers fail early if llama.cpp reports no offload
+support. A native GGUF parser would not supply quantized kernels or model execution;
 native Turbo GGUF inference remains separate future work. See the
 [llama-cpp-python API](https://llama-cpp-python.readthedocs.io/en/latest/api-reference/).
 
@@ -54,15 +58,18 @@ native Turbo GGUF inference remains separate future work. See the
 | --- | --- | --- |
 | Llama dense | Tiny saved checkpoint; greedy prefill and cached generation compared with HF | Real large checkpoints, GPU performance, broad dtype/device combinations |
 | Qwen3 MoE streaming | Tiny individual and packed unquantized experts; CPU/CUDA prefill and cached-decode logits compared with HF; cache eviction exercised with one slot | Real large model generation, production FP8 checkpoints, large-model GPU throughput |
+| Native FP8 decoder | CPU/CUDA 128×128 inverse-scale checks against explicit scaling, including a 129×257 edge matrix and invalid-grid rejection | Real large FP8 checkpoint generation and packed quantized scales |
 | Qwen3.5 MoE and OLMoE | Existing adapters remain registered | End-to-end numerical correctness and actual checkpoint layouts |
-| GGUF | Real Stories15M Q4_0 CLI generation; deterministic output comparison with direct llama.cpp; mock API/cleanup check | 30B generation and CUDA offload are pending; no general Q1–Q8 guarantee |
+| GGUF | Real Stories15M Q4_0 CLI/reference checks; checksum-verified Qwen3-30B-A3B-Instruct-2507 Q2_K_L CPU eight-token completion; mock API/cleanup check | 30B CUDA offload and other quantizations remain unverified; no general Q1–Q8 guarantee |
 
 Native safetensors can be indexed/sharded or unsharded. Individual expert weights
 use `mlp.experts.N.{gate_proj,up_proj,down_proj}.weight`. Qwen packed unquantized
 `gate_up_proj` and `down_proj` tensors are sliced on CPU per expert. Packed
-quantized scale layouts are explicitly unsupported. Existing FP8 dequantization
-assumes 128×128 blocks. Backbone/expert preflight catches missing required keys;
-this is not comprehensive validation of every tensor shape or quantization.
+quantized scale layouts are explicitly unsupported. `loader/quantization.py`
+shares native 128×128 inverse-scale decoding across weight-loading paths,
+validates the scale-grid shape and pads/crops partial edge blocks. Backbone/expert
+preflight catches missing required keys; this is not comprehensive validation of
+every tensor shape or quantization.
 
 Unknown architecture names fail before weight loading. Adding a registry entry
 alone does not establish support: implement its adapter/layout, verify checkpoint
@@ -108,7 +115,14 @@ through the CLI. Native CPU correctness checks should select
 `execution.device: cpu` and `dtype: fp32`; the shipped default YAML explicitly
 selects fp16, which remains in effect unless overridden.
 
-## Large-model validation in progress
+A built wheel was inspected for the packaged `config/default.yaml` and runtime
+modules. The installed `turbo-llm` command was also exercised from `/tmp` with the
+real tiny GGUF, confirming that configuration discovery does not depend on the
+repository working directory. This lightweight GGUF run is separate from native
+PyTorch execution; do not compare its process footprint to a test process that
+already imported PyTorch. Generated egg-info is no longer tracked.
+
+## Large-model validation and pending CUDA work
 
 The current target is roughly 30B parameters in supported low GGUF quantizations,
 prioritizing Q1–Q4 and never going above Q8. Labels such as Q2_K_L are mixtures of
@@ -122,13 +136,41 @@ Its local output filename omits the initial `Qwen_` prefix:
 `.local-models/Qwen3-30B-A3B-Instruct-2507-Q2_K_L.gguf`. Its embed/output
 weights use Q8_0. Immutable source revisions and expected SHA-256 values for
 both this file and Stories15M are in
-[validation/model-sources.json](validation/model-sources.json). The large download
-is pinned to revision `6c6e8692f43e4ca663f7ece8229a1361090d3a4c` and configured
-to verify the recorded checksum on completion; this does not mean the partial
-file is already verified. A resumable download is in `.local-models/`; check the process
-and `/tmp/turbo-aria.log` before restarting it. A sparse partial file can have an
-apparently large size: an existing filename or `ls -lh` output does not establish
-that the download finished. Do not run inference until the downloader succeeds.
+[validation/model-sources.json](validation/model-sources.json). The large file
+finished downloading from pinned revision
+`6c6e8692f43e4ca663f7ece8229a1361090d3a4c`; both downloader verification and an
+independent SHA-256 check matched
+`2ce6e6a71bc117d8293f3b4e0bb8436dda128e6d06676ad375383a9581aef22a`.
+For future downloads, an existing filename or large `ls -lh` size does not prove
+completion: sparse partial files may appear nearly full-sized.
+
+The initial [30B CPU report](validation/qwen30b-q2-cpu.json) records
+llama-cpp-python 0.3.31 without GPU offload, CPU mmap, four threads and an actual
+256-token context. Prompt `The capital of France is` used five tokens and
+produced eight completion tokens:
+
+```text
+ Paris. What is the capital of Germany
+```
+
+Loading took 40.35 s; the combined prefill/generation call took 7.57 s
+(about 1.06 completion tok/s including prefill). Peak process RSS was
+6,807.71 MiB (about 6.65 GiB). This is a short execution smoke test, not a quality
+evaluation or stable decode-only benchmark. CUDA compilation was concurrent.
+System swap usage rose from roughly 1.9 GiB to 6.1 GiB during the run, indicating
+strong memory pressure across the host. Do not present process RSS as total
+model/system memory or assume the model runs comfortably in 6.65 GiB RAM.
+The sampled whole-GPU 266 MiB was desktop/other-process usage, not model offload.
+A separate CLI chat check is still pending.
+
+To reproduce the completion probe after checking available resources:
+
+```sh
+.venv/bin/python scripts/benchmark_gguf.py \
+  .local-models/Qwen3-30B-A3B-Instruct-2507-Q2_K_L.gguf \
+  --context 256 --tokens 8 --threads 4 --gpu-layers 0 \
+  --output validation/qwen30b-q2-cpu-new-run.json
+```
 
 The original installed llama-cpp-python 0.3.31 is CPU-only. A CUDA build was
 started in `.venv` using the local CUDA 13.3 toolkit, SM86 and two build workers.
@@ -150,8 +192,8 @@ Check `/tmp/turbo-cuda-build.log` and verify capability in a fresh process:
 
 The host has approximately 16 GiB RAM and a 6 GiB RTX 3050. Disk space is changing
 as the user frees it; recheck `df -h .`, `free -h` and `nvidia-smi` before large
-runs. The first 30B test should be short CPU mmap inference with a small context,
-then bounded partial GPU offload if the CUDA build works. Allow space for the
+runs. The initial short CPU mmap test succeeded with the caveats above; bounded
+partial GPU offload is still pending the CUDA build. Allow space for the
 checkpoint, build artifacts, KV cache and runtime workspace. Memory-mapped files
 can page from disk and may be slow when RAM is scarce. Do not equate mapped file
 size with peak RSS or claim a 6 GiB-only model footprint.
@@ -170,9 +212,10 @@ large-model speed from the tiny fixture.
 
 ## Next work and keeping this handoff current
 
-1. Finish the 30B Q2_K_L download; verify the file and record provenance.
-2. Finish or diagnose the CUDA build. Establish a bounded real 30B CPU result,
-   then evaluate partial offload with measured CPU/RAM/VRAM use.
+1. Complete the separate 30B CLI chat check and record its actual output.
+2. Finish or diagnose the CUDA build, then evaluate bounded partial 30B offload
+   with measured CPU/RAM/VRAM use. Compare runs without concurrent compilation
+   before making performance claims.
 3. Exercise real large Qwen safetensors streaming separately from GGUF. Validate
    FP8 block/scale handling, memory budget enforcement and checkpoint mappings.
 4. Add numerical coverage before promoting Qwen3.5 or OLMoE beyond experimental.

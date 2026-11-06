@@ -19,18 +19,24 @@ The two paths have separate memory policies and validation evidence.
 | `Qwen3MoeForCausalLM` | Turbo expert streaming | Tiny individual and packed unquantized expert fixtures: CPU and CUDA prefill and cached-decode logits match Hugging Face, including a one-slot expert cache. Large real checkpoints remain to be validated. |
 | `Qwen3_5MoeForConditionalGeneration`, `Qwen3_5MoeForCausalLM` | Turbo expert streaming | Existing adapters retained; experimental, without end-to-end numerical validation. |
 | `OlmoeForCausalLM` | Turbo expert streaming | Existing adapter retained; experimental, without end-to-end numerical validation. |
-| Local `.gguf` file | Optional `llama-cpp-python` | Real Stories15M Q4_0 CLI generation and comparison with direct llama.cpp pass. Architecture and quantization support come from the installed llama.cpp build. |
+| Local `.gguf` file | Optional `llama-cpp-python` | Real Stories15M Q4_0 CLI/reference checks and a short Qwen3-30B-A3B-Instruct-2507 Q2_K_L CPU completion pass. Large-model CUDA offload remains unverified; support depends on the llama.cpp build. |
 
 Registration is exact, not a promise that every checkpoint for that architecture
 works. Native streaming supports indexed or unsharded safetensors, individual
 expert projections, and Qwen packed **unquantized** `gate_up_proj` / `down_proj`
 storage sliced per expert. Packed quantized scales are unsupported. The existing
-FP8 implementation assumes 128×128 blocks. See [development and validation notes](DEVELOPMENT.md).
+FP8 decoder uses 128×128 inverse-scale blocks, validates the scale grid and
+handles partial edge blocks. CPU/CUDA fixture checks pass; real large FP8
+checkpoints remain untested. See [development and validation notes](DEVELOPMENT.md).
 
 The current large-model target is approximately 30B parameters at low GGUF
 quantizations, prioritizing Q1–Q4 variants where the runtime supports them, with a
-Q8 ceiling. This is a testing target, not a verified compatibility matrix. A 30B
-Q2_K_L download is underway; no 30B GGUF throughput is claimed yet.
+Q8 ceiling. A checksum-verified 30B Q2_K_L CPU smoke test produced eight tokens
+at about 1.06 tok/s including prefill, after about 40.35 s loading. This short run
+experienced strong system memory pressure; its 6.65 GiB process peak RSS is not
+the total model/system footprint. See the [raw run](validation/qwen30b-q2-cpu.json)
+and [measurement caveats](DEVELOPMENT.md). Other quants and 30B GPU performance
+remain unverified.
 
 ## Install and test
 
@@ -55,8 +61,11 @@ pip install -c constraints-tested.txt '.[gguf]'
 ```
 
 That command may compile llama.cpp. A CUDA-enabled PyTorch installation does not
-make llama.cpp CUDA-enabled; check the backend build separately. The console
-command `turbo-llm` is installed into the active environment.
+make llama.cpp CUDA-enabled; check the backend build separately. Requests for
+GPU layers fail early when the installed llama.cpp build has no offload support. The console
+command `turbo-llm` is installed into the active environment. Its packaged default
+configuration is found independently of the working directory. The GGUF path
+lazily imports its backend and does not load PyTorch for inference startup.
 
 ## Run local inference
 
