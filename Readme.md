@@ -1,291 +1,138 @@
-> Local revival status and verified compatibility: [DEVELOPMENT.md](DEVELOPMENT.md).
-> The benchmark figures below are upstream claims and have not been reproduced in this checkout.
+<p align="center"><img src="assets/logo.png" width="240" alt="Turbo-LLM"></p>
 
-<p align="center">
-  <img src="assets/logo.png" width="280">
-</p>
+# Turbo-LLM
 
-<h1 align="center">Turbo-LLM</h1>
+Turbo-LLM is an experimental inference runtime for memory-constrained machines.
+Its native MoE path keeps backbone weights resident and loads selected experts
+from safetensors through a bounded device cache and RAM cache. Prefill processes
+experts sequentially, so it does not expand the complete expert set onto the GPU.
+Dense Llama inference and an optional llama.cpp GGUF backend are also available.
 
-<p align="center">
-Fast Memory-Efficient Inference Engine for Large MoE Models
-</p>
+**GGUF execution uses llama.cpp, not Turbo's native expert-streaming engine.**
+The two paths have separate memory policies and validation evidence.
 
-<p align="center">
-🚀 ~21× Faster Than Initial Prototype • 🧠 35B MoE on ~6GB VRAM • ⚡ 2.3 tok/s (RTX 3050) • 🍎 0.31 tok/s (Apple M4) • 🟦 0.42 tok/s (Intel Ultra 7)
-</p>
+## Current compatibility
 
----
+| Checkpoint / architecture | Execution path | Evidence and limits |
+| --- | --- | --- |
+| `LlamaForCausalLM` | Turbo dense | Tiny local checkpoint: greedy output matches Hugging Face through prefill and cached decode. Dense weights must fit on the selected device. |
+| `Qwen3MoeForCausalLM` | Turbo expert streaming | Tiny individual and packed unquantized expert fixtures: CPU and CUDA prefill and cached-decode logits match Hugging Face, including a one-slot expert cache. Large real checkpoints remain to be validated. |
+| `Qwen3_5MoeForConditionalGeneration`, `Qwen3_5MoeForCausalLM` | Turbo expert streaming | Existing adapters retained; experimental, without end-to-end numerical validation. |
+| `OlmoeForCausalLM` | Turbo expert streaming | Existing adapter retained; experimental, without end-to-end numerical validation. |
+| Local `.gguf` file | Optional `llama-cpp-python` | Real Stories15M Q4_0 CLI generation and comparison with direct llama.cpp pass. Architecture and quantization support come from the installed llama.cpp build. |
 
-## Turbo-LLM
+Registration is exact, not a promise that every checkpoint for that architecture
+works. Native streaming supports indexed or unsharded safetensors, individual
+expert projections, and Qwen packed **unquantized** `gate_up_proj` / `down_proj`
+storage sliced per expert. Packed quantized scales are unsupported. The existing
+FP8 implementation assumes 128×128 blocks. See [development and validation notes](DEVELOPMENT.md).
 
-Turbo-LLM is an experimental inference engine designed to run large language models under strict VRAM limits using dynamic expert execution and adaptive GPU residency.
+The current large-model target is approximately 30B parameters at low GGUF
+quantizations, prioritizing Q1–Q4 variants where the runtime supports them, with a
+Q8 ceiling. This is a testing target, not a verified compatibility matrix. A 30B
+Q2_K_L download is underway; no 30B GGUF throughput is claimed yet.
 
-Instead of loading the full model into memory, Turbo-LLM executes only the required components during generation.
+## Install and test
 
-Current architecture focuses on:
+Python 3.10+ is required. The local revival was tested with Python 3.13,
+PyTorch 2.11.0, Transformers 5.14.1 and llama-cpp-python 0.3.31.
 
-* Dynamic expert routing
-* Sequential MoE execution
-* Adaptive expert caching
-* Layer streaming
-* KV cache generation
-* Low VRAM inference
-
-Currently supported and tested model:
-
-* **Model ID**: `Qwen/Qwen3-30B-A3B-Instruct-2507-FP8`
-* **Model ID**: `Qwen/Qwen3.6-35B-A3B-FP8`
-
----
-Current tested configurations:
-
-### NVIDIA RTX 3050 Laptop
-
-```text
-Model:
-Qwen/Qwen3.6-35B-A3B-FP8
-
-RAM:
-16 GB
-
-GPU:
-RTX 3050 Laptop (6 GB)
-
-Speed:
-~2.3 tok/s
-
-Peak VRAM:
-~5.4 GB
-```
-
-### Apple M4
-
-```text
-Model:
-Qwen/Qwen3-30B-A3B-Instruct-2507-FP8
-
-RAM:
-16 GB
-
-GPU:
-Apple M4
-
-Speed:
-~0.31 tok/s
-```
-
-### Intel ULTRA 7
-
-```text
-Model:
-Qwen/Qwen3-30B-A3B-Instruct-2507-FP8
-
-RAM:
-16 GB
-
-GPU:
-NA
-
-CPU:
-Intel ULTRA 7
-
-Speed:
-~0.42 tok/s
-```
----
-
-## Benchmark
-
-<p align="center">
-  <img src="assets/benchmark.png" width="900">
-</p>
-
-### Throughput Evolution (RTX 3050)
-
-| Version             | Tokens/sec |
-| ------------------- | ---------: |
-| Baseline            |       0.11 |
-| Prefetch + Cache    |       0.87 |
-| Decode Optimization |       1.14 |
-| Static Buffers      |       1.33 |
-| Active pinning      |       1.82 |
-| Warm Cache          |       1.92 |
-| Current             |       2.30 |
-
-
-### Latest Performance
-
-| Platform | Throughput |
-|----------|-----------:|
-| RTX 3050 Laptop (6 GB) | **2.3 tok/s** |
-| Apple M4 (16 GB Unified Memory) | **0.31 tok/s** |
-| Intel ULTRA 7 (16 GB RAM) | **0.42 tok/s** |
----
-
-## Installation
-
-Clone the repository:
-
-```bash
+```sh
 git clone https://github.com/kaushikharsh99/Turbo-LLM.git
 cd Turbo-LLM
-```
-
-Create a virtual environment:
-
-```bash
 python -m venv .venv
-```
-
-Activate it:
-
-```bash
-# Linux / macOS
 source .venv/bin/activate
-
-# Windows
-.venv\Scripts\activate
+pip install torch==2.11.0 --index-url https://download.pytorch.org/whl/cpu
+pip install -c constraints-tested.txt -e '.[test]'
+python -m pytest -q
 ```
 
-Install Turbo-LLM:
+Choose the appropriate PyTorch CUDA wheel separately for native GPU execution.
+Install the optional GGUF backend with:
 
-```bash
-pip install -r requirements.txt
-pip install -e .
+```sh
+pip install -c constraints-tested.txt '.[gguf]'
 ```
 
-Installing in editable mode registers the `turbo-llm` command globally.
----
+That command may compile llama.cpp. A CUDA-enabled PyTorch installation does not
+make llama.cpp CUDA-enabled; check the backend build separately. The console
+command `turbo-llm` is installed into the active environment.
 
-## Download Model & Discovery
+## Run local inference
 
-Turbo-LLM supports automatic downloading and caching of models directly from Hugging Face, as well as loading local weight directories.
+```sh
+# Native dense or registered MoE safetensors checkpoint
+python run.py --backend turbo --model /path/to/checkpoint \
+  --prompt 'Hello' --max_new_tokens 8 --temperature 0
 
-Specify the Hugging Face repo ID. Turbo-LLM automatically downloads and structures it under `~/.turbollm/models/`:
-
-```bash
-turbo-llm \
---model Qwen/Qwen3.6-35B-A3B-FP8 \
---prompt "Who is Donald Trump?" \
---chat \
---system "You are a frank, funny, joking explainer."
---max_new_tokens 512
+# llama.cpp-backed GGUF completion; CPU by default
+python run.py --backend llama_cpp --model /path/to/model.gguf \
+  --prompt 'Once upon a time' --max_new_tokens 24 --temperature 0
 ```
 
-## Usage
+`--backend auto` is the default: `.gguf` files select llama.cpp and other model
+paths select Turbo. For GGUF, download the specific file first and pass its local
+path. A Hugging Face repository ID selects the directory-checkpoint downloader,
+which can download the whole repository into `~/.turbollm/models/`; check storage
+requirements before using it. Always pass `--model` explicitly on a fresh clone:
+the tracked `model` symlink refers to the original developer's local cache.
 
-You can run inference using either the globally registered `turbo-llm` CLI tool, or directly executing `run.py`.
+`--chat` formats a single prompt with the model's chat template; it is not an
+interactive chat loop. `--system` supplies its optional system message. GGUF chat
+requires embedded `tokenizer.chat_template`. GGUF does not expose routing
+collection or the `--thinking on` control. Native models disable remote code.
 
-### Chat Mode
+The packaged `config/default.yaml` provides runtime defaults. Copy it before
+customizing it:
 
-Launch in chat mode :
-
-Chat with custom generation parameters:
-
-```bash
-turbo-llm \
---model Qwen/Qwen3.6-35B-A3B-FP8 \
---prompt "Explain quantum computing." \
---chat \
---system "You are a helpful AI assistant." \
---temperature 0.7 \
---top_p 0.95 \
---max_new_tokens 512
+```sh
+cp config/default.yaml local.yaml
+python run.py --config local.yaml --model /path/to/model.gguf \
+  --prompt 'Hello' --max_new_tokens 8
 ```
 
-### Useful CLI Parameters
+For native execution, set `execution.device` to `auto`, `cpu`, `cuda` or `mps` and
+`execution.dtype` to `fp32`, `fp16` or `bf16`. The shipped YAML explicitly requests
+fp16; choose fp32 when testing native CPU correctness. Native expert-cache
+controls are `cache.expert_limit`, `memory.max_vram_mb` and
+`memory.max_ram_percent`. These do not control llama.cpp.
 
-```text
---model
-Model directory path or Hugging Face repository ID.
-
---prompt
-Initial user prompt (required for both completion and chat modes).
-
---chat
-Launch interactive chat mode.
-
---system
-System prompt used during chat mode.
-
---max_new_tokens
-Maximum number of tokens to generate.
-
---temperature
-Sampling temperature.
-
---top_p
-Nucleus sampling threshold.
-
---benchmark
-Enable performance logging.
-
---config
-Path to a custom YAML configuration file.
-```
-
-### Configuration Files (YAML)
-
-Instead of specifying runtime options on every command, you can store them in a YAML configuration file.
-
-Example:
-
-```bash
-turbo-llm \
---config config/default.yaml \
---prompt "Explain Mixture of Experts"
-```
-
-Default configuration (`config/default.yaml`):
+For GGUF, add this section to the copied YAML:
 
 ```yaml
-model:
-  path: "./model"
-
-runtime:
-  max_new_tokens: 50
-  temperature: 0.7
-  top_p: 0.95
-
-cache:
-  gpu_limit: auto
-  ram_limit: auto
-  expert_limit: auto
-
-memory:
-  max_vram_mb: 5800
-  max_ram_percent: 35
-
-execution:
-  dtype: fp16
-  profiling: true
+gguf:
+  n_ctx: 512
+  n_batch: 64
+  n_threads: 4
+  n_gpu_layers: 0
+  seed: 0
 ```
 
----
+Increase `n_gpu_layers` only with a CUDA-enabled llama.cpp build and enough free
+VRAM. Short contexts are useful for initial memory-constrained checks.
 
-## Features
+## Validation and contribution
 
-- Dynamic expert streaming
-- SSD → RAM → VRAM hierarchical caching
-- Dynamic VRAM cache sizing
-- RAM expert cache
-- Layer-by-layer execution
-- Double buffering (Ping-Pong buffers)
-- Asynchronous prefetching
-- Persistent GPU buffers
-- KV cache
-- Interactive chat mode
-- System prompt support
-- Automatic model detection
-- Multi-model support
-- Cross-platform support (CUDA, CPU, macOS)
----
+The default test suite creates tiny local dense and MoE fixtures; no model
+download is required. Real GGUF testing runs when `TURBO_TEST_GGUF` points to a
+local file, or the local Stories15M test file exists:
 
-## Contributing
+```sh
+TURBO_TEST_GGUF=/path/to/stories15M-q4_0.gguf python -m pytest -q
+python scripts/benchmark_gguf.py /path/to/model.gguf \
+  --context 512 --tokens 24 --output validation/my-run.json
+```
 
-Ideas, benchmarks and pull requests are welcome.
+The benchmark script measures llama.cpp loading, combined prefill/generation
+time and process peak RSS. It also accepts `--gpu-layers`, `--threads`, `--chat`
+and `--prompt`, and samples whole-GPU memory (including other processes). The
+recorded [tiny-model CPU run](validation/stories15m-q4.json) establishes neither
+native Turbo streaming speed nor GPU performance; it is not a factual-answer
+quality evaluation. The runtime rounded its requested 128-token context to 256. Model revisions and SHA-256 values are recorded in
+[model-sources.json](validation/model-sources.json). Original
+README throughput figures are preserved as [unreproduced upstream claims](docs/UPSTREAM_BENCHMARKS.md).
 
-If you find this useful:
-
-⭐ Star the repository
+For architecture boundaries, reproducible checks and remaining work, read
+[DEVELOPMENT.md](DEVELOPMENT.md). AI contributors should start with
+[AGENTS.md](AGENTS.md). Keep model weights, virtual environments, credentials and
+machine-specific caches out of commits.
