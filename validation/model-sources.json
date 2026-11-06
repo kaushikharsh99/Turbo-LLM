@@ -1,0 +1,16 @@
+[
+  {
+    "repo": "ggml-org/tiny-llamas",
+    "revision": "99dd1a73db5a37100bd4ae633f4cfce6560e1567",
+    "filename": "stories15M-q4_0.gguf",
+    "bytes": 19077344,
+    "sha256": "6151b1929d7f5aa3385d9ddef3393e55587c0a55de661562322bc51dfda93a04"
+  },
+  {
+    "repo": "bartowski/Qwen_Qwen3-30B-A3B-Instruct-2507-GGUF",
+    "revision": "6c6e8692f43e4ca663f7ece8229a1361090d3a4c",
+    "filename": "Qwen_Qwen3-30B-A3B-Instruct-2507-Q2_K_L.gguf",
+    "bytes": 11212519424,
+    "sha256": "2ce6e6a71bc117d8293f3b4e0bb8436dda128e6d06676ad375383a9581aef22a"
+  }
+]
