@@ -61,7 +61,7 @@ native Turbo GGUF inference remains separate future work. See the
 | Native FP8 decoder | CPU/CUDA 128×128 inverse-scale checks against explicit scaling, including a 129×257 edge matrix and invalid-grid rejection | Real large FP8 checkpoint generation and packed quantized scales |
 | Qwen3.5 MoE | Existing adapters remain registered; experimental | End-to-end numerical correctness and actual checkpoint layouts |
 | OLMoE | Registered stub; adapter-capability preflight rejects it before checkpoint tensors are opened | Unavailable for inference until required cache/layout methods and numerical checks exist |
-| GGUF | Real Stories15M Q4_0 CPU/reference and CUDA checks; checksum-verified Qwen3-30B-A3B-Instruct-2507 Q2_K_L CPU, CLI chat and 16-/22-layer CUDA completions | Other quantizations, longer contexts and controlled throughput comparisons remain unverified; no general Q1–Q8 guarantee |
+| GGUF | Real Stories15M Q4_0 CPU/reference and CUDA checks; checksum-verified Qwen3-30B-A3B-Instruct-2507 Q2_K_L CPU/CUDA CLI chat and 16-/22-layer CUDA completions | Other quantizations, longer contexts and controlled throughput comparisons remain unverified; no general Q1–Q8 guarantee |
 
 Native safetensors can be indexed/sharded or unsharded. Individual expert weights
 use `mlp.experts.N.{gate_proj,up_proj,down_proj}.weight`. Qwen packed unquantized
@@ -237,6 +237,15 @@ short run with roughly 1 GiB of sampled GPU headroom, but system swap remained
 high (about 6.7 GiB observed while it ran). Longer contexts or other processes can
 change the result. These are llama.cpp results, not native Turbo streaming
 benchmarks.
+
+The actual [CUDA CLI chat check](validation/qwen30b-q2-cuda-cli.json) also
+returned `Paris` with exit 0 for the one-word capital question. Verbose logs
+confirmed 16/49 layers offloaded and a 3,487.31 MiB CUDA model buffer. Wall time
+was 29.72 s including startup/loading/generation; peak process RSS was
+7,833.55 MiB (about 7.65 GiB), with 422,279 major page faults and high preexisting
+system swap. No whole-GPU peak was sampled for this CLI run. Its timing is not
+a decode-only rate, and the eight-token limit does not reveal the actual number
+of generated tokens.
 
 The host has approximately 16 GiB RAM and a 6 GiB RTX 3050. Disk space is changing
 as the user frees it; recheck `df -h .`, `free -h` and `nvidia-smi` before large

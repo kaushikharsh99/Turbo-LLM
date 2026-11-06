@@ -19,7 +19,7 @@ The two paths have separate memory policies and validation evidence.
 | `Qwen3MoeForCausalLM` | Turbo expert streaming | Tiny individual and packed unquantized expert fixtures: CPU and CUDA prefill and cached-decode logits match Hugging Face, including a one-slot expert cache. Large real checkpoints remain to be validated. |
 | `Qwen3_5MoeForConditionalGeneration`, `Qwen3_5MoeForCausalLM` | Turbo expert streaming | Existing adapters retained; experimental, without end-to-end numerical validation. |
 | `OlmoeForCausalLM` | Registered stub; unavailable | Adapter lacks required cache/layout methods. Preflight raises a compatibility error before opening checkpoint tensors. |
-| Local `.gguf` file | Optional `llama-cpp-python` | Real Stories15M Q4_0 checks and Qwen3-30B-A3B-Instruct-2507 Q2_K_L CPU/CLI chat plus 16- and 22-layer CUDA completion checks pass. These are short runs; support depends on the llama.cpp build. |
+| Local `.gguf` file | Optional `llama-cpp-python` | Real Stories15M Q4_0 checks and Qwen3-30B-A3B-Instruct-2507 Q2_K_L CPU/CUDA CLI chat plus 16- and 22-layer CUDA completion checks pass. These are short runs; support depends on the llama.cpp build. |
 
 Registration is exact, not a promise that every checkpoint for that architecture
 works. Native streaming supports indexed or unsharded safetensors, individual
@@ -43,8 +43,10 @@ Actual CUDA partial-offload checks also succeeded: 16 layers used about
 tok/s over seven decode tokens. The combined prefill/generation rate was
 0.68 completion tok/s. These short, memory-constrained runs are not a controlled
 CPU/GPU comparison; see [GPU results](validation/qwen30b-q2-cuda.json) and
-[22-layer results](validation/qwen30b-q2-cuda-22.json). Other quantizations and
-longer-context behavior remain unverified.
+[22-layer results](validation/qwen30b-q2-cuda-22.json). The actual
+[CUDA CLI chat check](validation/qwen30b-q2-cuda-cli.json) also returned `Paris`
+with 16/49 layers verified offloaded. Other quantizations and longer-context
+behavior remain unverified.
 
 ## Install and test
 
