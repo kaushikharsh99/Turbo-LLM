@@ -263,3 +263,15 @@ def test_block_fp8_scales_and_edges(shape, device):
     torch.testing.assert_close(dequantize_block_fp8(values.to(device), scales.to(device), torch.float32).cpu(), expected)
     with pytest.raises(CompatibilityError, match='scale grid'):
         dequantize_block_fp8(values, torch.ones(1, 1), torch.float32)
+
+
+def test_incomplete_olmoe_adapter_fails_before_checkpoint_loading(monkeypatch):
+    import runtime.session as session
+    config = SimpleNamespace(architectures=['OlmoeForCausalLM'])
+    monkeypatch.setattr(session.AutoConfig, 'from_pretrained', lambda *args, **kwargs: config)
+    def unexpected_loader(*args, **kwargs):
+        raise AssertionError('Checkpoint loader must not run')
+    monkeypatch.setattr(session, 'ExpertLoader', unexpected_loader)
+    with pytest.raises(CompatibilityError, match='incomplete adapter.*create_cache'):
+        with session.open_turbo_session('/unused'):
+            pass

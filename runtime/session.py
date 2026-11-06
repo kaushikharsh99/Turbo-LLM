@@ -6,7 +6,7 @@ from transformers import AutoConfig, AutoModelForCausalLM
 from loader.expert_loader import ExpertLoader
 from runtime.policy import ExecutionPolicy
 from runtime.registry import resolve_architecture, CompatibilityError
-from runtime.model_factory import create_adapter
+from runtime.model_factory import create_adapter, resolve_adapter_class
 from runtime.engine import TurboEngine
 
 
@@ -17,6 +17,7 @@ def open_turbo_session(model, config=None):
         raise CompatibilityError('Native sessions require a safetensors directory; GGUF uses llama_cpp')
     hf_config = AutoConfig.from_pretrained(model, trust_remote_code=False)
     spec = resolve_architecture(hf_config)
+    resolve_adapter_class(hf_config)
     policy = ExecutionPolicy.from_config(config)
     loader = None
     try:
