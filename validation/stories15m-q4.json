@@ -1,17 +1,24 @@
 {
   "model": "stories15M-q4_0.gguf",
   "bytes": 19077344,
-  "backend": "llama_cpp (CPU mmap, not Turbo streaming)",
-  "n_ctx": 128,
+  "backend": "llama_cpp (mmap, not Turbo streaming)",
+  "llama_cpp_version": "0.3.31",
+  "n_ctx_requested": 128,
+  "n_ctx_actual": 256,
   "n_threads": 4,
   "n_gpu_layers": 0,
-  "load_seconds": 0.12516875400001481,
-  "generation_seconds": 0.16684538000004068,
+  "prompt": "The capital of France is",
+  "chat": false,
+  "load_seconds": 0.1395244640002602,
+  "generation_seconds": 0.15507070500007103,
+  "completion_tokens_per_second_including_prefill": 154.76811045638186,
   "usage": {
     "prompt_tokens": 6,
     "completion_tokens": 24,
     "total_tokens": 30
   },
   "text": " a very intelligent girl. She loves to learn new things and she always has a smile on her face.\n",
-  "max_rss_mib": 87.82421875
+  "max_rss_mib": 422.34375,
+  "system_gpu_peak_used_mib": 272.0,
+  "gpu_measurement_note": "Whole GPU including desktop/other processes; sampled every 0.5s"
 }

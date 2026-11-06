@@ -107,7 +107,8 @@ def test_gguf_backend_contract(tmp_path, monkeypatch):
 
 
 @pytest.mark.parametrize("packed", [False, True])
-def test_qwen_streaming_logits(tmp_path, packed):
+@pytest.mark.parametrize("device", ["cpu", pytest.param("cuda", marks=pytest.mark.skipif(not torch.cuda.is_available(), reason="CUDA unavailable"))])
+def test_qwen_streaming_logits(tmp_path, packed, device):
     import json
     from transformers import Qwen3MoeConfig, Qwen3MoeForCausalLM
     from safetensors.torch import save_file
@@ -139,7 +140,7 @@ def test_qwen_streaming_logits(tmp_path, packed):
         else:
             weights[name] = tensor
     save_file(weights, tmp_path / 'model.safetensors')
-    loader = ExpertLoader(str(tmp_path), {'execution': {'device': 'cpu', 'dtype': 'fp32'},
+    loader = ExpertLoader(str(tmp_path), {'execution': {'device': device, 'dtype': 'fp32'},
                                         'cache': {'expert_limit': 1}})
     from accelerate import init_empty_weights
     with init_empty_weights():
@@ -153,14 +154,14 @@ def test_qwen_streaming_logits(tmp_path, packed):
         with torch.no_grad():
             for ids in [torch.tensor([[3, 4]]), torch.tensor([[5]])]:
                 start = cache.get_seq_length()
-                pos = torch.arange(start, start + ids.shape[1]).unsqueeze(0)
-                hidden = adapter.embed(ids)
+                pos = torch.arange(start, start + ids.shape[1], device=device).unsqueeze(0)
+                hidden = adapter.embed(ids.to(device))
                 rotary = adapter.rotary_embeddings(hidden, pos)
                 mask = adapter.create_attention_mask(hidden, cache, pos)
                 hidden, _ = engine.layer.execute_layer(0, hidden, mask, pos, rotary, cache)
                 logits = adapter.lm_head(adapter.final_norm(hidden))
                 expected = reference(ids, past_key_values=reference_cache, use_cache=True).logits
-                torch.testing.assert_close(logits, expected, atol=1e-5, rtol=1e-4)
+                torch.testing.assert_close(logits.cpu(), expected, atol=1e-5, rtol=1e-4)
     finally:
         loader.close()
 
