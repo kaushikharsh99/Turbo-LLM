@@ -1,0 +1,20 @@
+{
+  "model": "Qwen3-30B-A3B-Instruct-2507-Q2_K_L.gguf",
+  "backend": "llama_cpp CPU, not Turbo streaming",
+  "command": "turbo-llm --backend llama_cpp --chat --prompt \"What is the capital of France? Answer in one word.\" --max_new_tokens 8 --temperature 0",
+  "gguf": {
+    "n_ctx": 256,
+    "n_batch": 64,
+    "n_threads": 4,
+    "n_gpu_layers": 0,
+    "seed": 0
+  },
+  "generation_limit": 8,
+  "output": "Paris",
+  "exit_code": 0,
+  "wall_seconds_including_startup_load_and_generation": 28.45,
+  "max_rss_mib": 7942.33984375,
+  "major_page_faults": 499384,
+  "filesystem_input_blocks_512_bytes": 27025688,
+  "note": "Measured with /usr/bin/time -v. System swap usage had risen during the prior run. CUDA compilation concurrent. Token count/TTFT not exposed by CLI."
+}

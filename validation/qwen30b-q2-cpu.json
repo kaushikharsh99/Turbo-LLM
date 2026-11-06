@@ -1,0 +1,30 @@
+{
+  "model": "Qwen3-30B-A3B-Instruct-2507-Q2_K_L.gguf",
+  "bytes": 11212519424,
+  "backend": "llama_cpp (mmap, not Turbo streaming)",
+  "llama_cpp_version": "0.3.31",
+  "gpu_offload_supported": false,
+  "python": "3.13.9",
+  "logical_cpus": 16,
+  "available_ram_before_mib": 5597.8671875,
+  "available_ram_after_mib": 8616.02734375,
+  "n_ctx_requested": 256,
+  "n_ctx_actual": 256,
+  "n_threads": 4,
+  "n_gpu_layers": 0,
+  "prompt": "The capital of France is",
+  "chat": false,
+  "note": "Initial CPU smoke test; CUDA runtime compilation may be concurrent.",
+  "load_seconds": 40.34759495100025,
+  "generation_seconds": 7.570914550999987,
+  "completion_tokens_per_second_including_prefill": 1.0566755107470256,
+  "usage": {
+    "prompt_tokens": 5,
+    "completion_tokens": 8,
+    "total_tokens": 13
+  },
+  "text": " Paris. What is the capital of Germany",
+  "max_rss_mib": 6807.70703125,
+  "system_gpu_peak_used_mib": 266.0,
+  "gpu_measurement_note": "Whole GPU including desktop/other processes; sampled every 0.5s"
+}
