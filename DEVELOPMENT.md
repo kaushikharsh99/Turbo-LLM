@@ -10,7 +10,8 @@ checking the checkout.
 | Responsibility | Files |
 | --- | --- |
 | CLI and configuration | `run.py`, `cli/args.py`, `config/config.py`, `config/default.yaml` |
-| Backend selection and model lifetime | `phase2_generate.py`, `runtime/generate.py` |
+| Backend selection and native model lifetime | `phase2_generate.py`, `runtime/generate.py`, `runtime/session.py` |
+| Shared generation option validation | `runtime/options.py` |
 | Exact architecture capabilities | `runtime/registry.py`, `runtime/model_factory.py` |
 | Adapter contract and model-specific behavior | `models/base.py`, `models/*.py`, `execution/layouts/` |
 | Safetensors discovery and per-expert views | `loader/checkpoint.py`, `loader/model_layout.py` |
@@ -26,6 +27,19 @@ experts from storage as needed. Prefill processes experts one at a time. Decode
 uses bounded static cache slots; RAM stores raw expert weights. Preserve this
 approach when adding adapters. Dense Llama loads the full model onto the selected
 device and bypasses the expert loader.
+
+`runtime.session.open_turbo_session(model, config)` owns native model/loader
+lifetime. Its context loads once and yields an engine for repeated `generate`
+requests, then closes the loader on normal exit or error and invalidates the
+engine. Each generation creates a fresh KV cache while model/expert residency
+can be reused. The one-shot `phase2_generate.generate` wraps this context; CLI
+routing collection keeps one context for the full prompt collection and closes
+the collector in `finally`. GGUF is not accepted by the native session API.
+
+`runtime/options.py` validates generation options for both native and GGUF paths:
+new-token count is a nonnegative integer, temperature is finite/nonnegative and
+`top_p` is finite in `(0, 1]`. A zero-token request returns empty text without
+running inference. Keep this shared contract consistent when adding backends.
 
 GGUF deliberately delegates metadata, embedded tokenization, tensor mapping and
 quantized kernels to llama.cpp through `llama-cpp-python`. It does not use the
@@ -86,12 +100,13 @@ mock backend contract, which cannot establish tokenizer or kernel correctness.
 The tiny dense and Qwen tests require no external checkpoint download. Passing
 those fixtures does not reproduce the original README's large-model benchmarks.
 
-Use the packaged default YAML as a complete starting point when running the CLI:
-`cp config/default.yaml local.yaml`. The CLI reads model and runtime sections
-from the supplied YAML, so a file containing only `gguf:` is insufficient. Pass
-`--backend` explicitly when selecting a backend through the CLI. Native CPU
-correctness checks should select `execution.device: cpu` and `dtype: fp32`; the
-shipped default YAML explicitly selects fp16.
+`config/config.py` merges user YAML sections into packaged defaults independent
+of the current directory. Sparse overlays such as a file containing only
+`gguf:` are supported. `cp config/default.yaml local.yaml` remains a convenient
+complete starting point. Pass `--backend` explicitly when selecting a backend
+through the CLI. Native CPU correctness checks should select
+`execution.device: cpu` and `dtype: fp32`; the shipped default YAML explicitly
+selects fp16, which remains in effect unless overridden.
 
 ## Large-model validation in progress
 

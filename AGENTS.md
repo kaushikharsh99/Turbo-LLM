@@ -9,6 +9,9 @@ work and agree on file ownership before parallel edits.
 - Native Turbo MoE uses safetensors and dynamic expert streaming. Keep backbone
   loading, checkpoint mapping, architecture behavior and memory/cache policy
   separate. Do not replace streaming with full-model residency as a shortcut.
+- Native model lifetime belongs to `runtime/session.py`: use its context for
+  repeated requests, close resources on success/error, and reject use after close.
+  Keep native/GGUF option validation shared through `runtime/options.py`.
 - Dense Llama is a separate resident-model path. GGUF delegates metadata,
   tokenization, mapping and quantized execution to optional llama.cpp; it does
   not validate or use Turbo's native expert-cache implementation.

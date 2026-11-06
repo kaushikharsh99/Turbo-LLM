@@ -82,8 +82,9 @@ interactive chat loop. `--system` supplies its optional system message. GGUF cha
 requires embedded `tokenizer.chat_template`. GGUF does not expose routing
 collection or the `--thinking on` control. Native models disable remote code.
 
-The packaged `config/default.yaml` provides runtime defaults. Copy it before
-customizing it:
+The packaged `config/default.yaml` provides runtime defaults. A user YAML file
+overlays its sections onto those defaults, so a sparse file containing only
+`gguf:` is supported. Copying the complete defaults is also useful:
 
 ```sh
 cp config/default.yaml local.yaml
@@ -97,7 +98,7 @@ fp16; choose fp32 when testing native CPU correctness. Native expert-cache
 controls are `cache.expert_limit`, `memory.max_vram_mb` and
 `memory.max_ram_percent`. These do not control llama.cpp.
 
-For GGUF, add this section to the copied YAML:
+For GGUF, this section can be added to a copied YAML or saved on its own:
 
 ```yaml
 gguf:
@@ -110,6 +111,26 @@ gguf:
 
 Increase `n_gpu_layers` only with a CUDA-enabled llama.cpp build and enough free
 VRAM. Short contexts are useful for initial memory-constrained checks.
+
+For repeated native requests, load the model once with a session:
+
+```python
+from runtime.session import open_turbo_session
+
+config = {"execution": {"device": "cpu", "dtype": "fp32"}}
+with open_turbo_session("/path/to/checkpoint", config) as engine:
+    first = engine.generate("Hello", max_new_tokens=8, config=config)
+    second = engine.generate("Another prompt", max_new_tokens=8, config=config)
+```
+
+Each call gets a fresh KV cache; the loaded model and expert cache are reused.
+Exiting the context closes storage/cache resources, including on an exception;
+the engine cannot generate after it closes. CLI routing collection similarly
+reuses one native session across prompts and closes its collector on exit. GGUF
+uses its separate per-call llama.cpp lifetime.
+
+Both backends require a nonnegative integer `max_new_tokens`, finite nonnegative
+`temperature`, and finite `top_p` in `(0, 1]`. Zero new tokens returns empty text.
 
 ## Validation and contribution
 
