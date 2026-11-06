@@ -22,7 +22,9 @@ work and agree on file ownership before parallel edits.
   support still requires separate mapping and reference tests.
 - Register exact architecture names in `runtime/registry.py`. Unsupported
   checkpoints should fail early with an actionable compatibility error. An
-  architecture name or adapter stub is not evidence of numerical support.
+  architecture name or adapter stub is not evidence of numerical support. Keep
+  adapter-capability preflight before checkpoint tensor access; OLMoE is currently
+  an unavailable registered stub, not a runnable experimental path.
 - Preserve `trust_remote_code=False`. Keep model weights and local environments
   outside tracked source; `.local-models/` and `.venv/` are ignored.
 

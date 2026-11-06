@@ -59,7 +59,8 @@ native Turbo GGUF inference remains separate future work. See the
 | Llama dense | Tiny saved checkpoint; greedy prefill and cached generation compared with HF | Real large checkpoints, GPU performance, broad dtype/device combinations |
 | Qwen3 MoE streaming | Tiny individual and packed unquantized experts; CPU/CUDA prefill and cached-decode logits compared with HF; cache eviction exercised with one slot | Real large model generation, production FP8 checkpoints, large-model GPU throughput |
 | Native FP8 decoder | CPU/CUDA 128×128 inverse-scale checks against explicit scaling, including a 129×257 edge matrix and invalid-grid rejection | Real large FP8 checkpoint generation and packed quantized scales |
-| Qwen3.5 MoE and OLMoE | Existing adapters remain registered | End-to-end numerical correctness and actual checkpoint layouts |
+| Qwen3.5 MoE | Existing adapters remain registered; experimental | End-to-end numerical correctness and actual checkpoint layouts |
+| OLMoE | Registered stub; adapter-capability preflight rejects it before checkpoint tensors are opened | Unavailable for inference until required cache/layout methods and numerical checks exist |
 | GGUF | Real Stories15M Q4_0 CLI/reference checks; checksum-verified Qwen3-30B-A3B-Instruct-2507 Q2_K_L CPU eight-token completion and successful CLI chat; mock API/cleanup check | 30B CUDA offload and other quantizations remain unverified; no general Q1–Q8 guarantee |
 
 Native safetensors can be indexed/sharded or unsharded. Individual expert weights
@@ -71,7 +72,10 @@ validates the scale-grid shape and pads/crops partial edge blocks. Backbone/expe
 preflight catches missing required keys; this is not comprehensive validation of
 every tensor shape or quantization.
 
-Unknown architecture names fail before weight loading. Adding a registry entry
+Unknown architecture names fail before weight loading. Adapter-capability
+preflight also rejects incomplete registered adapters before checkpoint tensors
+are opened: OLMoE currently lacks `create_cache` and `create_layer_layout`, so its
+registration is a stub and cannot run inference. Adding a registry entry
 alone does not establish support: implement its adapter/layout, verify checkpoint
 mapping and cache semantics, compare numerical results with a reference, and
 update the evidence matrix only after those checks pass. Remote code is disabled.
@@ -191,7 +195,9 @@ CMAKE_BUILD_PARALLEL_LEVEL=2 \
 ```
 
 This is a machine-specific build attempt, not a confirmed working installation.
-Check `/tmp/turbo-cuda-build.log` and verify capability in a fresh process:
+An official upstream prebuilt 0.3.31 CUDA wheel is also being evaluated separately
+in `.local-cuda`; neither attempt yet establishes working GPU inference. Check
+`/tmp/turbo-cuda-build.log` and verify capability in a fresh process:
 
 ```sh
 .venv/bin/python -c 'from llama_cpp import llama_cpp; print(llama_cpp.llama_supports_gpu_offload())'
@@ -224,7 +230,8 @@ large-model speed from the tiny fixture.
    before making performance claims.
 2. Exercise real large Qwen safetensors streaming separately from GGUF. Validate
    FP8 block/scale handling, memory budget enforcement and checkpoint mappings.
-3. Add numerical coverage before promoting Qwen3.5 or OLMoE beyond experimental.
+3. Add numerical coverage before promoting Qwen3.5 beyond experimental. Complete
+   OLMoE cache/layout methods and numerical checks before making it available.
 4. Broaden supported dependency/device combinations only with recorded results.
 
 After each implementation change, update the relevant README compatibility row
