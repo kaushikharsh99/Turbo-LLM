@@ -11,6 +11,8 @@ Dense Llama inference and an optional llama.cpp GGUF backend are also available.
 **GGUF execution uses llama.cpp, not Turbo's native expert-streaming engine.**
 The two paths have separate memory policies and validation evidence.
 
+The [Rust migration guide](docs/RUST_PORT_GUIDE.md) and [implementation-agent prompt](docs/RUST_PORT_PROMPT.md) describe the planned incremental port. The current runtime is still Python.
+
 ## Current compatibility
 
 | Checkpoint / architecture | Execution path | Evidence and limits |

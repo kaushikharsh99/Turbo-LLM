@@ -4,6 +4,10 @@ Start with `Readme.md` and `DEVELOPMENT.md`, then inspect `git status` and the
 current tests. Other agents may be editing this checkout; preserve unrelated
 work and agree on file ownership before parallel edits.
 
+For the planned Rust migration, read `docs/RUST_PORT_GUIDE.md` and use
+`docs/RUST_PORT_PROMPT.md` as the implementation handoff. Until migration work
+actually begins, the Python runtime remains the current reference.
+
 ## Preserve the runtime boundaries
 
 - Native Turbo MoE uses safetensors and dynamic expert streaming. Keep backbone
